@@ -987,6 +987,93 @@
   opacity: 0.4;
 }
 
+/* ── Сравнение ──────────────────────────────────────────────────────────── */
+.cmp {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+.cmp-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.1rem 0.6rem;
+  background: var(--sunken);
+  border-radius: var(--r-lg);
+  flex-wrap: wrap;
+}
+.cmp-side {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  white-space: nowrap;
+}
+.cmp-slot {
+  min-width: 3.1rem;
+  height: 3.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  border: 0.16rem dashed var(--line-strong);
+  background: var(--surface);
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--purple-dark);
+}
+.cmp-slot.is-filled {
+  border-style: solid;
+  border-color: var(--line);
+  animation: pop 0.28s var(--spring);
+}
+.cmp-slot.is-correct {
+  border-color: var(--green);
+  background: var(--green-tint);
+  color: var(--green-dark);
+}
+.cmp-slot.is-wrong {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+}
+
+.cmp-signs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+.cmp-btn {
+  min-height: 4.6rem;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 0.16rem solid var(--line);
+  box-shadow: 0 var(--lift) 0 var(--line);
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  transition: transform 0.07s var(--ease-out), box-shadow 0.07s var(--ease-out), background 0.15s;
+}
+.cmp-btn:active:not(:disabled) {
+  transform: translateY(var(--lift));
+  box-shadow: 0 0 0 var(--line);
+  background: var(--sunken);
+}
+.cmp-btn.is-correct {
+  background: var(--green-tint);
+  border-color: var(--green);
+  color: var(--green-dark);
+  box-shadow: 0 var(--lift) 0 var(--green);
+  animation: pop 0.34s var(--spring);
+}
+.cmp-btn.is-wrong {
+  background: var(--orange-soft);
+  border-color: var(--orange);
+  color: var(--orange-dark);
+  box-shadow: 0 var(--lift) 0 var(--orange);
+  animation: nudge 0.4s ease-in-out;
+}
+
 /* ── Цепочка ────────────────────────────────────────────────────────────── */
 .chain {
   display: flex;

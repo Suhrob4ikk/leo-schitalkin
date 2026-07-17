@@ -8,12 +8,20 @@ const TOPIC_LABELS = {
   numberline: 'Числовая прямая',
   basten: 'Десятки и единицы',
   regroup: 'Переход через десяток',
+  compare: 'Сравнение чисел',
   missing: 'Пропущенное число',
+  chain: 'Цепочки вычислений',
   word: 'Задачи с картинками',
+  terms: 'Сумма, разность, термины',
   column: 'Сложение в столбик',
   'mult-concept': 'Смысл умножения',
+  'mult-terms': 'Произведение, частное',
+  'div-intro': 'Смысл деления',
 }
-for (let t = 2; t <= 10; t++) TOPIC_LABELS[`table-${t}`] = `Таблица ×${t}`
+for (let t = 2; t <= 10; t++) {
+  TOPIC_LABELS[`table-${t}`] = `Таблица ×${t}`
+  TOPIC_LABELS[`div-${t}`] = `Деление на ${t}`
+}
 
 const STRUGGLE_BELOW = 0.6
 const MIN_SAMPLE = 4 // below this, an "accuracy" is noise, not a signal

@@ -34,7 +34,7 @@ export default function LessonComplete() {
   // Milestones are derived, so they're settled once here rather than guessed at
   // by each lesson — replaying a lesson can't re-award them.
   useEffect(() => {
-    const earned = earnedMilestones(state)
+    const earned = earnedMilestones(state, UNITS)
     const brandNew = earned.filter((m) => !state.stickers.includes(m))
     brandNew.forEach((m) => dispatch({ type: 'unlockSticker', id: m }))
     setFresh(brandNew)

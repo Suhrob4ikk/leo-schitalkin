@@ -186,6 +186,20 @@ const answerOnce = (deliberatelyWrong) => `(() => {
     return { kind: q.kind, acted: 'column', res }
   }
 
+  if (q.kind === 'compare') {
+    const want = wrong ? (q.answer === '<' ? '>' : '<') : q.answer
+    const btn = [...document.querySelectorAll('.cmp-btn')].find(b => b.textContent.trim() === want)
+    if (btn) { btn.click(); return { kind: q.kind, acted: 'compare', want } }
+    return { kind: q.kind, acted: 'no-sign' }
+  }
+
+  if (q.kind === 'column-blank') {
+    const want = String(wrong ? (q.answer === 0 ? 1 : 0) : q.answer)
+    const k = [...document.querySelectorAll('.cm-key')].find(b => b.textContent.trim() === want)
+    if (k) { k.click(); return { kind: q.kind, acted: 'col-blank', want } }
+    return { kind: q.kind, acted: 'no-key' }
+  }
+
   if (q.kind === 'chain') {
     // Digits go in one at a time and each keypress needs its own React commit,
     // so this types asynchronously and the commit step clicks ✓ afterwards.
@@ -245,6 +259,17 @@ const NEEDS_EXPR = ['choice', 'pad', 'basten', 'array']
 const audit = `(() => {
   const q = window.__leoQ
   if (!q || q.kind === 'teach') return null
+
+  // Answers a child physically cannot enter. Independently drawn operands have
+  // produced negatives twice now (word problems, then the vocabulary drills):
+  // "уменьши 21 на 40" wants −19 on a pad with no minus key.
+  const nums = Array.isArray(q.answer) ? q.answer : [q.answer]
+  for (const n of nums) {
+    if (typeof n === 'number' && n < 0) {
+      return 'IMPOSSIBLE ANSWER ' + n + ': kind=' + q.kind + ' prompt="' + q.prompt + '"'
+    }
+  }
+
   const needs = ${JSON.stringify(NEEDS_EXPR)}
   if (!needs.includes(q.kind) || !q.expr) return null
   const text = (document.querySelector('.q-area') || {}).innerText || ''

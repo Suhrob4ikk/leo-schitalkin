@@ -10,8 +10,10 @@ export const UNITS = [
     lessons: [
       { id: 'numberline', title: 'Числовая прямая', icon: '📏', sticker: 'ruler' },
       { id: 'basten', title: 'Десятки и единицы', icon: '🧱', sticker: 'blocks' },
+      { id: 'compare', title: 'Сравни числа', icon: '⚖️', sticker: 'scales' },
       { id: 'missing', title: 'Найди пропущенное', icon: '🔍', sticker: 'magnify' },
       { id: 'word', title: 'Задачки с картинками', icon: '🍎', sticker: 'apple' },
+      { id: 'terms', title: 'Сумма и разность', icon: '🗣️', sticker: 'words' },
       { id: 'column', title: 'В столбик', icon: '📝', sticker: 'pencil' },
       { id: 'mix1', title: 'Смешанная практика', icon: '🎯', sticker: 'target' },
     ],
@@ -38,6 +40,10 @@ export const UNITS = [
       { id: 'table-9', title: 'Таблица ×9', icon: '9️⃣', sticker: 'x9', table: 9 },
       { id: 'table-7', title: 'Таблица ×7', icon: '7️⃣', sticker: 'x7', table: 7 },
       { id: 'table-8', title: 'Таблица ×8', icon: '8️⃣', sticker: 'x8', table: 8 },
+      /* Division comes after every table: it's each of them read backwards, so
+         it can't be taught before there's something to reverse. */
+      { id: 'division', title: 'Деление', icon: '➗', sticker: 'divide' },
+      { id: 'mult-terms', title: 'Произведение и частное', icon: '🎓', sticker: 'grad' },
       { id: 'mult-mix', title: 'Смешанная тренировка', icon: '🎪', sticker: 'circus' },
       { id: 'blitz', title: 'Блиц-раунд', icon: '⚡', sticker: 'bolt' },
     ],

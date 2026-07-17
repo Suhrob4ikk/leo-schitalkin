@@ -209,6 +209,110 @@ function qChain() {
   }
 }
 
+/* ── Сравнение двузначных чисел ────────────────────────────────────────────
+   Straight from his workbook, including the hard half where BOTH sides are
+   expressions — that's the version that teaches "work out each side first"
+   rather than just eyeballing two numbers. */
+function qCompare() {
+  const roll = Math.random()
+  const side = () => {
+    const a = rnd(11, 90)
+    const b = rnd(2, Math.min(40, 99 - a))
+    return Math.random() < 0.5
+      ? { text: `${a} + ${b}`, val: a + b }
+      : { text: `${a + b} − ${b}`, val: a }
+  }
+
+  let left, right
+  if (roll < 0.35) {
+    // Plain: number vs number
+    const a = rnd(11, 99)
+    // Land on an equal pair sometimes, or "=" never gets used.
+    const b = Math.random() < 0.15 ? a : rnd(11, 99)
+    left = { text: String(a), val: a }
+    right = { text: String(b), val: b }
+  } else if (roll < 0.7) {
+    // Expression vs number
+    left = side()
+    right = { text: String(Math.random() < 0.15 ? left.val : rnd(11, 99)), val: 0 }
+    right.val = Number(right.text)
+  } else {
+    // Expression vs expression — the real thing
+    left = side()
+    right = side()
+  }
+
+  const answer = left.val < right.val ? '<' : left.val > right.val ? '>' : '='
+  return {
+    kind: 'compare',
+    prompt: 'Сравни',
+    answer,
+    topic: 'compare',
+    hint: `${left.text} — это ${left.val}, а ${right.text} — это ${right.val}.`,
+    data: { left, right },
+  }
+}
+
+/* ── Математический язык ───────────────────────────────────────────────────
+   Сумма, разность, слагаемое, уменьшаемое, увеличь на… This vocabulary is what
+   actually trips children up in Russian year 2 — they can do 62 − 17 but stall
+   on "вычитаемое 17, уменьшаемое 62". Story problems don't cover it. */
+function qTerms() {
+  const a = rnd(24, 99)
+  // b < a, always. Drawn independently, "уменьши 21 на 40" asks a
+  // seven-year-old for −19 on a pad with no minus key — the same trap the
+  // picture problems fell into.
+  const b = rnd(2, Math.min(40, a - 1))
+  const small = rnd(11, 60)
+  const c = rnd(2, 30)
+  const mk = (prompt, answer, hint) => ({ kind: 'pad', prompt, answer, topic: 'terms', hint })
+
+  const forms = [
+    () => mk(`Найди сумму чисел ${small} и ${c}.`, small + c, `Сумма — это сложение: ${small} + ${c}.`),
+    () => mk(`Найди разность чисел ${a} и ${b}.`, a - b, `Разность — это вычитание: ${a} − ${b}.`),
+    () => mk(`На сколько ${a} больше ${b}?`, a - b, `«На сколько больше» — вычитаем: ${a} − ${b}.`),
+    () => mk(`На сколько ${b} меньше ${a}?`, a - b, `«На сколько меньше» — тоже вычитаем: ${a} − ${b}.`),
+    () => mk(`Увеличь ${small} на ${c}.`, small + c, `Увеличить — прибавить: ${small} + ${c}.`),
+    () => mk(`Уменьши ${a} на ${b}.`, a - b, `Уменьшить — вычесть: ${a} − ${b}.`),
+    () => mk(
+      `Вычитаемое ${b}, уменьшаемое ${a}. Найди разность.`,
+      a - b,
+      `Уменьшаемое стоит первым: ${a} − ${b}.`,
+    ),
+    () => mk(
+      `Сколько надо прибавить к ${small}, чтобы получилось ${small + c}?`,
+      c,
+      `${small + c} − ${small} = ${c}.`,
+    ),
+    () => mk(`Сколько надо вычесть из ${a}, чтобы получилось ${a - b}?`, b, `${a} − ${a - b} = ${b}.`),
+    () => mk(`Какое число меньше ${a} на ${b}?`, a - b, `Меньше — значит вычитаем: ${a} − ${b}.`),
+    () => mk(`Какое число больше ${small} на ${c}?`, small + c, `Больше — значит прибавляем: ${small} + ${c}.`),
+    () => mk(`Первое слагаемое ${small}, второе ${c}. Найди сумму.`, small + c, `Слагаемые складывают.`),
+  ]
+
+  // Two-step forms need their own numbers, so they're built rather than templated.
+  if (Math.random() < 0.18) {
+    const x = rnd(2, 20)
+    const y = rnd(2, 20)
+    const base = rnd(21, 55)
+    if (Math.random() < 0.5) {
+      return mk(
+        `К числу ${base} добавь сумму чисел ${x} и ${y}.`,
+        base + x + y,
+        `Сначала ${x} + ${y} = ${x + y}, потом ${base} + ${x + y}.`,
+      )
+    }
+    const big = rnd(60, 99)
+    return mk(
+      `Из ${big} вычти сумму чисел ${x} и ${y}.`,
+      big - x - y,
+      `Сначала ${x} + ${y} = ${x + y}, потом ${big} − ${x + y}.`,
+    )
+  }
+
+  return pick(forms)()
+}
+
 const OBJECTS = [
   { emoji: '🍎', one: 'яблоко', few: 'яблока', many: 'яблок' },
   { emoji: '🚗', one: 'машинка', few: 'машинки', many: 'машинок' },
@@ -257,6 +361,51 @@ function qWord() {
     topic: 'word',
     hint: `${a} − ${b} = ${a - b}`,
     data: { emoji: o.emoji, total: a, taken: b, op: '−' },
+  }
+}
+
+/* ── Столбик с пропуском в слагаемом ───────────────────────────────────────
+   The workbook blanks digits anywhere, not just in the answer: `+6⬜ / ⬜2 / 77`.
+   Working backwards from the result is a genuinely different skill from adding
+   forwards, and it was missing entirely. */
+function qColumnBlank() {
+  const add = Math.random() < 0.55
+  let a, b, res
+
+  if (add) {
+    const aOnes = rnd(1, 8)
+    const bOnes = rnd(1, 9 - aOnes) // no carry: a blank digit stays uniquely solvable
+    const aTens = rnd(1, 4)
+    const bTens = rnd(1, 8 - aTens)
+    a = aTens * 10 + aOnes
+    b = bTens * 10 + bOnes
+    res = a + b
+  } else {
+    const aOnes = rnd(5, 9)
+    const bOnes = rnd(1, aOnes) // no borrow, same reason
+    const bTens = rnd(1, 4)
+    const aTens = rnd(bTens + 1, 9)
+    a = aTens * 10 + aOnes
+    b = bTens * 10 + bOnes
+    res = a - b
+  }
+
+  // Blank exactly one digit of one operand; the result is always shown.
+  const row = Math.random() < 0.5 ? 'a' : 'b'
+  const pos = Math.random() < 0.5 ? 'tens' : 'ones'
+  const digitOf = (n, p) => (p === 'tens' ? Math.floor(n / 10) : n % 10)
+  const answer = digitOf(row === 'a' ? a : b, pos)
+
+  return {
+    kind: 'column-blank',
+    prompt: 'Какая цифра спряталась?',
+    answer,
+    topic: 'column',
+    hint:
+      pos === 'ones'
+        ? `Посмотри на единицы: ${a % 10} ${add ? '+' : '−'} ${b % 10} = ${res % 10}.`
+        : `Посмотри на десятки: ${Math.floor(a / 10)} ${add ? '+' : '−'} ${Math.floor(b / 10)} = ${Math.floor(res / 10)}.`,
+    data: { a, b, res, op: add ? '+' : '−', row, pos },
   }
 }
 
@@ -339,6 +488,53 @@ function qMultFact(a, b, kindHint) {
     prompt: 'Сколько будет?',
     options: makeOptions(answer, multDistractors(a, b)),
   }
+}
+
+/* ── Деление ───────────────────────────────────────────────────────────────
+   Always the inverse of a table he already knows: 12 : 2 is just 2 × 6 read
+   backwards, which is exactly how it's taught. Note the notation — Russian
+   schools write division with a colon, never ÷. */
+function qDiv(t, b, kindHint) {
+  const total = t * b
+  const base = {
+    answer: b,
+    topic: `div-${t}`,
+    fact: `${t}x${b}`, // shares the fact record with its multiplication twin
+    hint: `${t} × ${b} = ${total}, значит ${total} : ${t} = ${b}.`,
+    expr: `${total} : ${t}`,
+  }
+  if (kindHint === 'pad') return { ...base, kind: 'pad', prompt: 'Сколько будет?' }
+  return {
+    ...base,
+    kind: 'choice',
+    prompt: 'Сколько будет?',
+    options: makeOptions(b, [b + 1, b - 1, b + 2, t, total, b * 2]),
+  }
+}
+
+/** Multiplication/division vocabulary — произведение, множитель, делимое,
+    делитель, частное, увеличь в N раз. Same idea as qTerms, other half of the
+    curriculum. */
+function qMultTerms(tables) {
+  const t = pick(tables)
+  const b = rnd(2, 9)
+  const p = t * b
+  const mk = (prompt, answer, hint) => ({ kind: 'pad', prompt, answer, topic: 'mult-terms', hint })
+
+  const forms = [
+    () => mk(`Найди произведение чисел ${t} и ${b}.`, p, `Произведение — это умножение: ${t} × ${b}.`),
+    () => mk(`Первый множитель ${t}, второй — ${b}. Найди произведение.`, p, `Множители перемножают: ${t} × ${b}.`),
+    () => mk(`${t} умножить на ${b}.`, p, `${t} × ${b} = ${p}.`),
+    () => mk(`Увеличь число ${b} в ${t} раза.`, p, `«В ${t} раза» — это умножение: ${b} × ${t}.`),
+    () => mk(`По ${t} ${b} раз.`, p, `Это ${b} групп по ${t}: ${t} × ${b}.`),
+    () => mk(`Делимое ${p}, делитель ${t}. Найди частное.`, b, `Частное — результат деления: ${p} : ${t}.`),
+    () => mk(`Найди частное чисел ${p} и ${t}.`, b, `${p} : ${t} = ${b}.`),
+    () => mk(`Уменьши число ${p} в ${t} раза.`, b, `«В ${t} раза меньше» — это деление: ${p} : ${t}.`),
+    () => mk(`Во сколько раз ${p} больше, чем ${t}?`, b, `Делим: ${p} : ${t} = ${b}.`),
+    () => mk(`Какое число нужно умножить на ${t}, чтобы получилось ${p}?`, b, `${p} : ${t} = ${b}.`),
+    () => mk(`Частное ${b}, делитель ${t}. Найди делимое.`, p, `Делимое = частное × делитель: ${b} × ${t}.`),
+  ]
+  return pick(forms)()
 }
 
 function qMatch(table, count = 4) {
@@ -429,6 +625,12 @@ export function buildLesson(lessonId, state) {
     case 'basten':
       return repeat(12, qBaseTen)
 
+    case 'compare':
+      return repeat(12, qCompare)
+
+    case 'terms':
+      return repeat(12, qTerms)
+
     // Chains are mixed straight into "find the missing number": same skill,
     // and they're what he's already meeting at school.
     case 'missing':
@@ -437,17 +639,22 @@ export function buildLesson(lessonId, state) {
     case 'word':
       return repeat(10, qWord)
 
+    // Column now mixes solving forwards with working a blank digit backwards —
+    // the workbook drills both on the same page.
     case 'column':
-      return repeat(10, qColumn)
+      return shuffle([...repeat(7, qColumn), ...repeat(5, qColumnBlank)])
 
     case 'mix1':
       return shuffle([
-        ...repeat(3, qNumberLine),
-        ...repeat(3, (i) => qBaseTen(i)),
-        ...repeat(3, qMissing),
+        ...repeat(2, qNumberLine),
+        ...repeat(2, (i) => qBaseTen(i)),
+        ...repeat(2, qCompare),
+        ...repeat(2, qMissing),
         ...repeat(2, qChain),
-        ...repeat(3, qWord),
-        ...repeat(3, qColumn),
+        ...repeat(2, qTerms),
+        ...repeat(2, qWord),
+        ...repeat(2, qColumn),
+        ...repeat(1, qColumnBlank),
       ]).map((q) => ({ ...q, timed: true }))
 
     case 'mult-intro':
@@ -496,11 +703,34 @@ export function buildLesson(lessonId, state) {
         { ...qMultFact(5, 2, 'choice'), topic: 'mult-concept' },
       ]
 
+    case 'division': {
+      const tables = learnedTables(state.lessons)
+      const picks = sampleWeighted(weightedFactPool(state.facts, tables), 12)
+      return [
+        {
+          kind: 'teach',
+          prompt: 'Деление — это умножение наоборот. 2 × 6 = 12, значит 12 : 2 = 6.',
+          topic: 'div-intro',
+          data: { type: 'array', rows: 2, cols: 6 },
+        },
+        ...picks.map((p, i) => qDiv(p.t, p.b, i % 3 === 1 ? 'pad' : 'choice')),
+      ]
+    }
+
+    case 'mult-terms':
+      return repeat(12, () => qMultTerms(learnedTables(state.lessons)))
+
+    // Mixed practice now also pulls division and the vocabulary, so the section
+    // ends up rehearsing the whole topic rather than only the tables.
     case 'mult-mix': {
       const tables = learnedTables(state.lessons)
       const picks = sampleWeighted(weightedFactPool(state.facts, tables), 14)
       const kinds = ['choice', 'pad', 'choice', 'array', 'choice', 'pad']
-      return picks.map((p, i) => qMultFact(p.t, p.b, kinds[i % kinds.length]))
+      const mult = picks.map((p, i) => qMultFact(p.t, p.b, kinds[i % kinds.length]))
+      const div = sampleWeighted(weightedFactPool(state.facts, tables), 4).map((p, i) =>
+        qDiv(p.t, p.b, i % 2 ? 'pad' : 'choice'),
+      )
+      return shuffle([...mult, ...div, ...repeat(3, () => qMultTerms(tables))])
     }
 
     case 'blitz': {
@@ -529,6 +759,8 @@ export function checkAnswer(q, value) {
   if (q.kind === 'teach') return true
   if (q.kind === 'match') return true
   if (q.kind === 'array-build') return Boolean(value?.ok)
+  // Compare answers with a sign, not a number.
+  if (q.kind === 'compare') return value === q.answer
   // A chain has one box per link and all of them have to be right.
   if (q.kind === 'chain') {
     return Array.isArray(value) && value.length === q.answer.length && value.every((v, i) => Number(v) === q.answer[i])

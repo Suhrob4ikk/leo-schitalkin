@@ -15,6 +15,8 @@ import NumberLine from '../exercises/NumberLine.jsx'
 import BaseTen, { BaseTenBuild } from '../exercises/BaseTen.jsx'
 import WordProblem from '../exercises/WordProblem.jsx'
 import ColumnMath from '../exercises/ColumnMath.jsx'
+import ColumnBlank from '../exercises/ColumnBlank.jsx'
+import Compare from '../exercises/Compare.jsx'
 import ArrayView, { ArrayBuild } from '../exercises/ArrayView.jsx'
 import MatchPairs from '../exercises/MatchPairs.jsx'
 import Chain from '../exercises/Chain.jsx'
@@ -273,6 +275,8 @@ export default function Lesson() {
     'basten-build': <BaseTenBuild {...common} />,
     word: <WordProblem {...common} />,
     column: <ColumnMath {...common} />,
+    'column-blank': <ColumnBlank {...common} />,
+    compare: <Compare {...common} />,
     array: <ArrayView {...common} />,
     'array-build': <ArrayBuild {...common} />,
     match: <MatchPairs {...common} onMiss={handleMiss} />,
