@@ -25,10 +25,11 @@ const SOFT = ['Ничего страшного!', 'Бывает! Теперь з
 
 const pickOne = (a) => a[(Math.random() * a.length) | 0]
 
-/** How long a correct answer's celebration holds before moving on. Long enough
-    to land, short enough that the loop stays quick — this repeats hundreds of
-    times, so an extra half-second here is felt as sluggishness. */
-const ADVANCE_MS = 1150
+/** How long a correct answer's celebration holds before moving on. This repeats
+    hundreds of times, so anything extra here reads as sluggishness. The floor is
+    Лео's jump: one cycle is 720ms, so dropping below ~750 would cut him off
+    mid-air and the landing squash — the best part — would never be seen. */
+const ADVANCE_MS = 800
 
 export default function Lesson() {
   const { id } = useParams()
