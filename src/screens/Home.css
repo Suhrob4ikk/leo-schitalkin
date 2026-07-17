@@ -1,0 +1,403 @@
+.home {
+  padding-bottom: 2.5rem;
+}
+
+/* ── Header chips ───────────────────────────────────────────────────────── */
+.home-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  border-bottom: 0.12rem solid var(--line);
+  padding-bottom: 0.55rem;
+}
+.home-top-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.6rem;
+  padding: 0 0.75rem;
+  border-radius: var(--r-full);
+  background: var(--sunken);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+}
+.chip-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.chip--streak {
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+  transition: transform 0.12s var(--spring);
+}
+.chip--streak:active {
+  transform: scale(0.93);
+}
+/* Only a streak that includes today burns. */
+.chip--streak:not(.is-hot) .chip-icon {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+.chip--streak.is-hot .chip-icon {
+  animation: flame 1.1s ease-in-out infinite;
+}
+@keyframes flame {
+  0%,
+  100% {
+    transform: scale(1) rotate(-3deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(3deg);
+  }
+}
+.chip--xp {
+  background: var(--blue-soft);
+  color: var(--blue-dark);
+}
+
+.chip-btn {
+  margin-left: auto;
+  font-size: 1.3rem;
+}
+.gear {
+  font-size: 1rem;
+  opacity: 0.32;
+  width: 2.4rem;
+  height: 2.4rem;
+}
+.gear:active {
+  opacity: 1;
+}
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+.home-body {
+  padding-top: 0.9rem;
+}
+
+.nudge-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--orange-soft);
+  border: 0.14rem solid #ffe1ab;
+  border-radius: var(--r-lg);
+  animation: float-up 0.5s var(--spring) both;
+}
+.nudge-card b {
+  font-size: 1.1rem;
+  color: var(--orange-dark);
+}
+
+/* ── Unit banner ────────────────────────────────────────────────────────── */
+.unit {
+  margin-bottom: 1.2rem;
+}
+.unit-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--r-lg);
+  color: #fff;
+  box-shadow: 0 0.28rem 0 rgba(0, 0, 0, 0.16);
+  position: sticky;
+  top: 3.7rem;
+  z-index: 10;
+}
+.unit-banner--green {
+  background: var(--green);
+}
+.unit-banner--purple {
+  background: var(--purple);
+}
+.unit-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  flex: 1;
+  min-width: 0;
+}
+.unit-kicker {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+.unit-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+.unit-sub {
+  font-size: 0.78rem;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.unit-icon {
+  font-size: 1.9rem;
+  flex: none;
+}
+
+/* ── The winding path ───────────────────────────────────────────────────── */
+.path {
+  position: relative;
+  max-width: 21rem;
+  margin: 0.7rem auto 0;
+}
+.path-road {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.road-base {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 22;
+  stroke-linecap: round;
+}
+.road-dash {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 3;
+  stroke-dasharray: 8 11;
+  stroke-linecap: round;
+  opacity: 0.9;
+}
+
+.node-slot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  /* Narrow on purpose: a wider slot lets the title run under the node on the
+     next bend of the path. Long titles wrap to two lines instead. */
+  width: 6.8rem;
+}
+
+/* The chunky pressable disc. position:relative anchors the ✓ badge and the
+   current-node halo to the disc rather than to the slot. */
+.node {
+  position: relative;
+  width: 4.4rem;
+  height: 4.4rem;
+  border-radius: var(--r-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--green);
+  box-shadow: 0 0.38rem 0 var(--green-dark);
+  transition: transform 0.08s var(--ease-out), box-shadow 0.08s var(--ease-out);
+}
+.node:active {
+  transform: translateY(0.38rem);
+  box-shadow: 0 0 0 var(--green-dark);
+}
+.node-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.node--purple {
+  background: var(--purple);
+  box-shadow: 0 0.38rem 0 var(--purple-dark);
+}
+.node--purple:active {
+  box-shadow: 0 0 0 var(--purple-dark);
+}
+
+.node.is-locked {
+  background: var(--locked);
+  box-shadow: 0 0.38rem 0 var(--locked-deep);
+}
+.node.is-locked:active {
+  box-shadow: 0 0 0 var(--locked-deep);
+}
+.node.is-locked .node-icon {
+  font-size: 1.35rem;
+  opacity: 0.75;
+}
+
+.node.is-done::after {
+  content: '✓';
+  position: absolute;
+  transform: translate(1.5rem, -1.4rem);
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--r-full);
+  background: var(--gold);
+  color: #fff;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.12rem 0 var(--gold-dark);
+}
+
+/* A halo on the node he's up to, so the eye lands there first. */
+.node.is-current::before {
+  content: '';
+  position: absolute;
+  width: 5.6rem;
+  height: 5.6rem;
+  border-radius: var(--r-full);
+  border: 0.22rem solid currentColor;
+  color: var(--green);
+  opacity: 0.35;
+  animation: halo 1.9s ease-out infinite;
+  pointer-events: none;
+}
+.node--purple.is-current::before {
+  color: var(--purple);
+}
+@keyframes halo {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(1.12);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.node.is-bumped {
+  animation: nudge 0.45s ease-in-out;
+}
+
+.node-title {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.2;
+  margin-top: 0.15rem;
+}
+
+.node-hint {
+  position: absolute;
+  top: 100%;
+  margin-top: 1.9rem;
+  background: var(--ink-strong);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+  animation: pop-in 0.24s var(--spring-big) both;
+  z-index: 5;
+}
+
+/* Лео stands on his current node. */
+.node-leo {
+  position: absolute;
+  bottom: 100%;
+  margin-bottom: -1.1rem;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Tucked onto the node's bottom edge rather than stacked below it, so the
+   current node's title lands at nearly the same height as every other one. */
+.node-bubble {
+  margin-top: -0.4rem;
+  position: relative;
+  z-index: 2;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  padding: 0.28rem 0.7rem;
+  border-radius: var(--r-full);
+  white-space: nowrap;
+  box-shadow: 0 0.16rem 0 var(--green-dark);
+  animation: bubble-bob 1.6s ease-in-out infinite;
+}
+.node-bubble--purple {
+  background: var(--purple);
+  box-shadow: 0 0.16rem 0 var(--purple-dark);
+}
+@keyframes bubble-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.22rem);
+  }
+}
+
+/* ── Streak calendar ────────────────────────────────────────────────────── */
+.cal-sheet {
+  gap: 0.4rem;
+}
+.cal-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.cal-flame {
+  font-size: 2.6rem;
+  animation: flame 1.1s ease-in-out infinite;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3rem;
+  width: 100%;
+  margin: 0.6rem 0;
+}
+.cal-dow {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--muted);
+  text-align: center;
+  padding-bottom: 0.2rem;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  background: var(--sunken);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+.cal-cell.is-active {
+  background: var(--orange-soft);
+  font-size: 1rem;
+}
+.cal-cell.is-today {
+  outline: 0.16rem solid var(--blue);
+  outline-offset: -0.16rem;
+  color: var(--blue-dark);
+}
+.cal-cell.is-future {
+  opacity: 0.35;
+}
+
+@media (min-width: 40rem) {
+  .path {
+    max-width: 23rem;
+  }
+}

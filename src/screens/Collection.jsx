@@ -1,0 +1,82 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import Leo from '../components/Leo.jsx'
+import { Sticker, ProgressBar } from '../components/ui.jsx'
+import { useStore } from '../game/store.jsx'
+import { STICKERS } from '../game/stickers.js'
+import { sfx } from '../game/audio.js'
+import { burstFrom } from '../game/confetti.js'
+import './Collection.css'
+
+const REGULAR = Object.keys(STICKERS).filter((k) => !STICKERS[k].big)
+const SPECIAL = Object.keys(STICKERS).filter((k) => STICKERS[k].big)
+
+export default function Collection() {
+  const nav = useNavigate()
+  const { state } = useStore()
+  const [zoom, setZoom] = useState(null)
+
+  const have = new Set(state.stickers)
+  const total = REGULAR.length + SPECIAL.length
+
+  const open = (id, el) => {
+    if (!have.has(id)) {
+      sfx.soft()
+      return
+    }
+    sfx.pick()
+    burstFrom(el, { count: 18, power: 6 })
+    setZoom(id)
+  }
+
+  return (
+    <div className="screen coll">
+      <header className="coll-top safe-top shell">
+        <button className="icon-btn" onClick={() => nav('/')} aria-label="Назад">
+          ←
+        </button>
+        <b className="h2">Коллекция</b>
+      </header>
+
+      <div className="shell coll-body">
+        <div className="coll-hero">
+          <Leo size={110} state={have.size > 0 ? 'wave' : 'idle'} />
+          <div className="coll-hero-text">
+            <b className="h1 tnum">
+              {have.size} / {total}
+            </b>
+            <span className="sub">наклеек собрано</span>
+            <ProgressBar value={have.size} max={total} className="pbar--gold" />
+          </div>
+        </div>
+
+        <h2 className="coll-head">Уроки</h2>
+        <div className="coll-grid">
+          {REGULAR.map((id) => (
+            <Sticker key={id} id={id} locked={!have.has(id)} size={92} onClick={(e) => open(id, e.currentTarget)} />
+          ))}
+        </div>
+
+        <h2 className="coll-head">Особые</h2>
+        <div className="coll-grid">
+          {SPECIAL.map((id) => (
+            <Sticker key={id} id={id} locked={!have.has(id)} size={92} onClick={(e) => open(id, e.currentTarget)} />
+          ))}
+        </div>
+      </div>
+
+      {zoom && (
+        <div className="sheet-backdrop" onClick={() => setZoom(null)}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="coll-zoom">
+              <Sticker id={zoom} size={170} />
+            </div>
+            <button className="btn btn--green btn--block" onClick={() => setZoom(null)}>
+              Здорово!
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

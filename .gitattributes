@@ -1,0 +1,6 @@
+# Normalise to LF in the repo. Authored on Windows, built on Linux CI.
+* text=auto eol=lf
+
+*.png binary
+*.woff2 binary
+*.ico binary

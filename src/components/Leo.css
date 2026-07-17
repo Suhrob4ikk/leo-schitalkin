@@ -1,0 +1,448 @@
+/*  Лео's motion.
+ *
+ *  Three rules make the whole thing work:
+ *  1. `.leo-all` carries the jump + squash/stretch, pivoting on the ground line
+ *     at y=188. The shadow lives outside that group, so it stays on the floor
+ *     and shrinks as he rises instead of leaping along with him.
+ *  2. `overflow: visible` on the <svg>, because a stretched leap takes his ears
+ *     above the top of the viewBox and it must not be clipped.
+ *  3. Everything inside uses `transform-box: view-box`, which lets each part
+ *     pivot around a real anchor in viewBox coordinates — the shoulder joint,
+ *     the base of an ear, the point where the tail meets the body.
+ */
+
+.leo {
+  overflow: visible;
+}
+
+.leo-all,
+.leo-shadow,
+.leo-tail,
+.leo-head,
+.leo-arm,
+.leo-ear,
+.leo-eyes,
+.leo-blush,
+.leo-snore,
+.leo-think-mark,
+.leo-z {
+  transform-box: view-box;
+}
+
+.leo-all {
+  transform-origin: 100px 188px; /* the ground under his feet */
+  will-change: transform;
+}
+.leo-shadow {
+  transform-origin: 100px 186px;
+}
+
+.leo-tail {
+  transform-origin: 76px 152px;
+}
+.leo-head {
+  transform-origin: 100px 122px; /* the neck */
+}
+.leo-arm--l {
+  transform-origin: 68px 130px; /* shoulders */
+}
+.leo-arm--r {
+  transform-origin: 132px 130px;
+}
+.leo-ear--l {
+  transform-origin: 80px 50px;
+}
+.leo-ear--r {
+  transform-origin: 120px 50px;
+}
+.leo-eyes {
+  transform-origin: 100px 72px;
+}
+.leo-blush--l {
+  transform-origin: 64px 99px;
+}
+.leo-blush--r {
+  transform-origin: 136px 99px;
+}
+
+/* ── IDLE / WAVE — quiet breathing so he's never a dead sticker ──────────── */
+/* Translations below are in viewBox units (the box is 200 tall). */
+.leo--idle .leo-all,
+.leo--wave .leo-all {
+  animation: leo-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes leo-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-3px) scale(0.99, 1.015);
+  }
+}
+
+.leo--idle .leo-tail,
+.leo--wave .leo-tail {
+  animation: leo-tail-sway 2.4s ease-in-out infinite;
+  animation-delay: var(--leo-tail-delay, 0s);
+}
+
+@keyframes leo-tail-sway {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+}
+
+.leo--idle .leo-eyes,
+.leo--wave .leo-eyes {
+  animation: leo-blink 4.6s infinite;
+  animation-delay: var(--leo-blink-delay, 0s);
+}
+
+/* The blink is a sliver of a long cycle — that's what stops it looking robotic. */
+@keyframes leo-blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  96.5% {
+    transform: scaleY(0.08);
+  }
+}
+
+.leo--wave .leo-head {
+  animation: leo-head-tilt 1.8s ease-in-out infinite;
+}
+
+@keyframes leo-head-tilt {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+/* The right arm rests pointing down-out at 62°. Swinging it −123° lands the paw
+   at roughly (149, 100) — clear of both the head and the body, beside his ear. */
+.leo--wave .leo-arm--r {
+  animation: leo-wave 0.78s ease-in-out infinite;
+}
+
+@keyframes leo-wave {
+  0%,
+  100% {
+    transform: rotate(-108deg);
+  }
+  50% {
+    transform: rotate(-138deg);
+  }
+}
+
+/* ── HAPPY — the payoff animation, seen hundreds of times ────────────────── */
+/*  Anticipate (squash) → launch (stretch) → float → land (squash) → settle.
+ *  The brief hold at the end gives the loop a heartbeat instead of a jitter. */
+.leo--happy .leo-all {
+  animation: leo-jump 0.72s var(--ease-out) infinite;
+}
+
+@keyframes leo-jump {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  10% {
+    transform: translateY(2px) scale(1.17, 0.84);
+  }
+  26% {
+    transform: translateY(-34px) scale(0.9, 1.15);
+  }
+  42% {
+    transform: translateY(-46px) scale(1, 1);
+  }
+  58% {
+    transform: translateY(-18px) scale(0.95, 1.08);
+  }
+  72% {
+    transform: translateY(0) scale(1.2, 0.81);
+  }
+  84%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+/* The shadow tightens and fades as he leaves the ground — this is what sells
+   the height of the jump more than the jump itself does. */
+.leo--happy .leo-shadow {
+  animation: leo-shadow-jump 0.72s var(--ease-out) infinite;
+}
+
+@keyframes leo-shadow-jump {
+  0% {
+    transform: scale(1);
+    opacity: 0.14;
+  }
+  10% {
+    transform: scale(1.12, 1);
+    opacity: 0.16;
+  }
+  42% {
+    transform: scale(0.6);
+    opacity: 0.06;
+  }
+  72% {
+    transform: scale(1.14, 1);
+    opacity: 0.16;
+  }
+  84%,
+  100% {
+    transform: scale(1);
+    opacity: 0.14;
+  }
+}
+
+.leo--happy .leo-tail {
+  animation: leo-tail-wag 0.18s ease-in-out infinite;
+}
+
+@keyframes leo-tail-wag {
+  0%,
+  100% {
+    transform: rotate(-15deg);
+  }
+  50% {
+    transform: rotate(15deg);
+  }
+}
+
+.leo--happy .leo-arm--l {
+  animation: leo-cheer-l 0.72s var(--spring) infinite;
+}
+.leo--happy .leo-arm--r {
+  animation: leo-cheer-r 0.72s var(--spring) infinite;
+}
+
+/* ±124° sweeps each arm out through horizontal and up beside the head — the
+   long way round, which is how an actual arm raises. */
+@keyframes leo-cheer-l {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  30%,
+  70% {
+    transform: rotate(124deg);
+  }
+}
+@keyframes leo-cheer-r {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  30%,
+  70% {
+    transform: rotate(-124deg);
+  }
+}
+
+.leo--happy .leo-ear--l {
+  animation: leo-ear-flap-l 0.36s ease-in-out infinite;
+}
+.leo--happy .leo-ear--r {
+  animation: leo-ear-flap-r 0.36s ease-in-out infinite;
+}
+
+@keyframes leo-ear-flap-l {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-14deg);
+  }
+}
+@keyframes leo-ear-flap-r {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(14deg);
+  }
+}
+
+.leo--happy .leo-blush {
+  animation: soft-pulse 0.72s ease-in-out infinite;
+}
+
+/* ── THINK — after a wrong answer. Paw to the chin, head cocked, "?" bobbing.
+      Warm and curious. Nothing here reads as disapproval. ─────────────────── */
+.leo--think .leo-all {
+  animation: leo-think-sway 1.5s ease-in-out infinite;
+}
+
+@keyframes leo-think-sway {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-2px) scale(0.995, 1.01);
+  }
+}
+
+.leo--think .leo-head {
+  animation: leo-think-tilt 1.5s ease-in-out infinite;
+}
+
+@keyframes leo-think-tilt {
+  0%,
+  100% {
+    transform: rotate(7deg);
+  }
+  50% {
+    transform: rotate(11deg);
+  }
+}
+
+/* −150° parks the paw on the orange of his cheek, clear of the muzzle — any
+   further round and it collides with his nose and reads as a second snout.
+   A cub's arm can't reach the top of his own head, and a cheek-tap says
+   "hmm, let me think" better than a scratch would anyway. */
+.leo--think .leo-arm--r {
+  animation: leo-scratch 0.9s ease-in-out infinite;
+}
+
+@keyframes leo-scratch {
+  0%,
+  100% {
+    transform: rotate(-150deg);
+  }
+  50% {
+    transform: rotate(-156deg);
+  }
+}
+
+.leo--think .leo-ear--l {
+  transform: rotate(-8deg);
+}
+.leo--think .leo-ear--r {
+  transform: rotate(4deg);
+}
+
+.leo--think .leo-eyes {
+  animation: leo-blink 3.2s infinite;
+}
+
+.leo-think-mark {
+  transform-origin: 158px 34px;
+  animation: leo-think-mark 1.5s ease-in-out infinite;
+}
+
+@keyframes leo-think-mark {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(2px) scale(0.9) rotate(-8deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.12) rotate(8deg);
+  }
+}
+
+/* ── SLEEPY — home screen when today hasn't started yet ──────────────────── */
+.leo--sleepy .leo-all {
+  animation: leo-sleep 3.6s ease-in-out infinite;
+}
+
+@keyframes leo-sleep {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(1.6px) scale(1.025, 0.975);
+  }
+}
+
+.leo--sleepy .leo-head {
+  animation: leo-nod 3.6s ease-in-out infinite;
+}
+
+@keyframes leo-nod {
+  0%,
+  100% {
+    transform: rotate(-10deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-13deg) translateY(2px);
+  }
+}
+
+.leo--sleepy .leo-ear--l {
+  transform: rotate(-20deg);
+}
+.leo--sleepy .leo-ear--r {
+  transform: rotate(20deg);
+}
+
+.leo--sleepy .leo-tail {
+  animation: leo-tail-sway 5s ease-in-out infinite;
+}
+
+.leo-snore {
+  transform-origin: 100px 110px;
+  animation: leo-snore 3.6s ease-in-out infinite;
+}
+
+@keyframes leo-snore {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3, 1.5);
+  }
+}
+
+.leo-z {
+  opacity: 0;
+  animation: leo-zzz 2.7s ease-out infinite;
+}
+.leo-z--1 {
+  transform-origin: 140px 46px;
+}
+.leo-z--2 {
+  transform-origin: 154px 30px;
+  animation-delay: 0.5s;
+}
+.leo-z--3 {
+  transform-origin: 172px 14px;
+  animation-delay: 1s;
+}
+
+@keyframes leo-zzz {
+  0% {
+    opacity: 0;
+    transform: translate(0, 6px) scale(0.6);
+  }
+  22% {
+    opacity: 0.95;
+    transform: translate(0, 0) scale(1);
+  }
+  62% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(7px, -11px) scale(1.15);
+  }
+}

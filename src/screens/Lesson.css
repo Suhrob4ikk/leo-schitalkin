@@ -1,0 +1,1016 @@
+/* flex:1, not min-height:100% — .app is a column flex container, so a child
+   with only min-height stays content-sized and the question hugs the top
+   instead of centring in the screen. */
+.lesson {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: screen-in 0.36s var(--spring) both;
+}
+
+.lesson-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem 0.6rem;
+  max-width: 34rem;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.lesson-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1.5rem;
+}
+
+/* ── Blitz timer — blue and calm. Never red, never ticking. ─────────────── */
+.blitz-bar {
+  height: 0.4rem;
+  background: var(--line);
+  margin: 0 1rem 0.3rem;
+  border-radius: var(--r-full);
+  overflow: hidden;
+  max-width: 32rem;
+  margin-inline: auto;
+  width: calc(100% - 2rem);
+}
+.blitz-fill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: var(--r-full);
+  transition: width 0.1s linear;
+}
+
+/* ── Question head ──────────────────────────────────────────────────────── */
+.q-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0.7rem 0 0.9rem;
+}
+.q-prompt {
+  flex: 1;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  line-height: 1.25;
+}
+
+.q-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.9rem;
+  animation: q-in 0.34s var(--spring) both;
+}
+
+@keyframes q-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.6rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The sum itself, when a question has one. */
+.q-expr {
+  font-size: 2.9rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  text-align: center;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.q-expr--sm {
+  font-size: 2rem;
+}
+
+/* ── Multiple choice ────────────────────────────────────────────────────── */
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.choices--pair {
+  grid-template-columns: 1fr 1fr;
+}
+
+.choice {
+  min-height: 4.6rem;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 0.16rem solid var(--line);
+  box-shadow: 0 var(--lift) 0 var(--line);
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  font-variant-numeric: tabular-nums;
+  transition:
+    transform 0.07s var(--ease-out),
+    box-shadow 0.07s var(--ease-out),
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.choice:active:not(:disabled) {
+  transform: translateY(var(--lift));
+  box-shadow: 0 0 0 var(--line);
+  background: var(--sunken);
+}
+
+.choice.is-correct {
+  background: var(--green-tint);
+  border-color: var(--green);
+  color: var(--green-dark);
+  box-shadow: 0 var(--lift) 0 var(--green);
+  animation: pop 0.34s var(--spring);
+}
+
+/* A wrong tap is amber and wobbles. It is never red, and it never buzzes —
+   the child is being nudged, not scolded. */
+.choice.is-wrong {
+  background: var(--orange-soft);
+  border-color: var(--orange);
+  color: var(--orange-dark);
+  box-shadow: 0 var(--lift) 0 var(--orange);
+  animation: nudge 0.4s ease-in-out;
+}
+
+.choice.is-answer {
+  border-color: var(--green);
+  color: var(--green-dark);
+  box-shadow: 0 var(--lift) 0 var(--green);
+  animation: soft-pulse 1s ease-in-out infinite;
+}
+
+.choice:disabled {
+  cursor: default;
+}
+
+/* ── Number pad ─────────────────────────────────────────────────────────── */
+.padx,
+.wp,
+.bt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.pad-display {
+  height: 3.6rem;
+  border-radius: var(--r-md);
+  border: 0.16rem solid var(--line);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.pad-display.is-correct {
+  border-color: var(--green);
+  background: var(--green-tint);
+  color: var(--green-dark);
+  animation: pop 0.34s var(--spring);
+}
+.pad-display.is-wrong {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+  animation: nudge 0.4s ease-in-out;
+}
+.pad-caret {
+  width: 0.16rem;
+  height: 1.7rem;
+  background: var(--locked);
+  border-radius: var(--r-full);
+  animation: caret 1.1s steps(2) infinite;
+}
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.55rem;
+}
+.pad-key {
+  min-height: var(--tap);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 0.14rem solid var(--line);
+  box-shadow: 0 var(--lift) 0 var(--line);
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  transition: transform 0.06s, box-shadow 0.06s, background 0.12s;
+}
+.pad-key:active:not(:disabled) {
+  transform: translateY(var(--lift));
+  box-shadow: 0 0 0 var(--line);
+  background: var(--sunken);
+}
+.pad-key--ok {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 var(--lift) 0 var(--green-dark);
+  color: #fff;
+}
+.pad-key--ok:active:not(:disabled) {
+  box-shadow: 0 0 0 var(--green-dark);
+  background: var(--green);
+}
+.pad-key--del {
+  color: var(--muted);
+  font-size: 1.3rem;
+}
+.pad-key:disabled {
+  opacity: 0.4;
+}
+
+/* ── Number line ────────────────────────────────────────────────────────── */
+.nline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.nline-op {
+  align-self: center;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--blue-dark);
+  background: var(--blue-soft);
+  padding: 0.15rem 1.3rem;
+  border-radius: var(--r-full);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Everything on the line is anchored off one number: the rail sits at 3.35rem
+   from the bottom (tick base 2.6 + tick height 0.75), and Лео's feet land on
+   exactly that. */
+.nline-track {
+  position: relative;
+  height: 8rem;
+  margin: 0 1.6rem;
+}
+.nline-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3.35rem;
+  height: 0.25rem;
+  background: var(--line-strong);
+  border-radius: var(--r-full);
+}
+/* Height 3.35rem with bottom:0 puts this box's TOP edge on the rail, so the
+   mark hangs off it and the number sits under the mark. */
+.nline-tick {
+  position: absolute;
+  bottom: 0;
+  height: 3.35rem;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.nline-mark {
+  width: 0.16rem;
+  height: 0.75rem;
+  background: var(--line-strong);
+  border-radius: var(--r-full);
+}
+.nline-mark.is-start {
+  background: var(--purple);
+  width: 0.24rem;
+  height: 1.05rem;
+}
+.nline-num {
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+.nline-flag {
+  position: absolute;
+  bottom: 3.3rem;
+  transform: translateX(-50%);
+}
+.nline-flag-dot {
+  display: block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: var(--r-full);
+  background: var(--purple);
+}
+/* Лео's feet sit at 93% of his own height, so the svg's bottom edge goes a
+   touch below the rail to put him standing ON the line. */
+.nline-leo {
+  position: absolute;
+  bottom: 3.1rem;
+  transform: translateX(-50%);
+  transition: left 0.32s var(--spring);
+  pointer-events: none;
+}
+/* The hop: he leaves the ground as he travels, so a move reads as a jump along
+   the line rather than a slide. */
+.nline-leo.is-hopping {
+  animation: nline-hop 0.34s var(--ease-out);
+}
+@keyframes nline-hop {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1.1, 0.9);
+  }
+  45% {
+    transform: translateX(-50%) translateY(-1.5rem) scale(0.92, 1.1);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1, 1);
+  }
+}
+
+.nline-readout {
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+.nline-readout b {
+  color: var(--ink-strong);
+  font-size: 1.5rem;
+}
+
+.nline-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.nline-done {
+  flex: 1;
+}
+
+.hop-btn {
+  width: var(--tap);
+  height: var(--tap);
+  flex: none;
+  border-radius: var(--r-md);
+  background: var(--blue);
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 900;
+  box-shadow: 0 var(--lift) 0 var(--blue-dark);
+  transition: transform 0.06s, box-shadow 0.06s;
+}
+.hop-btn:active:not(:disabled) {
+  transform: translateY(var(--lift));
+  box-shadow: 0 0 0 var(--blue-dark);
+}
+.hop-btn:disabled {
+  opacity: 0.35;
+}
+.hop-btn--sm {
+  width: 3.1rem;
+  height: 3.1rem;
+  font-size: 1.5rem;
+  border-radius: var(--r-sm);
+}
+
+/* ── Base-ten blocks ────────────────────────────────────────────────────── */
+.bt-scene {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  min-height: 7.5rem;
+  padding: 0.8rem;
+  background: var(--sunken);
+  border-radius: var(--r-lg);
+}
+.bt-scene--build {
+  min-height: 9rem;
+  align-items: center;
+}
+.bt-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.45rem;
+}
+.bt-rods {
+  display: flex;
+  gap: 0.16rem;
+}
+.bt-rod {
+  width: 0.75rem;
+  height: 5.5rem;
+  animation: pop-in 0.3s var(--spring-big) both;
+}
+.bt-cubes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.16rem;
+  align-content: end;
+}
+.bt-cube {
+  width: 0.75rem;
+  height: 0.75rem;
+  animation: pop-in 0.3s var(--spring-big) both;
+}
+.bt-op {
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--muted);
+  align-self: center;
+}
+.bt-op--take {
+  color: var(--orange-dark);
+}
+.bt-empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+.bt-readout,
+.arr-eq {
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+.bt-readout b,
+.arr-eq b {
+  color: var(--ink-strong);
+  font-size: 1.4rem;
+}
+.arr-total {
+  color: var(--purple-dark) !important;
+}
+
+.bt-counters,
+.arr-counters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+.bt-counter,
+.arr-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.3rem;
+  background: var(--surface);
+  border: 0.13rem solid var(--line);
+  border-radius: var(--r-md);
+}
+.bt-counter-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bt-counter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bt-counter-val {
+  min-width: 1.6rem;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+}
+
+/* ── Word problems ──────────────────────────────────────────────────────── */
+.wp-scene {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.9rem;
+  background: var(--sunken);
+  border-radius: var(--r-lg);
+  min-height: 6rem;
+}
+.wp-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.2rem;
+  max-width: 9.5rem;
+}
+.wp-item {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  animation: pop-in 0.3s var(--spring-big) both;
+}
+/* Taken-away objects stay on screen, crossed out — "what's left" should be
+   countable, not remembered. */
+.wp-item--gone {
+  opacity: 0.32;
+  filter: grayscale(1);
+  position: relative;
+}
+.wp-item--gone::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 48%;
+  height: 0.14rem;
+  background: var(--orange-dark);
+  border-radius: var(--r-full);
+  transform: rotate(-16deg);
+}
+.wp-plus {
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+/* ── Arrays ─────────────────────────────────────────────────────────────── */
+.arr {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.arr-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem;
+  padding: 0.9rem;
+  background: var(--purple-soft);
+  border-radius: var(--r-lg);
+}
+.arr-stage--build {
+  min-height: 10rem;
+}
+.arr-grid {
+  display: grid;
+  gap: 0.28rem;
+  justify-content: center;
+}
+.arr-cell {
+  font-size: 1.55rem;
+  line-height: 1.1;
+  animation: pop-in 0.28s var(--spring-big) both;
+  transition: transform 0.25s var(--spring);
+}
+.arr-cell.is-hot {
+  animation: pop 0.45s var(--spring);
+}
+.arr-caption {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--muted);
+}
+.arr-caption b {
+  color: var(--purple-dark);
+  font-size: 1.2rem;
+}
+
+/* ── Teaching screens ───────────────────────────────────────────────────── */
+.teach {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.sc-stage {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 0.4rem;
+  min-height: 8rem;
+  padding: 0.8rem;
+  background: var(--purple-soft);
+  border-radius: var(--r-lg);
+}
+.sc-group {
+  display: flex;
+  gap: 0.1rem;
+  padding: 0.28rem 0.4rem;
+  background: rgba(255, 255, 255, 0.75);
+  border: 0.13rem solid var(--purple);
+  border-radius: var(--r-sm);
+  animation: pop-in 0.36s var(--spring-big) both;
+}
+.sc-dot {
+  font-size: 1.15rem;
+  line-height: 1.1;
+  animation: pop-in 0.24s var(--spring-big) both;
+}
+.sc-ladder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+}
+.sc-step {
+  min-width: 2rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: var(--r-full);
+  background: var(--surface);
+  border: 0.13rem solid var(--line);
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--muted);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.sc-step.is-new {
+  background: var(--purple);
+  border-color: var(--purple-dark);
+  color: #fff;
+  animation: pop 0.4s var(--spring-big);
+}
+.sc-eq {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  min-height: 2rem;
+}
+.sc-total {
+  color: var(--purple-dark);
+  display: inline-block;
+  animation: pop 0.4s var(--spring);
+}
+.sc-table {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.3rem 0.7rem;
+  padding: 0.7rem;
+  background: var(--sunken);
+  border-radius: var(--r-md);
+}
+.sc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+  animation: float-up 0.3s var(--ease-out) both;
+}
+.sc-row b {
+  color: var(--purple-dark);
+  font-size: 1.05rem;
+}
+.sc-row-eq {
+  opacity: 0.5;
+}
+.teach-actions {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem;
+}
+
+/* ── Column arithmetic ──────────────────────────────────────────────────── */
+.cm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+}
+.cm-grid {
+  display: grid;
+  grid-template-columns: 1.8rem 3rem 3rem;
+  gap: 0.15rem;
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  font-variant-numeric: tabular-nums;
+  padding: 0.8rem 1rem;
+  background: var(--sunken);
+  border-radius: var(--r-lg);
+}
+.cm-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 2.7rem;
+}
+.cm-cell--mark {
+  height: 1.3rem;
+}
+.cm-sign {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+.cm-rule {
+  grid-column: 1 / -1;
+  height: 0.2rem;
+  background: var(--ink);
+  border-radius: var(--r-full);
+  margin: 0.25rem 0;
+}
+
+/* The carried ten flies up into the tens column. */
+.cm-carry {
+  font-size: 1.05rem;
+  color: var(--green-dark);
+  animation: carry-up 0.5s var(--spring-big) both;
+}
+@keyframes carry-up {
+  0% {
+    opacity: 0;
+    transform: translate(1.4rem, 2.6rem) scale(0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Borrowing: the ten is struck off the tens column and handed to the ones. */
+.cm-struck {
+  position: relative;
+  opacity: 0.45;
+}
+.cm-struck::after {
+  content: '';
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  top: 50%;
+  height: 0.16rem;
+  background: var(--orange-dark);
+  border-radius: var(--r-full);
+  transform: rotate(-18deg);
+  animation: pop-in 0.3s var(--spring) both;
+}
+.cm-borrow-new {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.05rem;
+  color: var(--orange-dark);
+  animation: pop-in 0.4s var(--spring-big) 0.12s both;
+}
+.cm-borrow-ten {
+  position: absolute;
+  top: -0.7rem;
+  left: -0.1rem;
+  font-size: 1rem;
+  color: var(--orange-dark);
+  animation: pop-in 0.4s var(--spring-big) 0.24s both;
+}
+
+.cm-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.7rem;
+  border-radius: var(--r-sm);
+  border: 0.16rem dashed var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-strong);
+}
+.cm-box.is-live {
+  border-style: solid;
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  animation: soft-pulse 1.4s ease-in-out infinite;
+}
+.cm-box.is-filled {
+  border-style: solid;
+  border-color: var(--line);
+  animation: pop 0.28s var(--spring);
+}
+.cm-step {
+  min-height: 1.2rem;
+}
+
+.cm-pad {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.4rem;
+  width: 100%;
+}
+.cm-key {
+  min-height: 3.3rem;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 0.13rem solid var(--line);
+  box-shadow: 0 0.2rem 0 var(--line);
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  transition: transform 0.06s, box-shadow 0.06s;
+}
+.cm-key:active:not(:disabled) {
+  transform: translateY(0.2rem);
+  box-shadow: none;
+  background: var(--sunken);
+}
+.cm-key--del {
+  grid-column: span 5;
+  color: var(--muted);
+  font-size: 1.1rem;
+  min-height: 2.8rem;
+}
+.cm-key:disabled {
+  opacity: 0.4;
+}
+
+/* ── Matching pairs ─────────────────────────────────────────────────────── */
+.mp {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+.mp-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.mp-card {
+  min-height: var(--tap);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 0.16rem solid var(--line);
+  box-shadow: 0 var(--lift) 0 var(--line);
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.08s, box-shadow 0.08s, background 0.15s, border-color 0.15s, opacity 0.3s;
+}
+.mp-card--ans {
+  color: var(--purple-dark);
+}
+.mp-card:active:not(:disabled) {
+  transform: translateY(var(--lift));
+  box-shadow: 0 0 0 var(--line);
+}
+.mp-card.is-sel {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+  box-shadow: 0 var(--lift) 0 var(--blue);
+  transform: scale(1.03);
+}
+.mp-card.is-matched {
+  background: var(--green-tint);
+  border-color: var(--green);
+  box-shadow: none;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.mp-card.is-miss {
+  background: var(--orange-soft);
+  border-color: var(--orange);
+  box-shadow: 0 var(--lift) 0 var(--orange);
+  animation: nudge 0.4s ease-in-out;
+}
+
+/* ── Feedback panel — Лео's reaction ────────────────────────────────────── */
+.fb {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  border-top: 0.16rem solid var(--line);
+  padding: 0.7rem 0 max(0.8rem, env(safe-area-inset-bottom));
+  animation: fb-up 0.24s var(--spring-big) both;
+}
+@keyframes fb-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.fb--correct {
+  background: var(--green-tint);
+  border-color: var(--green-soft);
+}
+.fb--retry,
+.fb--reveal {
+  background: var(--orange-soft);
+  border-color: #ffe1ab;
+}
+
+.fb-inner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    'leo text'
+    'leo actions';
+  align-items: center;
+  gap: 0.2rem 0.7rem;
+}
+/* Лео bursts out past the top of the panel — he's reacting, not sitting in a
+   box. The negative margin is what makes him feel like he jumped in. */
+.fb-leo {
+  grid-area: leo;
+  margin-top: -2.2rem;
+  margin-bottom: -0.6rem;
+  flex: none;
+}
+.fb-text {
+  grid-area: text;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.fb-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1.15;
+  animation: pop-in 0.3s var(--spring-big) 0.06s both;
+}
+.fb--correct .fb-title {
+  color: var(--green-dark);
+}
+.fb--retry .fb-title,
+.fb--reveal .fb-title {
+  color: var(--orange-dark);
+}
+.fb-sub {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+  opacity: 0.85;
+  line-height: 1.3;
+}
+.fb-sub b {
+  font-size: 1rem;
+}
+.fb-actions {
+  grid-area: actions;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+.fb-actions .btn {
+  flex: 1;
+  min-height: 3.2rem;
+}
+
+/* ── Quit sheet ─────────────────────────────────────────────────────────── */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(40, 34, 28, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fade-in 0.2s ease-out both;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.sheet {
+  width: 100%;
+  max-width: 30rem;
+  background: var(--surface);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 1.2rem 1.2rem max(1.2rem, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  animation: fb-up 0.3s var(--spring-big) both;
+  text-align: center;
+}
+.sheet .btn {
+  margin-top: 0.2rem;
+}
+
+@media (min-width: 40rem) {
+  .sheet {
+    border-radius: var(--r-xl);
+    margin-bottom: 2rem;
+  }
+  .sheet-backdrop {
+    align-items: center;
+  }
+}

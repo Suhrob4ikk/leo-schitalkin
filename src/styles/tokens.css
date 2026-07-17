@@ -1,0 +1,95 @@
+/* ── Nunito (SIL Open Font License 1.1) — bundled so the PWA works fully offline ── */
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('../assets/fonts/nunito-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('../assets/fonts/nunito-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* ── Colour ─────────────────────────────────────────────────────────────── */
+  --green: #58cc02;
+  --green-dark: #46a302;
+  --green-soft: #d7ffb8;
+  --green-tint: #f0ffe3;
+
+  --blue: #1cb0f6;
+  --blue-dark: #1899d6;
+  --blue-soft: #ddf4ff;
+
+  --orange: #ff9600;
+  --orange-dark: #e08600;
+  --orange-soft: #fff0d6;
+
+  --gold: #ffc800;
+  --gold-dark: #e5a400;
+
+  --purple: #ce82ff;
+  --purple-dark: #a560cc;
+  --purple-soft: #f6ebff;
+
+  --heart: #ff5c5c;
+  --heart-dark: #e04848;
+
+  /* Лео's palette */
+  --fox: #ff8a47;
+  --fox-dark: #f2701e;
+  --fox-cream: #fff4e6;
+  --fox-ink: #42302a;
+  --fox-paw: #4a3328;
+  --fox-blush: #ff9e9e;
+
+  /* Neutrals — warm, never cold grey */
+  --ink: #4b4b4b;
+  --ink-strong: #3c3c3c;
+  --muted: #8f8f8f;
+  --line: #e8e5e0;
+  --line-strong: #d9d5cf;
+  --locked: #d6d2cc;
+  --locked-deep: #b8b3ac;
+
+  --bg: #fffdf8;
+  --surface: #ffffff;
+  --sunken: #f7f5f1;
+
+  /* ── Type ───────────────────────────────────────────────────────────────── */
+  --font: 'Nunito', ui-rounded, 'SF Pro Rounded', 'Segoe UI Variable', 'Segoe UI',
+    system-ui, -apple-system, sans-serif;
+  --text-scale: 1;
+
+  /* ── Shape — nothing sharp, anywhere ────────────────────────────────────── */
+  --r-sm: 0.75rem;
+  --r-md: 1.15rem;
+  --r-lg: 1.6rem;
+  --r-xl: 2.2rem;
+  --r-full: 999px;
+
+  /* ── Touch ──────────────────────────────────────────────────────────────── */
+  --tap: 3.9rem; /* ≈66px at default scale — comfortable for small fingers */
+
+  /* ── Motion ─────────────────────────────────────────────────────────────── */
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-big: cubic-bezier(0.22, 1.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Depth — the chunky Duolingo "pressable slab" ───────────────────────── */
+  --lift: 0.28rem;
+  --card-shadow: 0 0.15rem 0 var(--line-strong);
+}
+
+/* Everything is sized off this, so the text-size setting scales the whole UI
+   proportionally — including tap targets — rather than just the glyphs. */
+html {
+  font-size: calc(17px * var(--text-scale));
+}

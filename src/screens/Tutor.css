@@ -1,0 +1,315 @@
+/* The one screen in the app that isn't for the child: denser, plainer, and
+   allowed to use red — a parent needs the signal, not encouragement. */
+.tutor-body {
+  padding: 1rem 1.1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.tutor-gear {
+  margin-left: auto;
+}
+
+.tutor-head {
+  font-size: 0.76rem;
+  font-weight: 900;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 1rem 0 0.1rem;
+}
+
+.tutor .card {
+  padding: 0.9rem 1rem;
+}
+
+/* ── KPIs ───────────────────────────────────────────────────────────────── */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.45rem;
+}
+.kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  padding: 0.7rem 0.2rem;
+  background: var(--surface);
+  border: 0.13rem solid var(--line);
+  border-radius: var(--r-md);
+  text-align: center;
+}
+.kpi b {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  line-height: 1.1;
+}
+.kpi span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.15;
+}
+
+/* ── Struggling ─────────────────────────────────────────────────────────── */
+.warn-card {
+  border-color: #ffcf9a;
+  background: var(--orange-soft);
+}
+.warn-title {
+  font-size: 1.05rem;
+  color: var(--orange-dark);
+}
+.warn-list {
+  list-style: none;
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.warn-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  font-size: 0.92rem;
+  padding: 0.4rem 0.55rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: var(--r-sm);
+}
+.warn-list b {
+  color: #d64545;
+  font-variant-numeric: tabular-nums;
+}
+.warn-n {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.ok-card {
+  border-color: var(--green-soft);
+  background: var(--green-tint);
+}
+.ok-card b {
+  color: var(--green-dark);
+  font-size: 1.02rem;
+}
+
+/* ── Day chart ──────────────────────────────────────────────────────────── */
+.chart-card {
+  padding: 0.9rem 0.6rem 0.7rem;
+}
+.chart-bars {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 0.2rem;
+  align-items: end;
+  height: 7.5rem;
+}
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  height: 100%;
+}
+.chart-val {
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: var(--muted);
+  height: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+.chart-track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.chart-bar {
+  width: 100%;
+  background: var(--line);
+  border-radius: var(--r-sm) var(--r-sm) 0.1rem 0.1rem;
+  transition: height 0.4s var(--spring);
+}
+.chart-bar.is-on {
+  background: var(--green);
+}
+.chart-day {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Fact grid ──────────────────────────────────────────────────────────── */
+.fg {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  overflow-x: auto;
+}
+.fg-row {
+  display: grid;
+  grid-template-columns: 1.5rem repeat(10, 1fr);
+  gap: 0.16rem;
+}
+.fg-cell {
+  aspect-ratio: 1;
+  border-radius: 0.22rem;
+  background: var(--sunken);
+  min-width: 0;
+}
+.fg-cell--head {
+  aspect-ratio: auto;
+  background: none;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fg-cell.is-good {
+  background: var(--green);
+}
+.fg-cell.is-mid {
+  background: var(--gold);
+}
+.fg-cell.is-bad {
+  background: #f07171;
+}
+.fg-cell.is-none {
+  background: var(--line);
+}
+
+.fg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.7rem;
+  margin-top: 0.5rem;
+}
+.fg-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.fg-legend i {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 0.15rem;
+  display: block;
+}
+.fg-legend i.is-good {
+  background: var(--green);
+}
+.fg-legend i.is-mid {
+  background: var(--gold);
+}
+.fg-legend i.is-bad {
+  background: #f07171;
+}
+.fg-legend i.is-none {
+  background: var(--line);
+}
+
+/* ── Lessons ────────────────────────────────────────────────────────────── */
+.lessons-card {
+  padding: 0.7rem 0.8rem;
+  margin-bottom: 0.45rem;
+}
+.lessons-unit {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+.lrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0;
+  border-top: 0.08rem solid var(--line);
+  font-size: 0.88rem;
+}
+.lrow-icon {
+  font-size: 1rem;
+  width: 1.3rem;
+  text-align: center;
+}
+.lrow-title {
+  flex: 1;
+  font-weight: 800;
+  color: var(--ink-strong);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lrow.is-todo .lrow-title {
+  color: var(--muted);
+  font-weight: 700;
+}
+.lrow-acc {
+  min-width: 2.6rem;
+  text-align: right;
+  font-weight: 900;
+  color: var(--green-dark);
+}
+.lrow-todo {
+  color: var(--locked);
+}
+
+/* ── Sessions ───────────────────────────────────────────────────────────── */
+.srow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 0.08rem solid var(--line);
+}
+.srow:last-child {
+  border-bottom: none;
+}
+.srow-icon {
+  font-size: 1.1rem;
+}
+.srow-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.srow-main b {
+  font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.srow-main .sub {
+  font-size: 0.7rem;
+}
+.srow-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.srow-meta b {
+  font-size: 0.85rem;
+}
+.srow-meta .sub {
+  font-size: 0.7rem;
+}
+
+.tutor-foot {
+  margin-top: 1.4rem;
+  font-size: 0.72rem;
+  text-align: center;
+  line-height: 1.5;
+}

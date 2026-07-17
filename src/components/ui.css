@@ -1,0 +1,201 @@
+/* ── Read-aloud ─────────────────────────────────────────────────────────── */
+.speak-btn {
+  flex: none;
+  background: var(--blue-soft);
+  color: var(--blue-dark);
+  font-size: 1.15rem;
+}
+.speak-btn:active {
+  background: var(--blue-soft);
+  transform: scale(0.88);
+}
+
+/* ── Hearts ─────────────────────────────────────────────────────────────── */
+.hearts {
+  display: flex;
+  gap: 0.22rem;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.heart {
+  transition: transform 0.25s var(--spring);
+}
+.heart--off {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+  transform: scale(0.86);
+}
+.heart--on {
+  animation: heart-beat 2.4s ease-in-out infinite;
+}
+@keyframes heart-beat {
+  0%,
+  88%,
+  100% {
+    transform: scale(1);
+  }
+  93% {
+    transform: scale(1.16);
+  }
+}
+
+/* ── Stars ──────────────────────────────────────────────────────────────── */
+.stars {
+  display: inline-flex;
+  gap: 0.12rem;
+  line-height: 1;
+}
+.stars--sm {
+  font-size: 0.72rem;
+}
+.stars--md {
+  font-size: 1.2rem;
+}
+.stars--lg {
+  font-size: 2.6rem;
+  gap: 0.3rem;
+}
+.star--on {
+  color: var(--gold);
+  text-shadow: 0 0.1rem 0 var(--gold-dark);
+  animation: star-in 0.55s var(--spring-big) both;
+}
+.star--off {
+  color: var(--locked);
+}
+@keyframes star-in {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-140deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* ── Progress bar ───────────────────────────────────────────────────────── */
+.pbar {
+  flex: 1;
+  height: 1.05rem;
+  background: var(--line);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+.pbar-fill {
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  background: var(--green);
+  border-radius: var(--r-full);
+  transition: width 0.45s var(--spring);
+}
+/* The little highlight along the top is what makes the bar look like a Duolingo
+   bar rather than a browser default. */
+.pbar-shine {
+  position: absolute;
+  inset: 0.2rem 0.35rem auto 0.35rem;
+  height: 0.26rem;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.45);
+}
+.pbar--gold .pbar-fill {
+  background: var(--gold);
+}
+.pbar--blue .pbar-fill {
+  background: var(--blue);
+}
+
+/* ── Stickers ───────────────────────────────────────────────────────────── */
+.sticker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  padding: 0;
+}
+.sticker-art {
+  width: 100%;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 0.18rem 0.3rem rgba(0, 0, 0, 0.14));
+}
+.sticker-rosette {
+  fill: var(--gold);
+}
+.sticker-disc {
+  fill: #fff;
+}
+.sticker-emoji {
+  font-size: 34px;
+}
+.sticker-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.sticker--green .sticker-rosette {
+  fill: var(--green);
+}
+.sticker--blue .sticker-rosette {
+  fill: var(--blue);
+}
+.sticker--orange .sticker-rosette {
+  fill: var(--orange);
+}
+.sticker--purple .sticker-rosette {
+  fill: var(--purple);
+}
+.sticker--gold .sticker-rosette {
+  fill: var(--gold);
+}
+
+.sticker--locked .sticker-rosette {
+  fill: var(--locked);
+}
+.sticker--locked .sticker-disc {
+  fill: var(--sunken);
+}
+.sticker--locked .sticker-emoji {
+  opacity: 0.5;
+}
+.sticker--locked .sticker-art {
+  filter: none;
+}
+
+/* Earned stickers breathe very slightly; the rare ones get a shimmer. */
+.sticker:not(.sticker--locked) .sticker-art {
+  animation: sticker-idle 4s ease-in-out infinite;
+}
+@keyframes sticker-idle {
+  0%,
+  100% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+.sticker--big:not(.sticker--locked) .sticker-rosette {
+  animation: sticker-shine 2.6s ease-in-out infinite;
+}
+@keyframes sticker-shine {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.22);
+  }
+}
+
+button.sticker {
+  cursor: pointer;
+  transition: transform 0.12s var(--spring);
+}
+button.sticker:active {
+  transform: scale(0.92);
+}

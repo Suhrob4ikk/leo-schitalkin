@@ -1,0 +1,316 @@
+@import './tokens.css';
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Reset
+   ───────────────────────────────────────────────────────────────────────────*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  /* A child taps fast and repeatedly: kill the 300ms delay, the blue flash,
+     and accidental text selection from a long press. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  touch-action: manipulation;
+}
+
+button {
+  cursor: pointer;
+}
+
+svg {
+  display: block;
+}
+
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   App shell
+   ───────────────────────────────────────────────────────────────────────────*/
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* Centred column: comfortable on a phone, deliberate-looking on a laptop. */
+.shell {
+  width: 100%;
+  max-width: 34rem;
+  margin-inline: auto;
+  padding-inline: 1.1rem;
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: screen-in 0.42s var(--spring) both;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(1.4rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.safe-top {
+  padding-top: max(0.9rem, env(safe-area-inset-top));
+}
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Buttons — the chunky pressable slab that defines the whole feel.
+   The 4px bottom edge compresses on press, so every tap feels physical.
+   ───────────────────────────────────────────────────────────────────────────*/
+.btn {
+  --btn-bg: var(--green);
+  --btn-edge: var(--green-dark);
+  --btn-fg: #fff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--tap);
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--r-md);
+
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  box-shadow: 0 var(--lift) 0 var(--btn-edge);
+
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  transition:
+    transform 0.07s var(--ease-out),
+    box-shadow 0.07s var(--ease-out),
+    filter 0.15s;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(var(--lift));
+  box-shadow: 0 0 0 var(--btn-edge);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: 0 var(--lift) 0 var(--btn-edge);
+}
+
+.btn--blue {
+  --btn-bg: var(--blue);
+  --btn-edge: var(--blue-dark);
+}
+.btn--orange {
+  --btn-bg: var(--orange);
+  --btn-edge: var(--orange-dark);
+}
+.btn--gold {
+  --btn-bg: var(--gold);
+  --btn-edge: var(--gold-dark);
+  --btn-fg: var(--ink-strong);
+}
+.btn--purple {
+  --btn-bg: var(--purple);
+  --btn-edge: var(--purple-dark);
+}
+.btn--white {
+  --btn-bg: #fff;
+  --btn-edge: var(--line-strong);
+  --btn-fg: var(--blue);
+}
+
+/* Outline variant — same physics, lighter presence */
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-edge: transparent;
+  color: var(--muted);
+  border: 0.15rem solid var(--line);
+  box-shadow: 0 var(--lift) 0 var(--line);
+}
+.btn--ghost:active:not(:disabled) {
+  background: var(--sunken);
+}
+
+.btn--block {
+  display: flex;
+  width: 100%;
+}
+
+.btn--big {
+  min-height: 4.3rem;
+  font-size: 1.2rem;
+  border-radius: var(--r-lg);
+}
+
+/* Circular icon button */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--r-full);
+  color: var(--muted);
+  font-size: 1.3rem;
+  transition: background 0.15s, transform 0.1s var(--spring);
+}
+.icon-btn:active {
+  background: var(--sunken);
+  transform: scale(0.9);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Cards & surfaces
+   ───────────────────────────────────────────────────────────────────────────*/
+.card {
+  background: var(--surface);
+  border: 0.13rem solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--card-shadow);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Type helpers
+   ───────────────────────────────────────────────────────────────────────────*/
+.h1 {
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  line-height: 1.15;
+}
+.h2 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+}
+.sub {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Shared keyframes
+   ───────────────────────────────────────────────────────────────────────────*/
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Gentle nudge for a wrong answer — a wobble, never an angry shake */
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(-0.28rem) rotate(-1.2deg);
+  }
+  75% {
+    transform: translateX(0.28rem) rotate(1.2deg);
+  }
+}
+
+@keyframes float-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+
+.u-pop {
+  animation: pop 0.32s var(--spring);
+}
+
+/* Respect the OS setting, but keep the app legible rather than dead. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

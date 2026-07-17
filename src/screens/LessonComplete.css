@@ -1,0 +1,181 @@
+.done {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--green-tint) 0%, var(--bg) 46%);
+}
+
+.done-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  text-align: center;
+  padding-bottom: 1.2rem;
+}
+
+.done-leo {
+  animation: done-leo-in 0.6s var(--spring-big) both;
+}
+@keyframes done-leo-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(2rem);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.done-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--green-dark);
+  line-height: 1.1;
+  animation: pop-in 0.5s var(--spring-big) 0.12s both;
+}
+.done-title.is-perfect {
+  color: var(--gold-dark);
+}
+
+.done-lesson {
+  margin-top: -0.2rem;
+}
+
+.perfect-badge {
+  background: var(--gold);
+  color: var(--ink-strong);
+  font-size: 0.92rem;
+  font-weight: 900;
+  padding: 0.4rem 1rem;
+  border-radius: var(--r-full);
+  box-shadow: 0 0.2rem 0 var(--gold-dark);
+  animation: badge-in 0.6s var(--spring-big) 0.3s both;
+}
+@keyframes badge-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-14deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.done-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  width: 100%;
+  margin-top: 0.7rem;
+}
+.dstat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.7rem 0.3rem;
+  border-radius: var(--r-md);
+  border: 0.16rem solid var(--line);
+  background: var(--surface);
+  animation: float-up 0.45s var(--spring) both;
+}
+.dstat:nth-child(1) {
+  animation-delay: 0.34s;
+}
+.dstat:nth-child(2) {
+  animation-delay: 0.42s;
+}
+.dstat:nth-child(3) {
+  animation-delay: 0.5s;
+}
+.dstat-label {
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dstat b {
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+.dstat--xp {
+  border-color: var(--gold);
+}
+.dstat--xp b {
+  color: var(--gold-dark);
+}
+.dstat--acc {
+  border-color: var(--green);
+}
+.dstat--acc b {
+  color: var(--green-dark);
+}
+.dstat--time {
+  border-color: var(--blue);
+}
+.dstat--time b {
+  color: var(--blue-dark);
+}
+
+.done-stickers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.9rem;
+}
+.done-sticker-row {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+/* The sticker lands last and lands hard — it's the thing worth collecting. */
+.done-sticker-pop {
+  animation: sticker-land 0.7s var(--spring-big) 0.62s both;
+}
+@keyframes sticker-land {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(-180deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.unlock-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  margin-top: 0.9rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--r-lg);
+  background: var(--purple-soft);
+  border: 0.16rem solid var(--purple);
+  text-align: left;
+  animation: badge-in 0.6s var(--spring-big) 0.8s both;
+}
+.unlock-icon {
+  font-size: 2rem;
+}
+.unlock-card b {
+  display: block;
+  color: var(--purple-dark);
+  font-size: 1.05rem;
+}
+
+.done-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: max(1.1rem, env(safe-area-inset-bottom));
+  animation: float-up 0.5s var(--spring) 0.55s both;
+}
