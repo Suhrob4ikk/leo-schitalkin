@@ -78,17 +78,21 @@
   }
 }
 
-/* The sum itself, when a question has one. */
+/* The sum itself, when a question has one. Capped against the viewport as well
+   as the text-size setting: "30 + ⬜ = 41" at the largest scale on a 360px
+   phone otherwise wraps, and an equation split across two lines is a worse
+   thing to read than a slightly smaller one. */
 .q-expr {
-  font-size: 2.9rem;
+  font-size: min(2.9rem, 11.5vw);
   font-weight: 900;
   color: var(--ink-strong);
   text-align: center;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
+  text-wrap: balance;
 }
 .q-expr--sm {
-  font-size: 2rem;
+  font-size: min(2rem, 8vw);
 }
 
 /* ── Multiple choice ────────────────────────────────────────────────────── */

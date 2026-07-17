@@ -10,39 +10,47 @@ import './Home.css'
 
 /* Path geometry. x is a percentage of the column width, y is in pixels, and the
    road SVG is stretched over the same box with a non-scaling stroke — so the
-   winding line and the nodes always agree, at any screen width. */
-// The sine puts consecutive nodes anywhere from 20% to nearly 0% apart
-// horizontally, so a title can never be relied on to miss the next node
-// sideways — SP is what guarantees it clears, and it has to fit the tallest
-// case: the current node's two-line title sitting under the НАЧАТЬ pill.
-const SP = 128 // vertical gap between node centres
+   winding line and the nodes always agree, at any screen width.
+ *
+ * Every vertical measure is multiplied by the text-size setting. The nodes,
+ * titles and pill are all sized in rem and so grow with it; a fixed pixel gap
+ * meant that at "Огромный" the next node landed on top of the previous node's
+ * title and the road stopped lining up with the nodes entirely. */
+const SP_BASE = 128 // vertical gap between node centres, at text scale 1
+const HEAD_BASE = 100 // room above the first node for Лео + the sticky banner
+const TAIL_BASE = 78 // room under the last node for its title
 const AMP = 27 // horizontal swing, in % of the column
-const nodeX = (i) => 50 + Math.sin(i * 0.85) * AMP
-// The first node sits well down the column: Лео stands ~92px above whichever
-// node is current, and at a smaller offset the sticky unit banner decapitates
-// him on the very first one.
-const nodeY = (i) => 100 + i * SP
 
-function roadPath(count) {
+// The sine puts consecutive nodes anywhere from 20% to nearly 0% apart
+// horizontally, so a title can never be relied on to miss the node below it
+// sideways — the vertical gap is what guarantees it clears, and it has to fit
+// the tallest case: a two-line title sitting under the НАЧАТЬ pill.
+const nodeX = (i) => 50 + Math.sin(i * 0.85) * AMP
+
+const makeNodeY = (scale) => (i) => HEAD_BASE * scale + i * (SP_BASE * scale)
+
+function roadPath(count, nodeY, sp) {
   if (count < 2) return ''
   let d = `M ${nodeX(0)} ${nodeY(0)}`
   for (let i = 1; i < count; i++) {
-    d += ` C ${nodeX(i - 1)} ${nodeY(i - 1) + SP * 0.55}, ${nodeX(i)} ${nodeY(i) - SP * 0.55}, ${nodeX(i)} ${nodeY(i)}`
+    d += ` C ${nodeX(i - 1)} ${nodeY(i - 1) + sp * 0.55}, ${nodeX(i)} ${nodeY(i) - sp * 0.55}, ${nodeX(i)} ${nodeY(i)}`
   }
   return d
 }
 
-function UnitPath({ unit, lessons, currentId, leoState }) {
+function UnitPath({ unit, lessons, currentId, leoState, scale }) {
   const nav = useNavigate()
   const [bumped, setBumped] = useState(null)
   const count = unit.lessons.length
-  const height = nodeY(count - 1) + 78
+  const nodeY = makeNodeY(scale)
+  const sp = SP_BASE * scale
+  const height = nodeY(count - 1) + TAIL_BASE * scale
 
-  const tap = (l, unlocked) => {
+  const tap = (l, unlocked, i) => {
     if (!unlocked) {
       // Locked nodes wobble and say why, rather than doing nothing.
       sfx.soft()
-      setBumped(l.id)
+      setBumped({ id: l.id, i })
       setTimeout(() => setBumped(null), 1600)
       return
     }
@@ -58,8 +66,8 @@ function UnitPath({ unit, lessons, currentId, leoState }) {
         preserveAspectRatio="none"
         aria-hidden="true"
       >
-        <path d={roadPath(count)} className="road-base" vectorEffect="non-scaling-stroke" />
-        <path d={roadPath(count)} className="road-dash" vectorEffect="non-scaling-stroke" />
+        <path d={roadPath(count, nodeY, sp)} className="road-base" vectorEffect="non-scaling-stroke" />
+        <path d={roadPath(count, nodeY, sp)} className="road-dash" vectorEffect="non-scaling-stroke" />
       </svg>
 
       {unit.lessons.map((l, i) => {
@@ -84,8 +92,8 @@ function UnitPath({ unit, lessons, currentId, leoState }) {
               type="button"
               className={`node node--${unit.color} ${done ? 'is-done' : ''} ${!unlocked ? 'is-locked' : ''} ${
                 isCurrent ? 'is-current' : ''
-              } ${bumped === l.id ? 'is-bumped' : ''}`}
-              onClick={() => tap(l, unlocked)}
+              } ${bumped?.id === l.id ? 'is-bumped' : ''}`}
+              onClick={() => tap(l, unlocked, i)}
               aria-label={`${l.title}${unlocked ? '' : ' — закрыто'}`}
             >
               <span className="node-icon">{unlocked ? l.icon : '🔒'}</span>
@@ -98,10 +106,19 @@ function UnitPath({ unit, lessons, currentId, leoState }) {
 
             <span className="node-title">{l.title}</span>
             {done && <Stars count={rec.stars} size="sm" />}
-            {bumped === l.id && <span className="node-hint">Сначала пройди предыдущий!</span>}
           </div>
         )
       })}
+
+      {/* Anchored to the path, not to the node that was tapped. Inside a slot it
+          would be centred on a node sitting up to 77% across and run off the
+          screen — and the slot's own transform traps its z-index, so the next
+          node down painted right over the text. */}
+      {bumped && (
+        <div className="path-hint" style={{ top: `${nodeY(bumped.i) + 44}px` }}>
+          Сначала пройди предыдущий!
+        </div>
+      )}
     </div>
   )
 }
@@ -175,7 +192,13 @@ export default function Home() {
                 <span className="unit-icon">{unit.icon}</span>
               </div>
 
-              <UnitPath unit={unit} lessons={state.lessons} currentId={currentId} leoState={leoState} />
+              <UnitPath
+                unit={unit}
+                lessons={state.lessons}
+                currentId={currentId}
+                leoState={leoState}
+                scale={state.settings.textScale}
+              />
             </section>
           )
         })}

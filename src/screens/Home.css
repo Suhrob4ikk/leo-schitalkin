@@ -188,6 +188,33 @@
   width: 6.8rem;
 }
 
+/* Lives on .path rather than inside a slot: centred on the column it can never
+   run off the edge, and being outside the slots' transforms its z-index
+   actually applies. */
+.path-hint {
+  position: absolute;
+  /* Centred with auto margins, NOT translateX(-50%): the pop-in keyframes
+     animate `transform`, which would overwrite the centring outright and leave
+     the hint hanging off the right edge. left/right:0 + width:max-content +
+     margin:auto centres it without touching transform at all. */
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  z-index: 20;
+  max-width: 88%;
+  width: max-content;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--r-sm);
+  background: var(--ink-strong);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
+  animation: pop-in 0.24s var(--spring-big) both;
+  pointer-events: none;
+}
+
 /* The chunky pressable disc. position:relative anchors the ✓ badge and the
    current-node halo to the disc rather than to the slot. */
 .node {
@@ -290,20 +317,6 @@
   margin-top: 0.15rem;
 }
 
-.node-hint {
-  position: absolute;
-  top: 100%;
-  margin-top: 1.9rem;
-  background: var(--ink-strong);
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 0.35rem 0.6rem;
-  border-radius: var(--r-sm);
-  white-space: nowrap;
-  animation: pop-in 0.24s var(--spring-big) both;
-  z-index: 5;
-}
 
 /* Лео stands on his current node. */
 .node-leo {
