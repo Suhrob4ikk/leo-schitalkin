@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Leo from '../components/Leo.jsx'
 import { Stars } from '../components/ui.jsx'
 import StreakCalendar from '../components/StreakCalendar.jsx'
+import Sheet from '../components/Sheet.jsx'
 import { useStore, usePracticedToday, useStreak } from '../game/store.jsx'
 import { UNITS, isUnlocked, currentLessonId, unitProgress } from '../game/curriculum.js'
 import { sfx } from '../game/audio.js'
@@ -207,25 +208,23 @@ export default function Home() {
       {showCal && <StreakCalendar onClose={() => setShowCal(false)} />}
 
       {adult && (
-        <div className="sheet-backdrop" onClick={() => setAdult(false)}>
-          <div className="sheet" onClick={(e) => e.stopPropagation()}>
-            <span style={{ fontSize: '2.6rem' }}>👋</span>
-            <b className="h2">Для взрослых</b>
-            <p className="sub">Здесь настройки и успехи. Позови маму или папу!</p>
-            <button
-              className="btn btn--blue btn--block"
-              onClick={() => {
-                setAdult(false)
-                nav('/tutor')
-              }}
-            >
-              Я взрослый
-            </button>
-            <button className="btn btn--ghost btn--block" onClick={() => setAdult(false)}>
-              Назад к Лео
-            </button>
-          </div>
-        </div>
+        <Sheet onClose={() => setAdult(false)}>
+          <span style={{ fontSize: '2.6rem' }}>👋</span>
+          <b className="h2">Для взрослых</b>
+          <p className="sub">Здесь настройки и успехи. Позови маму или папу!</p>
+          <button
+            className="btn btn--blue btn--block"
+            onClick={() => {
+              setAdult(false)
+              nav('/tutor')
+            }}
+          >
+            Я взрослый
+          </button>
+          <button className="btn btn--ghost btn--block" onClick={() => setAdult(false)}>
+            Назад к Лео
+          </button>
+        </Sheet>
       )}
     </div>
   )

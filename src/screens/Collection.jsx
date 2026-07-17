@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Leo from '../components/Leo.jsx'
 import { Sticker, ProgressBar } from '../components/ui.jsx'
+import Sheet from '../components/Sheet.jsx'
 import { useStore } from '../game/store.jsx'
 import { STICKERS } from '../game/stickers.js'
 import { sfx } from '../game/audio.js'
@@ -66,16 +67,14 @@ export default function Collection() {
       </div>
 
       {zoom && (
-        <div className="sheet-backdrop" onClick={() => setZoom(null)}>
-          <div className="sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="coll-zoom">
-              <Sticker id={zoom} size={170} />
-            </div>
-            <button className="btn btn--green btn--block" onClick={() => setZoom(null)}>
-              Здорово!
-            </button>
+        <Sheet onClose={() => setZoom(null)}>
+          <div className="coll-zoom">
+            <Sticker id={zoom} size={170} />
           </div>
-        </div>
+          <button className="btn btn--green btn--block" onClick={() => setZoom(null)}>
+            Здорово!
+          </button>
+        </Sheet>
       )}
     </div>
   )

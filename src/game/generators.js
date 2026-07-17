@@ -175,6 +175,40 @@ function qMissing() {
   return mk(`⬜ − ${b} = ${c}`, b + c, `Сложи ${c} и ${b}.`)
 }
 
+/** Цепочка: 8 → +5 → ⬜ → −3 → ⬜. Two or three links; every intermediate value
+    is kept inside 0..100 so no box can ever want a negative number. */
+function qChain() {
+  const links = Math.random() < 0.55 ? 2 : 3
+  let cur = rnd(14, 40)
+  const start = cur
+  const steps = []
+  const answers = []
+
+  for (let i = 0; i < links; i++) {
+    const big = Math.random() < 0.3
+    const mag = big ? rnd(2, 4) * 10 : rnd(2, 9)
+    // Every box lands in 10..99 — two digits, always. The boxes advance on the
+    // second digit, so a chain that could produce a single-digit value would
+    // strand the child in a box the pad refuses to leave.
+    const canAdd = cur + mag <= 99
+    const canSub = cur - mag >= 10
+    const plus = canAdd && canSub ? Math.random() < 0.5 : canAdd
+    if (!canAdd && !canSub) break
+    cur = plus ? cur + mag : cur - mag
+    steps.push({ op: plus ? '+' : '−', n: mag })
+    answers.push(cur)
+  }
+
+  return {
+    kind: 'chain',
+    prompt: 'Заполни цепочку',
+    answer: answers,
+    topic: 'chain',
+    hint: `${start} ${steps.map((s, i) => `${s.op} ${s.n} = ${answers[i]}`).join(', потом ')}`,
+    data: { start, steps },
+  }
+}
+
 const OBJECTS = [
   { emoji: '🍎', one: 'яблоко', few: 'яблока', many: 'яблок' },
   { emoji: '🚗', one: 'машинка', few: 'машинки', many: 'машинок' },
@@ -339,15 +373,17 @@ function tableLesson(table) {
     },
   ]
 
-  // 1 and 10 are freebies; the middle of the table is where the work is, so it
-  // gets sampled twice as often.
+  // 1 and 10 are freebies; the middle of the table is where the work is, so all
+  // eight of those come up, plus the two easy ones.
   const easy = [1, 10]
   const core = shuffle([2, 3, 4, 5, 6, 7, 8, 9])
-  const order = shuffle([...core.slice(0, 6), ...easy])
-  const kinds = ['array', 'choice', 'pad', 'choice', 'array', 'pad', 'choice', 'choice']
+  const order = shuffle([...core, ...easy])
+  const kinds = ['array', 'choice', 'pad', 'choice', 'array', 'pad', 'choice', 'pad', 'choice', 'choice']
 
   order.forEach((b, i) => qs.push(qMultFact(table, b, kinds[i % kinds.length])))
-  qs.splice(5, 0, qMatch(table, 4))
+  // Two matching rounds, spaced apart, to break up the drill.
+  qs.splice(4, 0, qMatch(table, 4))
+  qs.splice(9, 0, qMatch(table, 4))
   return qs
 }
 
@@ -388,27 +424,30 @@ export function buildLesson(lessonId, state) {
 
   switch (lessonId) {
     case 'numberline':
-      return repeat(9, qNumberLine)
+      return repeat(12, qNumberLine)
 
     case 'basten':
-      return repeat(9, qBaseTen)
+      return repeat(12, qBaseTen)
 
+    // Chains are mixed straight into "find the missing number": same skill,
+    // and they're what he's already meeting at school.
     case 'missing':
-      return repeat(10, qMissing)
+      return shuffle([...repeat(8, qMissing), ...repeat(4, qChain)])
 
     case 'word':
-      return repeat(8, qWord)
+      return repeat(10, qWord)
 
     case 'column':
-      return repeat(8, qColumn)
+      return repeat(10, qColumn)
 
     case 'mix1':
       return shuffle([
-        ...repeat(2, qNumberLine),
-        ...repeat(2, (i) => qBaseTen(i)),
+        ...repeat(3, qNumberLine),
+        ...repeat(3, (i) => qBaseTen(i)),
         ...repeat(3, qMissing),
-        ...repeat(2, qWord),
-        ...repeat(2, qColumn),
+        ...repeat(2, qChain),
+        ...repeat(3, qWord),
+        ...repeat(3, qColumn),
       ]).map((q) => ({ ...q, timed: true }))
 
     case 'mult-intro':
@@ -459,14 +498,14 @@ export function buildLesson(lessonId, state) {
 
     case 'mult-mix': {
       const tables = learnedTables(state.lessons)
-      const picks = sampleWeighted(weightedFactPool(state.facts, tables), 10)
+      const picks = sampleWeighted(weightedFactPool(state.facts, tables), 14)
       const kinds = ['choice', 'pad', 'choice', 'array', 'choice', 'pad']
       return picks.map((p, i) => qMultFact(p.t, p.b, kinds[i % kinds.length]))
     }
 
     case 'blitz': {
       const tables = learnedTables(state.lessons)
-      const picks = sampleWeighted(weightedFactPool(state.facts, tables), 12)
+      const picks = sampleWeighted(weightedFactPool(state.facts, tables), 16)
       // Always multiple choice: typing is a reading-and-motor task, and this
       // round is meant to measure recall, not thumbs. 9s is generous for 7.
       return picks.map((p) => ({
@@ -490,5 +529,9 @@ export function checkAnswer(q, value) {
   if (q.kind === 'teach') return true
   if (q.kind === 'match') return true
   if (q.kind === 'array-build') return Boolean(value?.ok)
+  // A chain has one box per link and all of them have to be right.
+  if (q.kind === 'chain') {
+    return Array.isArray(value) && value.length === q.answer.length && value.every((v, i) => Number(v) === q.answer[i])
+  }
   return Number(value) === Number(q.answer)
 }

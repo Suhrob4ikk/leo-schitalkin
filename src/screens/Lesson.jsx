@@ -2,11 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Leo from '../components/Leo.jsx'
 import { Hearts, ProgressBar, SpeakButton } from '../components/ui.jsx'
+import Sheet from '../components/Sheet.jsx'
 import { useStore } from '../game/store.jsx'
 import { LESSON_BY_ID } from '../game/curriculum.js'
 import { buildLesson, checkAnswer } from '../game/generators.js'
 import { sfx, stopSpeaking } from '../game/audio.js'
-import { burst, burstFrom } from '../game/confetti.js'
+import { burst, burstFrom, rain } from '../game/confetti.js'
 
 import ChoiceGrid from '../exercises/ChoiceGrid.jsx'
 import PadExercise from '../exercises/PadExercise.jsx'
@@ -16,10 +17,35 @@ import WordProblem from '../exercises/WordProblem.jsx'
 import ColumnMath from '../exercises/ColumnMath.jsx'
 import ArrayView, { ArrayBuild } from '../exercises/ArrayView.jsx'
 import MatchPairs from '../exercises/MatchPairs.jsx'
+import Chain from '../exercises/Chain.jsx'
 import Teach from '../exercises/Teach.jsx'
 import './Lesson.css'
 
-const CHEERS = ['Отлично!', 'Молодец!', 'Супер!', 'Верно!', 'Здорово!', 'Вот это да!', 'Ты справился!']
+const CHEERS = [
+  'Отлично!',
+  'Молодец!',
+  'Супер!',
+  'Верно!',
+  'Здорово!',
+  'Вот это да!',
+  'Ты справился!',
+  'Точно в цель!',
+  'Красота!',
+  'Лео в восторге!',
+  'Как учитель!',
+  'Щёлкаешь как орешки!',
+]
+
+/* Every 5 in a row without a slip. The wording escalates so the tenth feels
+   bigger than the fifth — a flat "КОМБО" every time stops being a reward. */
+const COMBO_STEP = 5
+const COMBO_TIERS = [
+  { at: 5, text: '5 подряд!', icon: '🔥' },
+  { at: 10, text: '10 подряд! Огонь!', icon: '🚀' },
+  { at: 15, text: '15 подряд! Невероятно!', icon: '💎' },
+  { at: 20, text: '20 подряд! Ты чемпион!', icon: '👑' },
+]
+const comboTier = (n) => COMBO_TIERS.filter((t) => n >= t.at).pop() ?? COMBO_TIERS[0]
 const NUDGES = ['Почти! Попробуй ещё раз', 'Чуть-чуть не хватило!', 'Уже близко! Ещё разок']
 const SOFT = ['Ничего страшного!', 'Бывает! Теперь знаешь', 'Запомним это вместе']
 
@@ -48,6 +74,8 @@ export default function Lesson() {
   const [msg, setMsg] = useState('')
   const [quitting, setQuitting] = useState(false)
   const [timeLeft, setTimeLeft] = useState(null)
+  const [combo, setCombo] = useState(0)
+  const [comboPop, setComboPop] = useState(null)
 
   // Kept in refs, not state: these are read inside timeout callbacks, which
   // would otherwise close over a stale render.
@@ -123,18 +151,36 @@ export default function Lesson() {
 
     if (ok) {
       const firstTry = attempt === 0 && missCount.current === 0
+      const streak = firstTry ? combo + 1 : 0
+      setCombo(streak)
       setPhase('correct')
       setLeo('happy')
-      setMsg(pickOne(CHEERS))
-      sfx.correct()
-      if (el) burstFrom(el, { count: 30, power: 9 })
-      else burst(window.innerWidth / 2, window.innerHeight * 0.42, { count: 30, power: 9 })
+
+      // A combo overrides the usual cheer and gets its own party: bigger sound,
+      // confetti raining rather than a pop, and a badge across the screen.
+      const hit = streak > 0 && streak % COMBO_STEP === 0
+      if (hit) {
+        const tier = comboTier(streak)
+        setComboPop({ ...tier, n: streak })
+        setMsg(`${tier.icon} ${tier.text}`)
+        sfx.combo(streak / COMBO_STEP)
+        rain(1400, { perTick: 7 })
+        tally.current.xp += 10
+        setTimeout(() => setComboPop(null), 1500)
+      } else {
+        setMsg(pickOne(CHEERS))
+        sfx.correct()
+      }
+
+      if (el) burstFrom(el, { count: hit ? 60 : 30, power: hit ? 13 : 9 })
+      else burst(window.innerWidth / 2, window.innerHeight * 0.42, { count: hit ? 60 : 30, power: hit ? 13 : 9 })
       grade(true, firstTry)
-      advanceTimer.current = setTimeout(next, ADVANCE_MS)
+      advanceTimer.current = setTimeout(next, hit ? ADVANCE_MS + 700 : ADVANCE_MS)
       return
     }
 
     sfx.soft()
+    setCombo(0)
     setHearts((h) => Math.max(0, h - 1))
 
     // First slip gets a nudge and another go; the second shows the answer with
@@ -230,6 +276,7 @@ export default function Lesson() {
     array: <ArrayView {...common} />,
     'array-build': <ArrayBuild {...common} />,
     match: <MatchPairs {...common} onMiss={handleMiss} />,
+    chain: <Chain {...common} />,
     teach: <Teach {...common} />,
   }[q.kind]
 
@@ -240,8 +287,23 @@ export default function Lesson() {
           ✕
         </button>
         <ProgressBar value={idx} max={questions.length} />
+        {/* The running streak only appears once it's worth chasing. */}
+        {combo >= 2 && (
+          <span className="combo-chip" key={combo}>
+            🔥<b className="tnum">{combo}</b>
+          </span>
+        )}
         <Hearts left={hearts} />
       </header>
+
+      {comboPop && (
+        <div className="combo-pop" role="status">
+          <span className="combo-pop-icon">{comboPop.icon}</span>
+          <b className="combo-pop-n tnum">{comboPop.n}</b>
+          <span className="combo-pop-text">{comboPop.text}</span>
+          <span className="combo-pop-xp">+10 XP</span>
+        </div>
+      )}
 
       {timeLeft != null && (
         <div className="blitz-bar" aria-hidden="true">
@@ -299,19 +361,17 @@ export default function Lesson() {
       )}
 
       {quitting && (
-        <div className="sheet-backdrop" onClick={() => setQuitting(false)}>
-          <div className="sheet" onClick={(e) => e.stopPropagation()}>
-            <Leo size={90} state="think" />
-            <b className="h2">Закончить урок?</b>
-            <p className="sub">Лео ещё не всё показал!</p>
-            <button className="btn btn--green btn--block" onClick={() => setQuitting(false)}>
-              Остаться
-            </button>
-            <button className="btn btn--ghost btn--block" onClick={quit}>
-              Выйти
-            </button>
-          </div>
-        </div>
+        <Sheet onClose={() => setQuitting(false)}>
+          <Leo size={90} state="think" />
+          <b className="h2">Закончить урок?</b>
+          <p className="sub">Лео ещё не всё показал!</p>
+          <button className="btn btn--green btn--block" onClick={() => setQuitting(false)}>
+            Остаться
+          </button>
+          <button className="btn btn--ghost btn--block" onClick={quit}>
+            Выйти
+          </button>
+        </Sheet>
       )}
     </div>
   )

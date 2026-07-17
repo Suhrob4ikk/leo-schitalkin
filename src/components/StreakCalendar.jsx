@@ -1,4 +1,5 @@
 import { useStore, dayKey, shiftDay, useStreak } from '../game/store.jsx'
+import Sheet from './Sheet.jsx'
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
@@ -28,8 +29,8 @@ export default function StreakCalendar({ onClose }) {
   }
 
   return (
-    <div className="sheet-backdrop" onClick={onClose}>
-      <div className="sheet cal-sheet" onClick={(e) => e.stopPropagation()}>
+    <Sheet onClose={onClose} className="cal-sheet">
+      <>
         <div className="cal-head">
           <span className="cal-flame">🔥</span>
           <div>
@@ -60,7 +61,7 @@ export default function StreakCalendar({ onClose }) {
         <button className="btn btn--green btn--block" onClick={onClose}>
           Закрыть
         </button>
-      </div>
-    </div>
+      </>
+    </Sheet>
   )
 }

@@ -89,7 +89,8 @@
 }
 
 /* Everything is sized off this, so the text-size setting scales the whole UI
-   proportionally — including tap targets — rather than just the glyphs. */
+   proportionally — including tap targets — rather than just the glyphs.
+   18.5px base: this is read by a seven-year-old at arm's length on a phone. */
 html {
-  font-size: calc(17px * var(--text-scale));
+  font-size: calc(18.5px * var(--text-scale));
 }

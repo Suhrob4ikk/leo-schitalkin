@@ -25,6 +25,104 @@
   padding-bottom: 1.5rem;
 }
 
+/* ── Combo ──────────────────────────────────────────────────────────────── */
+.combo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex: none;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--r-full);
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+  font-size: 0.82rem;
+  font-weight: 900;
+  animation: pop 0.34s var(--spring-big);
+}
+
+/* Sweeps across the middle of the screen, over everything, then leaves. */
+.combo-pop {
+  position: fixed;
+  top: 34%;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  pointer-events: none;
+  animation: combo-pop 1.5s var(--ease-out) both;
+}
+.combo-pop-icon {
+  font-size: 3.4rem;
+  line-height: 1;
+  animation: combo-spin 1.5s var(--spring-big) both;
+}
+.combo-pop-n {
+  font-size: 3.6rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--orange);
+  -webkit-text-stroke: 0.16rem #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0.2rem 0.4rem rgba(0, 0, 0, 0.2));
+}
+.combo-pop-text {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  background: #fff;
+  padding: 0.2rem 0.8rem;
+  border-radius: var(--r-full);
+  box-shadow: 0 0.2rem 0 var(--line-strong);
+}
+.combo-pop-xp {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #fff;
+  background: var(--gold-dark);
+  padding: 0.12rem 0.6rem;
+  border-radius: var(--r-full);
+}
+
+@keyframes combo-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) translateY(1.5rem);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1.12) translateY(0);
+  }
+  28% {
+    transform: scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-2rem);
+  }
+}
+@keyframes combo-spin {
+  0% {
+    transform: rotate(-25deg) scale(0.3);
+  }
+  20% {
+    transform: rotate(8deg) scale(1.2);
+  }
+  35% {
+    transform: rotate(-4deg) scale(1);
+  }
+  100% {
+    transform: rotate(0) scale(1);
+  }
+}
+
 /* ── Blitz timer — blue and calm. Never red, never ticking. ─────────────── */
 .blitz-bar {
   height: 0.4rem;
@@ -887,6 +985,91 @@
 }
 .cm-key:disabled {
   opacity: 0.4;
+}
+
+/* ── Цепочка ────────────────────────────────────────────────────────────── */
+.chain {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.chain-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 1rem 0.7rem;
+  background: var(--sunken);
+  border-radius: var(--r-lg);
+}
+.chain-start {
+  min-width: 2.9rem;
+  height: 2.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4rem;
+  border-radius: var(--r-md);
+  background: var(--purple);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+.chain-link {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+/* The arrow is the operation — it points at the box it feeds. */
+.chain-op {
+  position: relative;
+  padding: 0 0.5rem 0 0.9rem;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--blue-dark);
+}
+.chain-op::before {
+  content: '→';
+  position: absolute;
+  left: -0.1rem;
+  color: var(--locked-deep);
+  font-size: 1.1rem;
+}
+.chain-box {
+  min-width: 2.9rem;
+  height: 2.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+  border-radius: var(--r-md);
+  border: 0.16rem dashed var(--line-strong);
+  background: var(--surface);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+}
+.chain-box.is-live {
+  border-style: solid;
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  animation: soft-pulse 1.4s ease-in-out infinite;
+}
+.chain-box.is-filled {
+  border-style: solid;
+  border-color: var(--line);
+  animation: pop 0.28s var(--spring);
+}
+.chain-box.is-correct {
+  border-color: var(--green);
+  background: var(--green-tint);
+  color: var(--green-dark);
+}
+.chain-box.is-wrong {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+  color: var(--orange-dark);
 }
 
 /* ── Matching pairs ─────────────────────────────────────────────────────── */

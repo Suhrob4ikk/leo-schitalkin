@@ -186,6 +186,22 @@ const answerOnce = (deliberatelyWrong) => `(() => {
     return { kind: q.kind, acted: 'column', res }
   }
 
+  if (q.kind === 'chain') {
+    // Digits go in one at a time and each keypress needs its own React commit,
+    // so this types asynchronously and the commit step clicks ✓ afterwards.
+    const seq = q.answer.map((a, i) => (wrong && i === 0 ? (a === 1 ? '2' : '1') : String(a))).join('')
+    let i = 0
+    const type = () => {
+      if (i >= seq.length) return
+      const k = [...document.querySelectorAll('.pad-key')].find(b => b.textContent.trim() === seq[i])
+      if (k) k.click()
+      i++
+      setTimeout(type, 55)
+    }
+    type()
+    return { kind: q.kind, acted: 'chain', seq, commit: true }
+  }
+
   if (q.kind === 'match') {
     const pairs = q.data.pairs
     const lefts = [...document.querySelectorAll('.mp-col:first-child .mp-card')]
@@ -264,7 +280,8 @@ for (let i = 0; i < 90; i++) {
   }
 
   if (r?.commit) {
-    await sleep(260) // let React enable the submit button
+    // Chains type digit-by-digit on a timer; give them time to finish first.
+    await sleep(r.kind === 'chain' ? 700 : 260)
     await evaluate(commit)
   }
 

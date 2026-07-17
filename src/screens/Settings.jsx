@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Leo from '../components/Leo.jsx'
+import Sheet from '../components/Sheet.jsx'
 import { useStore } from '../game/store.jsx'
 import { canSpeak, sfx, speak } from '../game/audio.js'
 import './Settings.css'
@@ -96,28 +97,24 @@ export default function Settings() {
       </div>
 
       {confirmReset && (
-        <div className="sheet-backdrop" onClick={() => setConfirmReset(false)}>
-          <div className="sheet" onClick={(e) => e.stopPropagation()}>
-            <Leo size={90} state="think" />
-            <b className="h2">Точно сбросить?</b>
-            <p className="sub">
-              Все звёзды, наклейки, очки и дни подряд исчезнут. Это нельзя отменить.
-            </p>
-            <button className="btn btn--green btn--block" onClick={() => setConfirmReset(false)}>
-              Нет, оставить
-            </button>
-            <button
-              className="btn btn--ghost btn--block"
-              onClick={() => {
-                dispatch({ type: 'reset' })
-                setConfirmReset(false)
-                nav('/', { replace: true })
-              }}
-            >
-              Да, сбросить всё
-            </button>
-          </div>
-        </div>
+        <Sheet onClose={() => setConfirmReset(false)}>
+          <Leo size={90} state="think" />
+          <b className="h2">Точно сбросить?</b>
+          <p className="sub">Все звёзды, наклейки, очки и дни подряд исчезнут. Это нельзя отменить.</p>
+          <button className="btn btn--green btn--block" onClick={() => setConfirmReset(false)}>
+            Нет, оставить
+          </button>
+          <button
+            className="btn btn--ghost btn--block"
+            onClick={() => {
+              dispatch({ type: 'reset' })
+              setConfirmReset(false)
+              nav('/', { replace: true })
+            }}
+          >
+            Да, сбросить всё
+          </button>
+        </Sheet>
       )}
     </div>
   )

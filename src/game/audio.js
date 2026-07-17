@@ -106,6 +106,17 @@ export const sfx = {
     tone({ freq: NOTE.E6, start: 0.2, dur: 0.4, type: 'triangle', gain: 0.36 })
   },
 
+  /** Combo. Climbs a step higher for each streak reached, so 10-in-a-row
+      audibly outranks 5 — the sound itself is part of the reward. */
+  combo(level = 1) {
+    const base = [NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6]
+    const lift = Math.min(level - 1, 3) * 2
+    base.forEach((f, i) =>
+      tone({ freq: f * Math.pow(2, lift / 12), start: i * 0.06, dur: 0.26, type: 'triangle', gain: 0.44 }),
+    )
+    tone({ freq: NOTE.G6, start: 0.26, dur: 0.5, type: 'sine', gain: 0.32 })
+  },
+
   tick() {
     tone({ freq: 1200, dur: 0.03, type: 'sine', gain: 0.08 })
   },
