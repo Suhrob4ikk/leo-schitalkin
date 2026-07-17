@@ -32,9 +32,11 @@ export default function ArrayView({ q, onAnswer, locked, chosen, phase }) {
       </div>
       <div className="arr-caption">
         <b className="tnum">{rows}</b> {rows === 1 ? 'ряд' : rows < 5 ? 'ряда' : 'рядов'} по{' '}
-        <b className="tnum">{cols}</b>
+        <b className="tnum">{cols}</b> — это <b className="tnum">{q.expr}</b>
       </div>
-      <ChoiceGrid q={q} onAnswer={onAnswer} locked={locked} chosen={chosen} phase={phase} />
+      {/* showExpr off: the array itself plus the caption above already state the
+          question, and a third copy of "2 × 5" would just be noise. */}
+      <ChoiceGrid q={q} onAnswer={onAnswer} locked={locked} chosen={chosen} phase={phase} showExpr={false} />
     </div>
   )
 }

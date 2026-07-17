@@ -214,6 +214,30 @@ const commit = `(() => {
   return 'nothing-to-commit'
 })()`
 
+/*  Asserts the question is actually ON SCREEN, not just in state.
+ *
+ *  This exists because a real bug shipped past this script: ChoiceGrid never
+ *  rendered q.expr, so every multiplication question showed "Сколько будет?"
+ *  and four bare numbers with nothing to solve. The script sailed through it —
+ *  it read the answer from window.__leoQ, so it was "solving" sums that were
+ *  never drawn. Checking state is not checking what the child sees.
+ *
+ *  Only kinds whose expression IS the question are audited: numberline shows a
+ *  start marker and "+6", column renders its own digits, and word problems draw
+ *  the objects — those state the question in their own way. */
+const NEEDS_EXPR = ['choice', 'pad', 'basten', 'array']
+const audit = `(() => {
+  const q = window.__leoQ
+  if (!q || q.kind === 'teach') return null
+  const needs = ${JSON.stringify(NEEDS_EXPR)}
+  if (!needs.includes(q.kind) || !q.expr) return null
+  const text = (document.querySelector('.q-area') || {}).innerText || ''
+  const norm = (s) => s.replace(/\\s+/g, ' ').trim()
+  return norm(text).includes(norm(q.expr))
+    ? null
+    : 'QUESTION NOT ON SCREEN: kind=' + q.kind + ' expr="' + q.expr + '"'
+})()`
+
 const advance = `(() => {
   const b = document.querySelector('.fb-actions .btn')
   if (b) { b.click(); return 'advanced' }
@@ -222,12 +246,16 @@ const advance = `(() => {
 
 let step = 0
 const log = []
+const audits = []
 for (let i = 0; i < 90; i++) {
   const onDone = await evaluate(`location.hash.startsWith('#/done/')`)
   if (onDone) break
 
   const isTeach = await evaluate(`!!(window.__leoQ && window.__leoQ.kind === 'teach')`)
   const wrong = Number(wrongEvery) > 0 && step > 0 && step % Number(wrongEvery) === 0
+
+  const problem = await evaluate(audit)
+  if (problem) audits.push(problem)
 
   const r = await evaluate(answerOnce(wrong))
   if (r?.acted && r.acted !== 'waiting') {
@@ -257,6 +285,8 @@ console.log('hash:', await evaluate('location.hash'))
 console.log('xp:', state.xp, '| lessons:', JSON.stringify(state.lessons), '| stickers:', state.stickers)
 console.log('topics:', JSON.stringify(state.topics))
 if (errors.length) console.log('PAGE ERRORS:', errors.slice(0, 3))
+if (audits.length) console.log('!! RENDER AUDIT FAILED:', [...new Set(audits)].join(' | '))
+else console.log('render audit: every question was visible on screen')
 console.log('shot:', join(OUT, `${name}.png`))
 
 ws.close()

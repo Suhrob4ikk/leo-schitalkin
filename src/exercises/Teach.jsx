@@ -3,10 +3,18 @@ import { Grid } from './ArrayView.jsx'
 import { sfx } from '../game/audio.js'
 
 /* Teaching screens. Nothing here is scored — the child watches, then taps
-   "Понятно!". They exist so a new table is introduced before it is drilled. */
+   "Понятно!". They exist so a new table is introduced before it is drilled.
+
+   Pacing is deliberately slow. This is the first time he meets the idea, and a
+   group landing every 780ms was over before he'd finished counting the one
+   before it. */
+const STEP_MS = 1250
+const FIRST_MS = 550
+const ROW_MS = 1150
 
 /** Groups land one at a time while the running total counts 2, 4, 6, 8… — the
-    point being that the total jumps by a whole group, not by one. */
+    point being that the total jumps by a whole group, not by one. The repeated
+    sum under it is what actually explains *why*: 2 × 6 is 2 taken 6 times. */
 function SkipCount({ q, onAnswer }) {
   const { table, upTo = 10 } = q.data
   // Enough groups to show the pattern, few enough that the icons stay
@@ -18,7 +26,7 @@ function SkipCount({ q, onAnswer }) {
 
   useEffect(() => {
     if (n >= groups) {
-      const t = setTimeout(() => setDone(true), 450)
+      const t = setTimeout(() => setDone(true), 600)
       return () => clearTimeout(t)
     }
     const t = setTimeout(
@@ -26,7 +34,7 @@ function SkipCount({ q, onAnswer }) {
         setN((v) => v + 1)
         sfx.star(Math.min(n, 2))
       },
-      n === 0 ? 350 : 780,
+      n === 0 ? FIRST_MS : STEP_MS,
     )
     return () => clearTimeout(t)
   }, [n, groups])
@@ -40,14 +48,26 @@ function SkipCount({ q, onAnswer }) {
     <div className="teach">
       <div className="sc-stage">
         {Array.from({ length: n }, (_, i) => (
-          <div key={i} className="sc-group">
+          <div key={i} className={`sc-group ${i === n - 1 ? 'is-new' : ''}`}>
             {Array.from({ length: table }, (_, k) => (
-              <span key={k} className="sc-dot" style={{ animationDelay: `${k * 0.05}s` }}>
+              <span key={k} className="sc-dot" style={{ animationDelay: `${k * 0.06}s` }}>
                 ⭐
               </span>
             ))}
+            {i === n - 1 && n < groups && <span className="sc-plus">+{table}</span>}
           </div>
         ))}
+      </div>
+
+      {/* Multiplication spelled out as repeated addition — the actual idea. */}
+      <div className="sc-sum">
+        {n > 0 ? (
+          <>
+            {Array.from({ length: n }, () => table).join(' + ')} = <b>{table * n}</b>
+          </>
+        ) : (
+          <span className="sub">Смотри…</span>
+        )}
       </div>
 
       <div className="sc-ladder">
@@ -59,13 +79,11 @@ function SkipCount({ q, onAnswer }) {
       </div>
 
       <div className="sc-eq">
-        {n > 0 ? (
+        {n > 0 && (
           <>
             <b className="tnum">{table}</b> × <b className="tnum">{n}</b> ={' '}
             <b className="tnum sc-total">{table * n}</b>
           </>
-        ) : (
-          <span className="sub">Смотри…</span>
         )}
       </div>
 
@@ -107,7 +125,7 @@ function ArrayTeach({ q, onAnswer }) {
         setShown((v) => v + 1)
         sfx.pick()
       },
-      shown === 0 ? 350 : 700,
+      shown === 0 ? FIRST_MS : ROW_MS,
     )
     return () => clearTimeout(t)
   }, [shown, rows])
@@ -125,9 +143,21 @@ function ArrayTeach({ q, onAnswer }) {
         <b className="tnum">{cols}</b>
       </div>
 
+      <div className="sc-sum">
+        {shown > 0 && (
+          <>
+            {Array.from({ length: shown }, () => cols).join(' + ')} = <b>{shown * cols}</b>
+          </>
+        )}
+      </div>
+
       <div className="sc-eq">
-        <b className="tnum">{shown}</b> × <b className="tnum">{cols}</b> ={' '}
-        <b className="tnum sc-total">{shown * cols}</b>
+        {shown > 0 && (
+          <>
+            <b className="tnum">{shown}</b> × <b className="tnum">{cols}</b> ={' '}
+            <b className="tnum sc-total">{shown * cols}</b>
+          </>
+        )}
       </div>
 
       <div className="teach-actions">

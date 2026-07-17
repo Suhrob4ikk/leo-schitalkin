@@ -285,7 +285,9 @@ function qMultFact(a, b, kindHint) {
   const fact = `${a}x${b}`
   const base = { answer, topic, fact, hint: multHint(a, b), expr: `${a} × ${b}` }
 
-  if (kindHint === 'array' && a <= 6 && b <= 6) {
+  // Both sides ≥ 2: "5 рядов по 1" draws a single column of cookies, which
+  // illustrates nothing about grouping. Those fall through to plain choice.
+  if (kindHint === 'array' && a >= 2 && a <= 6 && b >= 2 && b <= 6) {
     return {
       ...base,
       kind: 'array',
