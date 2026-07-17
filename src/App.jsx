@@ -6,6 +6,7 @@ import LessonComplete from './screens/LessonComplete.jsx'
 import Collection from './screens/Collection.jsx'
 import Settings from './screens/Settings.jsx'
 import Tutor from './screens/Tutor.jsx'
+import Cubs from './screens/Cubs.jsx'
 
 export default function App() {
   return (
@@ -19,6 +20,8 @@ export default function App() {
         <Route path="/collection" element={<Collection />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/tutor" element={<Tutor />} />
+        {/* Preview only, not linked from anywhere in the kid-facing flow. */}
+        <Route path="/cubs" element={<Cubs />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
