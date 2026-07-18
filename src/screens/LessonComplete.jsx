@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
-import Leo from '../components/Leo.jsx'
+import Mascot from '../components/Mascot.jsx'
 import { Stars, Sticker } from '../components/ui.jsx'
 import { useStore, starsFor } from '../game/store.jsx'
 import { ALL_LESSONS, LESSON_BY_ID, UNITS, lessonIndex } from '../game/curriculum.js'
@@ -77,7 +77,7 @@ export default function LessonComplete() {
     <div className="screen done">
       <div className="shell done-body safe-top">
         <div className="done-leo">
-          <Leo size={190} state="happy" />
+          <Mascot size={190} state="happy" />
         </div>
 
         <h1 className={`done-title ${perfect ? 'is-perfect' : ''}`}>

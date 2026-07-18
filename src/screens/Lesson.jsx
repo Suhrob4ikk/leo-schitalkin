@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import Leo from '../components/Leo.jsx'
+import Mascot from '../components/Mascot.jsx'
 import { Hearts, ProgressBar, SpeakButton } from '../components/ui.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore } from '../game/store.jsx'
@@ -33,7 +33,7 @@ const CHEERS = [
   'Ты справился!',
   'Точно в цель!',
   'Красота!',
-  'Лео в восторге!',
+  'Вот это класс!',
   'Как учитель!',
   'Щёлкаешь как орешки!',
 ]
@@ -331,7 +331,7 @@ export default function Lesson() {
       {phase !== 'asking' && (
         <div className={`fb fb--${phase}`} role="status">
           <div className="fb-inner shell">
-            <Leo size={96} state={leo} className="fb-leo" />
+            <Mascot size={96} state={leo} className="fb-leo" />
             <div className="fb-text">
               <b className="fb-title">{msg}</b>
               {phase === 'reveal' && (
@@ -366,9 +366,9 @@ export default function Lesson() {
 
       {quitting && (
         <Sheet onClose={() => setQuitting(false)}>
-          <Leo size={90} state="think" />
+          <Mascot size={90} state="think" />
           <b className="h2">Закончить урок?</b>
-          <p className="sub">Лео ещё не всё показал!</p>
+          <p className="sub">Друг ещё не всё показал!</p>
           <button className="btn btn--green btn--block" onClick={() => setQuitting(false)}>
             Остаться
           </button>

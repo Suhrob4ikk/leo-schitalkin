@@ -18,9 +18,17 @@ import './Leo.css'
 
 const STATES = ['idle', 'wave', 'happy', 'think', 'sleepy']
 
+/** Display order on the picker — the fox is first because he's the one the app
+    is named after and the safe default. */
+export const CAST = ['fox', 'leopard', 'tiger']
+
 export const SPECIES = {
   fox: {
-    name: 'Лис',
+    name: 'Лео',
+    full: 'Лисёнок Лео',
+    withName: 'Лео',
+    trait: 'Умный и любознательный. Всё объяснит и подскажет.',
+    emoji: '🦊',
     fur: ['#ffab6b', '#f87f35'],
     head: ['#ffb87f', '#f8823a'],
     tailG: ['#ee6f26', '#f9924f'],
@@ -35,7 +43,13 @@ export const SPECIES = {
     marks: 'blaze',
   },
   leopard: {
-    name: 'Лео',
+    name: 'Пятныш',
+    full: 'Леопард Пятныш',
+    // Instrumental case, for "Играть с …". Russian won't let the nominative
+    // stand there and it reads as broken to a child who is learning to read.
+    withName: 'Пятнышем',
+    trait: 'Любит числа и загадки. Находит решение везде.',
+    emoji: '🐯',
     fur: ['#ffd95e', '#f2a521'],
     head: ['#ffe07a', '#f5ab29'],
     tailG: ['#f0a01e', '#ffd257'],
@@ -53,6 +67,10 @@ export const SPECIES = {
   },
   tiger: {
     name: 'Тиг',
+    full: 'Тигрёнок Тиг',
+    withName: 'Тигом',
+    trait: 'Смелый и быстрый. Любит скорость и рекорды.',
+    emoji: '🐅',
     fur: ['#ff7a45', '#e8391b'],
     head: ['#ff8a55', '#e84020'],
     tailG: ['#e8391b', '#ff7a45'],
@@ -70,36 +88,43 @@ export const SPECIES = {
 
 /* ── Face parts (shared) ─────────────────────────────────────────────────── */
 
-function Eyes({ state, ids, sp }) {
+function Eyes({ state, ids }) {
+  // Arcs are drawn in the eye's own dark colour, not the nose colour — a lilac
+  // or pink smile-eye reads as makeup rather than as a squeezed-shut eye.
   if (state === 'happy') {
     return (
-      <g className="leo-eyes" fill="none" stroke={sp.nose} strokeWidth="5.5" strokeLinecap="round">
-        <path d="M 73 74 Q 82 63 91 74" />
-        <path d="M 109 74 Q 118 63 127 74" />
+      <g className="leo-eyes" fill="none" stroke="#3a2a20" strokeWidth="6" strokeLinecap="round">
+        <path d="M 70 75 Q 80 62 90 75" />
+        <path d="M 110 75 Q 120 62 130 75" />
       </g>
     )
   }
   if (state === 'sleepy') {
     return (
-      <g className="leo-eyes" fill="none" stroke={sp.nose} strokeWidth="5" strokeLinecap="round">
-        <path d="M 73 71 Q 82 80 91 71" />
-        <path d="M 109 71 Q 118 80 127 71" />
+      <g className="leo-eyes" fill="none" stroke="#3a2a20" strokeWidth="5.5" strokeLinecap="round">
+        <path d="M 70 71 Q 80 81 90 71" />
+        <path d="M 110 71 Q 120 81 130 71" />
       </g>
     )
   }
   const up = state === 'think' ? -2.4 : 0
   return (
     <g className="leo-eyes">
-      {/* Coloured iris with a dark pupil — a big cat's eye is the one place
-          these three differ most, so it gets the extra shape. */}
-      <circle cx="82" cy="72" r="9.5" fill={`url(#${ids.eye})`} />
-      <circle cx="118" cy="72" r="9.5" fill={`url(#${ids.eye})`} />
-      <ellipse cx="82" cy="72.5" rx="4.6" ry="7.4" fill="#22160f" />
-      <ellipse cx="118" cy="72.5" rx="4.6" ry="7.4" fill="#22160f" />
-      <circle cx="85.6" cy={68 + up} r="3.2" fill="#fff" />
-      <circle cx="121.6" cy={68 + up} r="3.2" fill="#fff" />
-      <circle cx="78.8" cy={76 + up} r="1.6" fill="#fff" opacity=".6" />
-      <circle cx="114.8" cy={76 + up} r="1.6" fill="#fff" opacity=".6" />
+      {/* Big and round — cuteness in a cub face is mostly eye-to-head ratio,
+          and a white rim makes them pop off the fur the way painted art does.
+          Iris → pupil → two catchlights → a bounce-light arc underneath. */}
+      <circle cx="80" cy="72" r="13" fill="#fff" opacity=".9" />
+      <circle cx="120" cy="72" r="13" fill="#fff" opacity=".9" />
+      <circle cx="80" cy="72" r="11.5" fill={`url(#${ids.eye})`} />
+      <circle cx="120" cy="72" r="11.5" fill={`url(#${ids.eye})`} />
+      <ellipse cx="80" cy="73" rx="5.6" ry="8.6" fill="#22160f" />
+      <ellipse cx="120" cy="73" rx="5.6" ry="8.6" fill="#22160f" />
+      <circle cx="84.4" cy={67.4 + up} r="4.1" fill="#fff" />
+      <circle cx="124.4" cy={67.4 + up} r="4.1" fill="#fff" />
+      <circle cx="75.6" cy={77 + up} r="2.1" fill="#fff" opacity=".7" />
+      <circle cx="115.6" cy={77 + up} r="2.1" fill="#fff" opacity=".7" />
+      <path d="M 73 78 A 8 8 0 0 0 87 78" fill="#fff" opacity=".18" />
+      <path d="M 113 78 A 8 8 0 0 0 127 78" fill="#fff" opacity=".18" />
     </g>
   )
 }
@@ -400,7 +425,7 @@ export default function Cub({ species = 'fox', state = 'idle', size = 140, class
           <ellipse className="leo-blush leo-blush--l" cx="64" cy="99" rx="9.5" ry="6" fill={sp.blush} opacity=".5" />
           <ellipse className="leo-blush leo-blush--r" cx="136" cy="99" rx="9.5" ry="6" fill={sp.blush} opacity=".5" />
 
-          <Eyes state={s} ids={ids} sp={sp} />
+          <Eyes state={s} ids={ids} />
           <Brows state={s} sp={sp} />
 
           <path d="M 90.5 88 Q 100 83 109.5 88 Q 109.5 97.5 100 99.5 Q 90.5 97.5 90.5 88 Z" fill={sp.nose} />

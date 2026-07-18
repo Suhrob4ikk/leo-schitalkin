@@ -43,7 +43,8 @@ const initial = () => ({
   streak: { current: 0, longest: 0, lastDay: null },
   stickers: [],
   sessions: [],
-  settings: { sound: true, voice: true, textScale: 1 },
+  // buddy: null means "hasn't chosen yet" and triggers the picker on first run.
+  settings: { sound: true, voice: true, textScale: 1, buddy: null },
   createdAt: new Date().toISOString(),
 })
 

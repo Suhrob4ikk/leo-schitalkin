@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import Leo from '../components/Leo.jsx'
+import Mascot from '../components/Mascot.jsx'
 import { sfx } from '../game/audio.js'
 
 /*  Лео hops the line himself, one step per tap, rather than the child tapping a
@@ -74,12 +74,12 @@ export default function NumberLine({ q, onAnswer, locked, phase }) {
           className={`nline-leo ${hopping ? 'is-hopping' : ''}`}
           style={{ left: `${pct(pos)}%` }}
         >
-          <Leo size={62} state={phase === 'correct' ? 'happy' : 'idle'} />
+          <Mascot size={62} state={phase === 'correct' ? 'happy' : 'idle'} />
         </div>
       </div>
 
       <div className="nline-readout">
-        Лео на числе <b className="tnum">{pos}</b>
+        Друг на числе <b className="tnum">{pos}</b>
       </div>
 
       <div className="nline-controls">

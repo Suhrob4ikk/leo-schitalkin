@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Leo from '../components/Leo.jsx'
+import Mascot from '../components/Mascot.jsx'
 import { Sticker, ProgressBar } from '../components/ui.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore } from '../game/store.jsx'
@@ -41,7 +41,7 @@ export default function Collection() {
 
       <div className="shell coll-body">
         <div className="coll-hero">
-          <Leo size={110} state={have.size > 0 ? 'wave' : 'idle'} />
+          <Mascot size={110} state={have.size > 0 ? 'wave' : 'idle'} />
           <div className="coll-hero-text">
             <b className="h1 tnum">
               {have.size} / {total}

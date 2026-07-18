@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Leo from '../components/Leo.jsx'
+import Mascot from '../components/Mascot.jsx'
+import Cub, { CAST, SPECIES } from '../components/Cub.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore } from '../game/store.jsx'
 import { canSpeak, sfx, speak } from '../game/audio.js'
@@ -29,7 +30,7 @@ function Toggle({ on, onChange, label, hint }) {
 export default function Settings() {
   const nav = useNavigate()
   const { state, dispatch } = useStore()
-  const { sound, voice, textScale } = state.settings
+  const { sound, voice, textScale, buddy } = state.settings
   const [confirmReset, setConfirmReset] = useState(false)
 
   const set = (key, value) => dispatch({ type: 'setSetting', key, value })
@@ -56,12 +57,12 @@ export default function Settings() {
         />
 
         <Toggle
-          label="Голос Лео"
+          label="Голос друга"
           hint={canSpeak() ? 'Кнопка 🔊 читает задание вслух' : 'Не поддерживается этим браузером'}
           on={voice && canSpeak()}
           onChange={(v) => {
             set('voice', v)
-            if (v) speak('Привет! Я Лео.')
+            if (v) speak(`Привет! Я ${SPECIES[buddy]?.name ?? 'Лео'}.`)
           }}
         />
 
@@ -86,9 +87,29 @@ export default function Settings() {
           <span className="sub">Меняет размер всего приложения, не только букв.</span>
         </div>
 
+        <div className="block">
+          <b>Твой друг</b>
+          <div className="buddy-row">
+            {CAST.map((id) => (
+              <button
+                key={id}
+                type="button"
+                className={`buddy-btn ${buddy === id ? 'is-on' : ''}`}
+                onClick={() => {
+                  sfx.pick()
+                  set('buddy', id)
+                }}
+              >
+                <Cub species={id} state={buddy === id ? 'happy' : 'idle'} size={72} />
+                <span>{SPECIES[id].name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="setts-leo">
-          <Leo size={130} state="wave" />
-          <p className="sub">Лео готов заниматься!</p>
+          <Mascot size={130} state="wave" />
+          <p className="sub">{SPECIES[buddy]?.name ?? 'Лео'} готов заниматься!</p>
         </div>
 
         <button className="btn btn--ghost btn--block" onClick={() => setConfirmReset(true)}>
@@ -98,7 +119,7 @@ export default function Settings() {
 
       {confirmReset && (
         <Sheet onClose={() => setConfirmReset(false)}>
-          <Leo size={90} state="think" />
+          <Mascot size={90} state="think" />
           <b className="h2">Точно сбросить?</b>
           <p className="sub">Все звёзды, наклейки, очки и дни подряд исчезнут. Это нельзя отменить.</p>
           <button className="btn btn--green btn--block" onClick={() => setConfirmReset(false)}>

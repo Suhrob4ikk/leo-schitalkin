@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Leo from '../components/Leo.jsx'
+import Mascot from '../components/Mascot.jsx'
+import { SPECIES } from '../components/Cub.jsx'
+import PickBuddy from './PickBuddy.jsx'
 import { Stars } from '../components/ui.jsx'
 import StreakCalendar from '../components/StreakCalendar.jsx'
 import Sheet from '../components/Sheet.jsx'
@@ -85,7 +87,7 @@ function UnitPath({ unit, lessons, currentId, leoState, scale }) {
           >
             {isCurrent && (
               <div className="node-leo">
-                <Leo size={74} state={leoState} />
+                <Mascot size={74} state={leoState} />
               </div>
             )}
 
@@ -132,6 +134,10 @@ export default function Home() {
   const [showCal, setShowCal] = useState(false)
   const [adult, setAdult] = useState(false)
 
+  // First run: pick a companion before anything else. Nothing on the map means
+  // anything until the child knows who they're travelling with.
+  if (!state.settings.buddy) return <PickBuddy />
+
   const currentId = currentLessonId(state.lessons)
   // He naps until the day's first question — the nudge is the mascot, not a banner.
   const leoState = practiced ? 'wave' : 'sleepy'
@@ -173,7 +179,7 @@ export default function Home() {
       <div className="shell home-body">
         {!practiced && (
           <div className="nudge-card">
-            <b>Лео заскучал!</b>
+            <b>{SPECIES[state.settings.buddy]?.name ?? 'Лео'} заскучал!</b>
             <span className="sub">Позанимаемся сегодня? 🔥</span>
           </div>
         )}
@@ -222,7 +228,7 @@ export default function Home() {
             Я взрослый
           </button>
           <button className="btn btn--ghost btn--block" onClick={() => setAdult(false)}>
-            Назад к Лео
+            Назад к игре
           </button>
         </Sheet>
       )}
