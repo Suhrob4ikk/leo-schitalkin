@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Grid } from './ArrayView.jsx'
+import Icon from '../components/Icon.jsx'
 import { sfx } from '../game/audio.js'
 
 /* Teaching screens. Nothing here is scored — the child watches, then taps
@@ -51,7 +52,7 @@ function SkipCount({ q, onAnswer }) {
           <div key={i} className={`sc-group ${i === n - 1 ? 'is-new' : ''}`}>
             {Array.from({ length: table }, (_, k) => (
               <span key={k} className="sc-dot" style={{ animationDelay: `${k * 0.06}s` }}>
-                ⭐
+                <Icon e="⭐" size="1.15rem" />
               </span>
             ))}
             {i === n - 1 && n < groups && <span className="sc-plus">+{table}</span>}

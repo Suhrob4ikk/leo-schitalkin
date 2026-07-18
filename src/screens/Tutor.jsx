@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import Icon from '../components/Icon.jsx'
 import { Stars } from '../components/ui.jsx'
 import { useStore, lastNDays, useStreak } from '../game/store.jsx'
 import { ALL_LESSONS, UNITS } from '../game/curriculum.js'
@@ -142,7 +143,8 @@ export default function Tutor() {
         </button>
         <b className="h2">Успехи</b>
         <Link to="/settings" className="icon-btn tutor-gear" aria-label="Настройки">
-          ⚙️
+  
+
         </Link>
       </header>
 
@@ -168,7 +170,9 @@ export default function Tutor() {
 
         {struggling.length > 0 ? (
           <section className="card warn-card">
-            <b className="warn-title">⚠️ Тяжело даётся</b>
+            <b className="warn-title">
+            <Icon e="⚠️" size="1.05rem" /> Тяжело даётся
+          </b>
             <p className="sub">Точность ниже {Math.round(STRUGGLE_BELOW * 100)}% — стоит повторить вместе.</p>
             <ul className="warn-list">
               {struggling.map(([topic, r]) => (
@@ -186,7 +190,9 @@ export default function Tutor() {
           </section>
         ) : (
           <section className="card ok-card">
-            <b>✅ Слабых тем нет</b>
+            <b>
+              <Icon e="✅" size="1.05rem" /> Слабых тем нет
+            </b>
             <p className="sub">
               {Object.keys(state.topics).length === 0
                 ? 'Данных пока нет — начните первый урок.'
@@ -213,7 +219,7 @@ export default function Tutor() {
               const r = state.lessons[l.id]
               return (
                 <div key={l.id} className={`lrow ${r?.done ? '' : 'is-todo'}`}>
-                  <span className="lrow-icon">{l.icon}</span>
+                  <Icon e={l.icon} className="lrow-icon" size="1rem" />
                   <span className="lrow-title">{l.title}</span>
                   {r?.done ? (
                     <>
@@ -237,7 +243,7 @@ export default function Tutor() {
                 const l = ALL_LESSONS.find((x) => x.id === s.lessonId)
                 return (
                   <div key={i} className="srow">
-                    <span className="srow-icon">{l?.icon ?? '📘'}</span>
+                    <Icon e={l?.icon ?? '📘'} className="srow-icon" size="1.1rem" />
                     <div className="srow-main">
                       <b>{l?.title ?? s.lessonId}</b>
                       <span className="sub">{fmtDate(s.at)}</span>

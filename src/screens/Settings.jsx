@@ -115,6 +115,11 @@ export default function Settings() {
         <button className="btn btn--ghost btn--block" onClick={() => setConfirmReset(true)}>
           Сбросить весь прогресс
         </button>
+
+        {/* CC-BY requires attribution wherever the graphics are used. */}
+        <p className="setts-credit sub">
+          Иконки — Twemoji (CC-BY 4.0), шрифт — Nunito (SIL OFL)
+        </p>
       </div>
 
       {confirmReset && (

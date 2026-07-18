@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Icon from '../components/Icon.jsx'
 import Cub, { CAST, SPECIES } from '../components/Cub.jsx'
 import { useStore } from '../game/store.jsx'
 import { sfx } from '../game/audio.js'
@@ -67,7 +68,9 @@ export default function PickBuddy({ onDone }) {
           })}
         </div>
 
-        <p className="pick-foot sub">⭐ Друга можно поменять в настройках</p>
+        <p className="pick-foot sub">
+          <Icon e="⭐" /> Друга можно поменять в настройках
+        </p>
       </div>
 
       <div className="pick-actions shell safe-bottom">

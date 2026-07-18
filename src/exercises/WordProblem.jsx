@@ -1,4 +1,5 @@
 import NumberPad, { PadDisplay } from './NumberPad.jsx'
+import Icon from '../components/Icon.jsx'
 
 /** The picture is the support, not decoration — every object in the story is on
     screen and countable, and the ones taken away stay visible but crossed out so
@@ -14,7 +15,7 @@ export default function WordProblem({ q, onAnswer, locked, phase, value, setValu
             <div className="wp-group">
               {Array.from({ length: groups[0] }, (_, i) => (
                 <span key={i} className="wp-item" style={{ animationDelay: `${i * 0.03}s` }}>
-                  {emoji}
+                  <Icon e={emoji} size="1.5rem" />
                 </span>
               ))}
             </div>
@@ -35,7 +36,7 @@ export default function WordProblem({ q, onAnswer, locked, phase, value, setValu
                 className={`wp-item ${i >= total - taken ? 'wp-item--gone' : ''}`}
                 style={{ animationDelay: `${i * 0.03}s` }}
               >
-                {emoji}
+                <Icon e={emoji} size="1.5rem" />
               </span>
             ))}
           </div>

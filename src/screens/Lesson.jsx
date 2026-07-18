@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import Icon from '../components/Icon.jsx'
 import Mascot from '../components/Mascot.jsx'
 import { Hearts, ProgressBar, SpeakButton } from '../components/ui.jsx'
 import Sheet from '../components/Sheet.jsx'
@@ -365,7 +366,8 @@ export default function Lesson() {
         {/* The running streak only appears once it's worth chasing. */}
         {combo >= 2 && (
           <span className="combo-chip" key={combo}>
-            🔥<b className="tnum">{combo}</b>
+            <Icon e="🔥" size="0.95rem" />
+            <b className="tnum">{combo}</b>
           </span>
         )}
         <Hearts left={hearts} />
@@ -373,7 +375,7 @@ export default function Lesson() {
 
       {comboPop && (
         <div className="combo-pop" role="status">
-          <span className="combo-pop-icon">{comboPop.icon}</span>
+          <Icon e={comboPop.icon} className="combo-pop-icon" size="3.4rem" />
           <b className="combo-pop-n tnum">{comboPop.n}</b>
           <span className="combo-pop-text">{comboPop.text}</span>
           <span className="combo-pop-xp">+10 XP</span>

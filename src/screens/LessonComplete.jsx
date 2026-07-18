@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import Icon from '../components/Icon.jsx'
 import Mascot from '../components/Mascot.jsx'
 import { Stars, Sticker } from '../components/ui.jsx'
 import { useStore, starsFor } from '../game/store.jsx'
@@ -94,12 +95,13 @@ export default function LessonComplete() {
           {res.passed ? (
             <>
               <div className="perfect-badge">
-                {res.mistakes === 0 ? '🎓 Без единой ошибки!' : '🎓 Раздел пройден!'}
+                <Icon e="🎓" size="1.05rem" />{' '}
+                {res.mistakes === 0 ? 'Без единой ошибки!' : 'Раздел пройден!'}
               </div>
               {/* The stars every lesson in the unit just received. */}
               <Stars count={res.stars} size="lg" animate />
               <div className="unlock-card">
-                <span className="unlock-icon">{unit?.icon}</span>
+                <Icon e={unit?.icon} className="unlock-icon" size="2rem" />
                 <div>
                   <b>Все уроки раздела открыты</b>
                   <span className="sub">
@@ -112,7 +114,7 @@ export default function LessonComplete() {
             </>
           ) : (
             <div className="unlock-card unlock-card--soft">
-              <span className="unlock-icon">💪</span>
+              <Icon e="💪" className="unlock-icon" size="2rem" />
               <div>
                 <b>Пройди уроки — и всё получится</b>
                 <span className="sub">Проверку можно повторить в любой момент</span>
@@ -166,7 +168,11 @@ export default function LessonComplete() {
         </h1>
         <p className="sub done-lesson">{lesson.title}</p>
 
-        {perfect && <div className="perfect-badge">⭐ Ни одной ошибки!</div>}
+        {perfect && (
+          <div className="perfect-badge">
+            <Icon e="⭐" size="1.05rem" /> Ни одной ошибки!
+          </div>
+        )}
 
         <Stars count={stars} size="lg" animate />
 
@@ -200,7 +206,7 @@ export default function LessonComplete() {
 
         {nextUnit && (
           <div className="unlock-card">
-            <span className="unlock-icon">{nextUnit.icon}</span>
+            <Icon e={nextUnit.icon} className="unlock-icon" size="2rem" />
             <div>
               <b>{nextUnit.title}</b>
               <span className="sub">Теперь доступен!</span>

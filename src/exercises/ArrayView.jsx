@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import ChoiceGrid from './ChoiceGrid.jsx'
+import Icon from '../components/Icon.jsx'
 import { sfx } from '../game/audio.js'
 
 /** rows × cols of an icon. The grid IS the fact: "3 ряда по 4" is visible as
@@ -15,7 +16,7 @@ export function Grid({ rows, cols, emoji = '⭐', highlightRow = -1, stagger = t
             className={`arr-cell ${highlightRow === r ? 'is-hot' : ''}`}
             style={stagger ? { animationDelay: `${i * 0.028}s` } : undefined}
           >
-            {emoji}
+            <Icon e={emoji} size="1.55rem" />
           </span>
         )
       })}

@@ -1,5 +1,6 @@
 import { useStore, dayKey, shiftDay, useStreak } from '../game/store.jsx'
 import Sheet from './Sheet.jsx'
+import Icon from './Icon.jsx'
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
@@ -32,7 +33,7 @@ export default function StreakCalendar({ onClose }) {
     <Sheet onClose={onClose} className="cal-sheet">
       <>
         <div className="cal-head">
-          <span className="cal-flame">🔥</span>
+          <Icon e="🔥" className="cal-flame" size="2.6rem" />
           <div>
             <b className="h1 tnum">{streak.current}</b>
             <span className="sub"> {streak.current === 1 ? 'день' : streak.current < 5 ? 'дня' : 'дней'} подряд</span>
@@ -53,7 +54,7 @@ export default function StreakCalendar({ onClose }) {
                 c.future ? 'is-future' : ''
               }`}
             >
-              {c.active ? '🔥' : c.day}
+              {c.active ? <Icon e="🔥" size="1rem" /> : c.day}
             </span>
           ))}
         </div>

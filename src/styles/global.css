@@ -50,6 +50,17 @@ svg {
   display: block;
 }
 
+/* Bundled Twemoji glyphs. inline-block + vertical-align keeps them sitting on
+   the text baseline like the character they replace, so nothing that used to
+   contain an emoji needs its layout rethought. */
+.icon {
+  display: inline-block;
+  vertical-align: -0.15em;
+  object-fit: contain;
+  user-select: none;
+  flex: none;
+}
+
 :focus-visible {
   outline: 3px solid var(--blue);
   outline-offset: 3px;

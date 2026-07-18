@@ -106,6 +106,13 @@
   color: var(--blue-dark);
 }
 
+.setts-credit {
+  margin-top: 1.2rem;
+  font-size: 0.68rem;
+  text-align: center;
+  opacity: 0.7;
+}
+
 .buddy-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

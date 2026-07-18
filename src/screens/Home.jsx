@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Mascot from '../components/Mascot.jsx'
+import Icon from '../components/Icon.jsx'
 import { SPECIES } from '../components/Cub.jsx'
 import PickBuddy from './PickBuddy.jsx'
 import { Stars } from '../components/ui.jsx'
@@ -103,7 +104,9 @@ function UnitPath({ unit, lessons, currentId, leoState, scale }) {
               onClick={() => tap(l, unlocked, i)}
               aria-label={`${l.title}${unlocked ? '' : ' — закрыто'}`}
             >
-              <span className="node-icon">{unlocked ? l.icon : '🔒'}</span>
+              <span className="node-icon">
+              <Icon e={unlocked ? l.icon : '🔒'} size="1.7rem" />
+            </span>
             </button>
 
             {/* The call to action sits below the node, not above it: above, it
@@ -156,17 +159,17 @@ export default function Home() {
             className={`chip chip--streak ${streak.activeToday ? 'is-hot' : ''}`}
             onClick={() => setShowCal(true)}
           >
-            <span className="chip-icon">🔥</span>
+            <Icon e="🔥" className="chip-icon" size="1.15rem" />
             <b className="tnum">{streak.current}</b>
           </button>
 
           <div className="chip chip--xp">
-            <span className="chip-icon">⚡</span>
+            <Icon e="⚡" className="chip-icon" size="1.15rem" />
             <b className="tnum">{state.xp}</b>
           </div>
 
           <Link to="/collection" className="icon-btn chip-btn" aria-label="Коллекция">
-            🎖️
+            <Icon e="🎖️" size="1.4rem" />
           </Link>
 
           {/* Deliberately small, dim, and gated — the child shouldn't wander in. */}
@@ -176,7 +179,7 @@ export default function Home() {
             onClick={() => setAdult(true)}
             aria-label="Для взрослых"
           >
-            ⚙️
+            <Icon e="⚙️" size="1.05rem" />
           </button>
         </div>
       </header>
@@ -185,7 +188,9 @@ export default function Home() {
         {!practiced && (
           <div className="nudge-card">
             <b>{SPECIES[state.settings.buddy]?.name ?? 'Лео'} заскучал!</b>
-            <span className="sub">Позанимаемся сегодня? 🔥</span>
+            <span className="sub">
+              Позанимаемся сегодня? <Icon e="🔥" />
+            </span>
           </div>
         )}
 
@@ -213,7 +218,7 @@ export default function Home() {
                     onClick={() => setExamUnit(unit)}
                     aria-label={`Пропустить раздел «${unit.title}» — сдать проверку`}
                   >
-                    <span className="unit-exam-icon">⚡</span>
+                    <Icon e="⚡" className="unit-exam-icon" size="1.15rem" />
                     <span>
                       Знаю
                       <br />
@@ -221,7 +226,7 @@ export default function Home() {
                     </span>
                   </button>
                 ) : (
-                  <span className="unit-icon">{unit.icon}</span>
+                  <Icon e={unit.icon} className="unit-icon" size="1.9rem" />
                 )}
               </div>
 
@@ -268,7 +273,7 @@ export default function Home() {
               nav(`/lesson/exam-${examUnit.id}`)
             }}
           >
-            🎓 Начать проверку
+            <Icon e="🎓" size="1.1rem" /> Начать проверку
           </button>
           <button className="btn btn--ghost btn--block" onClick={() => setExamUnit(null)}>
             Лучше пройду уроки
@@ -278,7 +283,7 @@ export default function Home() {
 
       {adult && (
         <Sheet onClose={() => setAdult(false)}>
-          <span style={{ fontSize: '2.6rem' }}>👋</span>
+          <Icon e="👋" size="2.6rem" />
           <b className="h2">Для взрослых</b>
           <p className="sub">Здесь настройки и успехи. Позови маму или папу!</p>
           <button

@@ -116,18 +116,29 @@
   padding: 0;
 }
 .sticker-art {
+  position: relative;
   width: 100%;
   aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   filter: drop-shadow(0 0.18rem 0.3rem rgba(0, 0, 0, 0.14));
+}
+.sticker-art svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.sticker-emoji {
+  position: relative;
+  z-index: 1;
 }
 .sticker-rosette {
   fill: var(--gold);
 }
 .sticker-disc {
   fill: #fff;
-}
-.sticker-emoji {
-  font-size: 34px;
 }
 .sticker-label {
   font-size: 0.7rem;

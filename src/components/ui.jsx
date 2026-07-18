@@ -1,6 +1,7 @@
 import { useStore } from '../game/store.jsx'
 import { canSpeak, speak, sfx } from '../game/audio.js'
 import { STICKERS } from '../game/stickers.js'
+import Icon from './Icon.jsx'
 import './ui.css'
 
 /* ── Read-aloud ───────────────────────────────────────────────────────────
@@ -16,7 +17,7 @@ export function SpeakButton({ text, className = '' }) {
       aria-label="Прочитать вслух"
       type="button"
     >
-      🔊
+      <Icon e="🔊" size="1.15rem" />
     </button>
   )
 }
@@ -29,7 +30,7 @@ export function Hearts({ left, total = 3 }) {
     <div className="hearts" aria-label={`Сердечки: ${left} из ${total}`}>
       {Array.from({ length: total }, (_, i) => (
         <span key={i} className={`heart ${i < left ? 'heart--on' : 'heart--off'}`} aria-hidden="true">
-          {i < left ? '❤️' : '🤍'}
+          <Icon e={i < left ? '❤️' : '🤍'} size="1.15rem" />
         </span>
       ))}
     </div>
@@ -87,13 +88,16 @@ export function Sticker({ id, locked = false, size = 92, onClick }) {
       type={onClick ? 'button' : undefined}
       title={locked ? 'Ещё не открыта' : s.label}
     >
-      <svg viewBox="0 0 100 100" className="sticker-art">
-        <polygon className="sticker-rosette" points={pts} />
-        <circle className="sticker-disc" cx="50" cy="50" r="35" />
-        <text x="50" y="50" className="sticker-emoji" textAnchor="middle" dominantBaseline="central">
-          {locked ? '🔒' : s.emoji}
-        </text>
-      </svg>
+      <div className="sticker-art">
+        <svg viewBox="0 0 100 100">
+          <polygon className="sticker-rosette" points={pts} />
+          <circle className="sticker-disc" cx="50" cy="50" r="35" />
+        </svg>
+        {/* Layered over the rosette rather than drawn as SVG <text>: an <image>
+            inside SVG can't be sized in rem, and the emoji has to scale with
+            the sticker at every size it's used. */}
+        <Icon e={locked ? '🔒' : s.emoji} className="sticker-emoji" size="42%" />
+      </div>
       <span className="sticker-label">{locked ? '???' : s.label}</span>
     </Tag>
   )
