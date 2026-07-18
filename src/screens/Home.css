@@ -105,8 +105,8 @@
 .unit-banner {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.9rem 1.1rem;
+  gap: 0.7rem;
+  padding: 0.7rem 1rem;
   border-radius: var(--r-lg);
   color: #fff;
   box-shadow: 0 0.28rem 0 rgba(0, 0, 0, 0.16);
@@ -129,6 +129,23 @@
 .unit-banner--orange {
   background: var(--orange);
 }
+/* The host sits in a soft disc so it reads as a portrait rather than a cub
+   floating loose on the coloured banner. */
+.unit-host {
+  flex: none;
+  width: 3.3rem;
+  height: 3.3rem;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.unit-host .leo {
+  margin-bottom: -0.55rem; /* crop the feet, so the face fills the disc */
+}
+
 .unit-meta {
   display: flex;
   flex-direction: column;

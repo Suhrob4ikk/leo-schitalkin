@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Icon from '../components/Icon.jsx'
 import Mascot from '../components/Mascot.jsx'
+import Cub, { SPECIES } from '../components/Cub.jsx'
 import { Stars, Sticker } from '../components/ui.jsx'
 import { useStore, starsFor } from '../game/store.jsx'
 import { ALL_LESSONS, LESSON_BY_ID, UNITS, UNIT_BY_ID, lessonIndex } from '../game/curriculum.js'
@@ -19,6 +20,12 @@ function unlockedUnit(lessonId) {
   if (!unit) return null
   const i = UNITS.indexOf(unit)
   return UNITS[i + 1] ?? null
+}
+
+/** The unit just finished — needed to tell whether the next one has a new host
+    worth introducing, or the same friend carrying on. */
+function finishedUnit(lessonId) {
+  return UNITS.find((u) => u.lessons.some((l) => l.id === lessonId)) ?? null
 }
 
 export default function LessonComplete() {
@@ -43,6 +50,7 @@ export default function LessonComplete() {
   }, [])
 
   const nextUnit = unlockedUnit(id)
+  const unlockedFrom = finishedUnit(id)
   const perfect = res?.perfect
 
   useEffect(() => {
@@ -200,6 +208,18 @@ export default function LessonComplete() {
                   <Sticker id={sid} size={96} />
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Finishing a unit hands the child over to whoever hosts the next one,
+            so the map reads as a journey between friends rather than a list. */}
+        {nextUnit && nextUnit.host !== unlockedFrom?.host && (
+          <div className="handoff">
+            <Cub species={nextUnit.host} state="wave" size={104} />
+            <div className="handoff-text">
+              <b>{SPECIES[nextUnit.host]?.name} ждёт тебя!</b>
+              <span className="sub">Дальше занимаемся с ним</span>
             </div>
           </div>
         )}

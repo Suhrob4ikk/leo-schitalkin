@@ -164,6 +164,31 @@
   }
 }
 
+/* Handing over to the next unit's host. Lands after the stickers, so the
+   sequence reads: you did it → here's your prize → someone new is waiting. */
+.handoff {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--r-lg);
+  background: var(--gold);
+  box-shadow: 0 0.25rem 0 var(--gold-dark);
+  text-align: left;
+  animation: badge-in 0.6s var(--spring-big) 0.7s both;
+}
+.handoff-text b {
+  display: block;
+  font-size: 1.05rem;
+  color: var(--ink-strong);
+  line-height: 1.15;
+}
+.handoff-text .sub {
+  color: rgba(0, 0, 0, 0.55);
+}
+
 .unlock-card {
   display: flex;
   align-items: center;

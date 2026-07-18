@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Mascot from '../components/Mascot.jsx'
 import Icon from '../components/Icon.jsx'
 import UiIcon from '../components/UiIcon.jsx'
-import { SPECIES } from '../components/Cub.jsx'
+import Cub, { SPECIES } from '../components/Cub.jsx'
 import PickBuddy from './PickBuddy.jsx'
 import { Stars } from '../components/ui.jsx'
 import StreakCalendar from '../components/StreakCalendar.jsx'
@@ -203,8 +203,16 @@ export default function Home() {
           return (
             <section key={unit.id} className="unit">
               <div className={`unit-banner unit-banner--${unit.color}`}>
+                {/* Each unit is hosted by one of the three friends, so moving
+                    through the map feels like visiting them in turn. The
+                    child's own chosen buddy still walks the path with them. */}
+                <div className="unit-host">
+                  <Cub species={unit.host} state={p.done > 0 ? 'happy' : 'wave'} size={62} />
+                </div>
                 <div className="unit-meta">
-                  <span className="unit-kicker">Раздел {ui + 1}</span>
+                  <span className="unit-kicker">
+                    Раздел {ui + 1} · {SPECIES[unit.host]?.name}
+                  </span>
                   <b className="unit-title">{unit.title}</b>
                   <span className="unit-sub">
                     {p.done} из {p.total} · {unit.subtitle}

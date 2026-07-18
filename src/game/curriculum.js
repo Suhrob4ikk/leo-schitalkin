@@ -22,6 +22,7 @@ const REVIEW = (unitId) => ({
 const RAW_UNITS = [
   {
     id: 'u1',
+    host: 'fox',
     title: 'Числа до 100',
     subtitle: 'Разминка',
     color: 'green',
@@ -34,6 +35,7 @@ const RAW_UNITS = [
   },
   {
     id: 'u2',
+    host: 'fox',
     title: 'Плюс и минус',
     subtitle: 'Считаем до 100',
     color: 'blue',
@@ -46,6 +48,7 @@ const RAW_UNITS = [
   },
   {
     id: 'u3',
+    host: 'leopard',
     title: 'Столбик и скобки',
     subtitle: 'Записываем красиво',
     color: 'orange',
@@ -59,6 +62,7 @@ const RAW_UNITS = [
   },
   {
     id: 'u4',
+    host: 'leopard',
     title: 'Что такое умножение',
     subtitle: 'Новая тема!',
     color: 'purple',
@@ -77,6 +81,7 @@ const RAW_UNITS = [
   },
   {
     id: 'u5',
+    host: 'tiger',
     title: 'Таблица дальше',
     subtitle: '×3, ×4, ×6',
     color: 'green',
@@ -89,6 +94,7 @@ const RAW_UNITS = [
   },
   {
     id: 'u6',
+    host: 'tiger',
     title: 'Самые трудные',
     subtitle: '×9, ×7, ×8',
     color: 'blue',
@@ -101,6 +107,7 @@ const RAW_UNITS = [
   },
   {
     id: 'u7',
+    host: 'leopard',
     title: 'Деление',
     subtitle: 'Умножение наоборот',
     color: 'orange',
@@ -114,6 +121,7 @@ const RAW_UNITS = [
   },
   {
     id: 'u8',
+    host: 'tiger',
     title: 'Всё вместе',
     subtitle: 'Финал',
     color: 'purple',
