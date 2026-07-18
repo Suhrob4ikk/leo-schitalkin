@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Mascot from '../components/Mascot.jsx'
 import Icon from '../components/Icon.jsx'
+import UiIcon from '../components/UiIcon.jsx'
 import { SPECIES } from '../components/Cub.jsx'
 import PickBuddy from './PickBuddy.jsx'
 import { Stars } from '../components/ui.jsx'
@@ -105,8 +106,11 @@ function UnitPath({ unit, lessons, currentId, leoState, scale }) {
               aria-label={`${l.title}${unlocked ? '' : ' — закрыто'}`}
             >
               <span className="node-icon">
-              <Icon e={unlocked ? l.icon : '🔒'} size="1.7rem" />
-            </span>
+                {/* The lock is UI, not content: as a grey glyph it recedes
+                    into the greyed-out node instead of being a bright yellow
+                    padlock advertising the one thing that can't be tapped. */}
+                {unlocked ? <Icon e={l.icon} size="1.7rem" /> : <UiIcon name="lock" size="1.5rem" />}
+              </span>
             </button>
 
             {/* The call to action sits below the node, not above it: above, it
@@ -179,7 +183,7 @@ export default function Home() {
             onClick={() => setAdult(true)}
             aria-label="Для взрослых"
           >
-            <Icon e="⚙️" size="1.05rem" />
+            <UiIcon name="gear" size="1.3rem" />
           </button>
         </div>
       </header>

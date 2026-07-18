@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import UiIcon from '../components/UiIcon.jsx'
 import Mascot from '../components/Mascot.jsx'
 import { Sticker, ProgressBar } from '../components/ui.jsx'
 import Sheet from '../components/Sheet.jsx'
@@ -34,7 +35,7 @@ export default function Collection() {
     <div className="screen coll">
       <header className="coll-top safe-top shell">
         <button className="icon-btn" onClick={() => nav('/')} aria-label="Назад">
-          ←
+          <UiIcon name="back" size="1.35rem" />
         </button>
         <b className="h2">Коллекция</b>
       </header>

@@ -2,6 +2,7 @@ import { useStore } from '../game/store.jsx'
 import { canSpeak, speak, sfx } from '../game/audio.js'
 import { STICKERS } from '../game/stickers.js'
 import Icon from './Icon.jsx'
+import UiIcon from './UiIcon.jsx'
 import './ui.css'
 
 /* ── Read-aloud ───────────────────────────────────────────────────────────
@@ -17,7 +18,8 @@ export function SpeakButton({ text, className = '' }) {
       aria-label="Прочитать вслух"
       type="button"
     >
-      <Icon e="🔊" size="1.15rem" />
+      {/* Inherits the button's blue instead of carrying a grey emoji speaker. */}
+      <UiIcon name="sound" size="1.35rem" />
     </button>
   )
 }
@@ -96,7 +98,11 @@ export function Sticker({ id, locked = false, size = 92, onClick }) {
         {/* Layered over the rosette rather than drawn as SVG <text>: an <image>
             inside SVG can't be sized in rem, and the emoji has to scale with
             the sticker at every size it's used. */}
-        <Icon e={locked ? '🔒' : s.emoji} className="sticker-emoji" size="42%" />
+        {locked ? (
+          <UiIcon name="lock" className="sticker-emoji sticker-lock" size="34%" />
+        ) : (
+          <Icon e={s.emoji} className="sticker-emoji" size="42%" />
+        )}
       </div>
       <span className="sticker-label">{locked ? '???' : s.label}</span>
     </Tag>

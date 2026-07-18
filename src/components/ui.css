@@ -170,8 +170,13 @@
 .sticker--locked .sticker-disc {
   fill: var(--sunken);
 }
+/* The lock takes the rosette's own grey, so an unearned sticker reads as one
+   quiet shape rather than a bright padlock sitting on a grey disc. */
+.sticker-lock {
+  color: var(--locked-deep);
+}
 .sticker--locked .sticker-emoji {
-  opacity: 0.5;
+  opacity: 0.6;
 }
 .sticker--locked .sticker-art {
   filter: none;

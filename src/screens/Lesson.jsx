@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import UiIcon from '../components/UiIcon.jsx'
 import Icon from '../components/Icon.jsx'
 import Mascot from '../components/Mascot.jsx'
 import { Hearts, ProgressBar, SpeakButton } from '../components/ui.jsx'
@@ -360,7 +361,7 @@ export default function Lesson() {
     <div className="lesson">
       <header className="lesson-top safe-top">
         <button className="icon-btn" onClick={() => setQuitting(true)} aria-label="Выйти">
-          ✕
+          <UiIcon name="close" size="1.35rem" />
         </button>
         <ProgressBar value={idx} max={questions.length} />
         {/* The running streak only appears once it's worth chasing. */}

@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import UiIcon from '../components/UiIcon.jsx'
 import Icon from '../components/Icon.jsx'
 import { Stars } from '../components/ui.jsx'
 import { useStore, lastNDays, useStreak } from '../game/store.jsx'
@@ -139,7 +140,7 @@ export default function Tutor() {
     <div className="screen tutor">
       <header className="coll-top safe-top shell">
         <button className="icon-btn" onClick={() => nav('/')} aria-label="Назад">
-          ←
+          <UiIcon name="back" size="1.35rem" />
         </button>
         <b className="h2">Успехи</b>
         <Link to="/settings" className="icon-btn tutor-gear" aria-label="Настройки">

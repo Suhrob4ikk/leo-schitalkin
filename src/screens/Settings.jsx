@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import UiIcon from '../components/UiIcon.jsx'
 import Mascot from '../components/Mascot.jsx'
 import Cub, { CAST, SPECIES } from '../components/Cub.jsx'
 import Sheet from '../components/Sheet.jsx'
@@ -39,7 +40,7 @@ export default function Settings() {
     <div className="screen setts">
       <header className="coll-top safe-top shell">
         <button className="icon-btn" onClick={() => nav(-1)} aria-label="Назад">
-          ←
+          <UiIcon name="back" size="1.35rem" />
         </button>
         <b className="h2">Настройки</b>
       </header>
@@ -58,7 +59,7 @@ export default function Settings() {
 
         <Toggle
           label="Голос друга"
-          hint={canSpeak() ? 'Кнопка 🔊 читает задание вслух' : 'Не поддерживается этим браузером'}
+          hint={canSpeak() ? 'Кнопка со звуком читает задание вслух' : 'Не поддерживается этим браузером'}
           on={voice && canSpeak()}
           onChange={(v) => {
             set('voice', v)
@@ -118,7 +119,7 @@ export default function Settings() {
 
         {/* CC-BY requires attribution wherever the graphics are used. */}
         <p className="setts-credit sub">
-          Иконки — Twemoji (CC-BY 4.0), шрифт — Nunito (SIL OFL)
+          Иконки — Twemoji (CC-BY 4.0) и Material Symbols (Apache 2.0), шрифт — Nunito (SIL OFL)
         </p>
       </div>
 
