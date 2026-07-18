@@ -9,6 +9,8 @@ export const STICKERS = {
   apple: { emoji: '🍎', label: 'Решала задачек', color: 'green' },
   words: { emoji: '🗣️', label: 'Математический язык', color: 'purple' },
   pencil: { emoji: '📝', label: 'Столбик-профи', color: 'blue' },
+  brackets: { emoji: '🔀', label: 'Хозяин скобок', color: 'green' },
+  puzzle: { emoji: '🧩', label: 'Два действия', color: 'orange' },
   target: { emoji: '🎯', label: 'Меткий счёт', color: 'orange' },
 
   bulb: { emoji: '💡', label: 'Понял умножение!', color: 'gold' },
@@ -23,6 +25,8 @@ export const STICKERS = {
   x8: { emoji: '8️⃣', label: 'Восьмёрка покорена', color: 'green' },
   divide: { emoji: '➗', label: 'Деление освоено', color: 'blue' },
   grad: { emoji: '🎓', label: 'Знаток терминов', color: 'purple' },
+  order: { emoji: '🔢', label: 'Порядок действий', color: 'green' },
+  brain: { emoji: '🧠', label: 'Сложные задачи', color: 'gold' },
   circus: { emoji: '🎪', label: 'Всё вместе!', color: 'purple' },
   bolt: { emoji: '⚡', label: 'Молния', color: 'gold' },
 

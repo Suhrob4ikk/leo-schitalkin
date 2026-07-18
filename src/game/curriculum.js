@@ -15,6 +15,8 @@ export const UNITS = [
       { id: 'word', title: 'Задачки с картинками', icon: '🍎', sticker: 'apple' },
       { id: 'terms', title: 'Сумма и разность', icon: '🗣️', sticker: 'words' },
       { id: 'column', title: 'В столбик', icon: '📝', sticker: 'pencil' },
+      { id: 'order', title: 'Скобки', icon: '🔀', sticker: 'brackets' },
+      { id: 'composite', title: 'Задачи в 2 действия', icon: '🧩', sticker: 'puzzle' },
       { id: 'mix1', title: 'Смешанная практика', icon: '🎯', sticker: 'target' },
     ],
   },
@@ -44,6 +46,8 @@ export const UNITS = [
          it can't be taught before there's something to reverse. */
       { id: 'division', title: 'Деление', icon: '➗', sticker: 'divide' },
       { id: 'mult-terms', title: 'Произведение и частное', icon: '🎓', sticker: 'grad' },
+      { id: 'order-mult', title: 'Порядок действий', icon: '🔢', sticker: 'order' },
+      { id: 'composite-mult', title: 'Сложные задачи', icon: '🧠', sticker: 'brain' },
       { id: 'mult-mix', title: 'Смешанная тренировка', icon: '🎪', sticker: 'circus' },
       { id: 'blitz', title: 'Блиц-раунд', icon: '⚡', sticker: 'bolt' },
     ],

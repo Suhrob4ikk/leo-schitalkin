@@ -46,13 +46,16 @@ function qNumberLine() {
   // Every third jump or so moves in tens, so the child practises both the
   // "count on by ones" and the "leap a whole ten" strategies.
   if (Math.random() < 0.35) {
-    const start = rnd(0, 7) * 10
-    const mag = pick([10, 20, 30])
+    // Starting anywhere on the decade line, not just 0–70, and jumping 10–50:
+    // the old ranges gave barely 50 possible questions and the same jump came
+    // back a dozen times in an afternoon.
+    const start = rnd(0, 10) * 10
+    const mag = pick([10, 20, 30, 40, 50])
     const plus = start - mag < 0 ? true : start + mag > 100 ? false : Math.random() < 0.5
     const answer = plus ? start + mag : start - mag
     return {
       kind: 'numberline',
-      prompt: 'Куда прыгнет Лео?',
+      prompt: 'Куда прыгнет друг?',
       expr: `${start} ${plus ? '+' : '−'} ${mag}`,
       answer,
       topic: 'numberline',
@@ -61,8 +64,11 @@ function qNumberLine() {
     }
   }
 
-  const start = rnd(2, 14)
-  const mag = rnd(2, 9)
+  // Single steps anywhere up to 60 rather than only 2–14. The window below
+  // keeps the drawn line short whatever the numbers, so a bigger range costs
+  // nothing on screen.
+  const start = rnd(2, 60)
+  const mag = rnd(2, 12)
   const plus = start - mag < 0 ? true : Math.random() < 0.55
   const answer = plus ? start + mag : start - mag
   const lo = Math.min(start, answer)
@@ -71,7 +77,7 @@ function qNumberLine() {
   const max = Math.max(hi + 3, min + 12)
   return {
     kind: 'numberline',
-    prompt: 'Куда прыгнет Лео?',
+    prompt: 'Куда прыгнет друг?',
     expr: `${start} ${plus ? '+' : '−'} ${mag}`,
     answer,
     topic: 'numberline',
@@ -84,7 +90,7 @@ function qBaseTen(i) {
   const mode = i % 3
 
   if (mode === 0) {
-    const n = rnd(12, 98)
+    const n = rnd(11, 99)
     return {
       kind: 'basten',
       prompt: 'Сколько тут?',
@@ -96,7 +102,7 @@ function qBaseTen(i) {
   }
 
   if (mode === 1) {
-    const n = rnd(13, 87)
+    const n = rnd(11, 99)
     return {
       kind: 'basten-build',
       prompt: `Собери число ${n}`,
@@ -109,10 +115,10 @@ function qBaseTen(i) {
 
   // Regrouping across a ten — the whole point of the lesson.
   if (Math.random() < 0.5) {
-    const aOnes = rnd(4, 9)
+    const aOnes = rnd(2, 9)
     const bOnes = rnd(10 - aOnes, 9)
-    const aTens = rnd(1, 4)
-    const bTens = rnd(1, 8 - aTens)
+    const aTens = rnd(1, 6)
+    const bTens = rnd(1, Math.max(1, 8 - aTens))
     const a = aTens * 10 + aOnes
     const b = bTens * 10 + bOnes
     return {
@@ -313,6 +319,244 @@ function qTerms() {
   return pick(forms)()
 }
 
+/* ── Порядок действий ──────────────────────────────────────────────────────
+   Two rules, taught in the order the workbook does: brackets first, then
+   "× and : before + and −". The teaching move is the contrasting pair —
+   83−(33+14)=36 against (83−33)+14=64 — same digits, different answer, so the
+   brackets are visibly doing something rather than being decoration. */
+function qOrder(withMult) {
+  const mk = (expr, answer, hint) => ({
+    kind: 'pad',
+    prompt: 'Реши по порядку',
+    expr,
+    answer,
+    topic: withMult ? 'order-mult' : 'order',
+    hint,
+  })
+
+  if (!withMult) {
+    const shape = pick(['a-(b+c)', '(a-b)+c', 'a-(b-c)', 'a+(b-c)', '(a+b)-c', 'a+(b+c)'])
+    const b = rnd(11, 45)
+    const c = rnd(2, 30)
+    if (shape === 'a-(b+c)') {
+      const a = rnd(b + c + 1, 99)
+      return mk(`${a} − (${b} + ${c})`, a - b - c, `Сначала скобки: ${b} + ${c} = ${b + c}. Потом ${a} − ${b + c}.`)
+    }
+    if (shape === '(a-b)+c') {
+      const a = rnd(b + 1, 90)
+      return mk(`(${a} − ${b}) + ${c}`, a - b + c, `Сначала скобки: ${a} − ${b} = ${a - b}. Потом + ${c}.`)
+    }
+    if (shape === 'a-(b-c)') {
+      const bb = rnd(c + 1, 60)
+      const a = rnd(bb, 99)
+      return mk(`${a} − (${bb} − ${c})`, a - bb + c, `Сначала скобки: ${bb} − ${c} = ${bb - c}. Потом ${a} − ${bb - c}.`)
+    }
+    if (shape === 'a+(b-c)') {
+      const bb = rnd(c + 1, 60)
+      const a = rnd(2, 99 - (bb - c))
+      return mk(`${a} + (${bb} − ${c})`, a + bb - c, `Сначала скобки: ${bb} − ${c} = ${bb - c}. Потом ${a} + ${bb - c}.`)
+    }
+    if (shape === '(a+b)-c') {
+      const a = rnd(11, 60)
+      const bb = rnd(2, 99 - a)
+      const cc = rnd(2, a + bb)
+      return mk(`(${a} + ${bb}) − ${cc}`, a + bb - cc, `Сначала скобки: ${a} + ${bb} = ${a + bb}. Потом − ${cc}.`)
+    }
+    const a = rnd(11, 50)
+    const bb = rnd(2, 30)
+    const cc = rnd(2, 99 - a - bb)
+    return mk(`${a} + (${bb} + ${cc})`, a + bb + cc, `Сначала скобки: ${bb} + ${cc} = ${bb + cc}. Потом ${a} + ${bb + cc}.`)
+  }
+
+  // With × and : — precedence, not just brackets.
+  const t = pick([2, 3, 4, 5, 6, 7, 8, 9, 10])
+  const k = rnd(2, 9)
+  const p = t * k
+  const shape = pick(['m+n', 'n-m', 'm-n', 'd+n', 'n-d', 'm(b+c)', '(b+c)d', 'm+d', 'dd'])
+
+  if (shape === 'm+n') {
+    const n = rnd(2, 99 - p)
+    return mk(`${t} · ${k} + ${n}`, p + n, `Сначала умножение: ${t} · ${k} = ${p}. Потом + ${n}.`)
+  }
+  if (shape === 'n-m') {
+    const n = rnd(p + 1, 99)
+    return mk(`${n} − ${t} · ${k}`, n - p, `Сначала умножение: ${t} · ${k} = ${p}. Потом ${n} − ${p}.`)
+  }
+  if (shape === 'm-n') {
+    const n = rnd(1, p - 1)
+    return mk(`${t} · ${k} − ${n}`, p - n, `Сначала умножение: ${t} · ${k} = ${p}. Потом − ${n}.`)
+  }
+  if (shape === 'd+n') {
+    const n = rnd(2, 90)
+    return mk(`${p} : ${t} + ${n}`, k + n, `Сначала деление: ${p} : ${t} = ${k}. Потом + ${n}.`)
+  }
+  if (shape === 'n-d') {
+    const n = rnd(k + 1, 99)
+    return mk(`${n} − ${p} : ${t}`, n - k, `Сначала деление: ${p} : ${t} = ${k}. Потом ${n} − ${k}.`)
+  }
+  if (shape === 'm(b+c)') {
+    const s = rnd(2, 10)
+    const b = rnd(1, s - 1)
+    const small = pick([2, 3, 4, 5])
+    return mk(`${small} · (${b} + ${s - b})`, small * s, `Сначала скобки: ${b} + ${s - b} = ${s}. Потом ${small} · ${s}.`)
+  }
+  if (shape === '(b+c)d') {
+    const d = pick([2, 3, 4, 5])
+    const q = rnd(2, 9)
+    const total = d * q
+    const b = rnd(1, total - 1)
+    return mk(`(${b} + ${total - b}) : ${d}`, q, `Сначала скобки: ${b} + ${total - b} = ${total}. Потом ${total} : ${d}.`)
+  }
+  if (shape === 'm+d') {
+    const d = pick([2, 3, 4, 5])
+    const q2 = rnd(2, 9)
+    const small = pick([2, 3, 4])
+    const k2 = rnd(2, 6)
+    return mk(
+      `${small} · ${k2} + ${d * q2} : ${d}`,
+      small * k2 + q2,
+      `Оба действия первой ступени: ${small} · ${k2} = ${small * k2}, ${d * q2} : ${d} = ${q2}. Потом сложи.`,
+    )
+  }
+  const d1 = pick([2, 3, 5])
+  const q1 = rnd(2, 9)
+  const d2 = pick([2, 3, 4])
+  const q3 = rnd(2, 9)
+  return mk(
+    `${d1 * q1} : ${d1} + ${d2 * q3} : ${d2}`,
+    q1 + q3,
+    `${d1 * q1} : ${d1} = ${q1}, ${d2 * q3} : ${d2} = ${q3}. Потом сложи.`,
+  )
+}
+
+/* ── Составные задачи ──────────────────────────────────────────────────────
+   Two actions, and the first result feeds the second — the workbook's
+   "составные задачи". Deliberately many scenarios and interchangeable
+   names/objects: this is the one lesson type where repetition is obvious,
+   because the child reads every word rather than scanning a sum. */
+const NAMES = ['Миша', 'Катя', 'Лена', 'Петя', 'Оля', 'Саша', 'Ира', 'Дима', 'Вера', 'Коля']
+const STUFF = [
+  { n: 'флажок', few: 'флажка', many: 'флажков', v: 'вырезали' },
+  { n: 'шарик', few: 'шарика', many: 'шариков', v: 'надули' },
+  { n: 'открытка', few: 'открытки', many: 'открыток', v: 'подписали' },
+  { n: 'снежок', few: 'снежка', many: 'снежков', v: 'слепили' },
+  { n: 'ёлочка', few: 'ёлочки', many: 'ёлочек', v: 'нарисовали' },
+]
+const BOXED = [
+  { item: 'хурмы', box: 'ящик', boxes: 'ящиков', unit: 'кг' },
+  { item: 'яблок', box: 'ящик', boxes: 'ящиков', unit: 'кг' },
+  { item: 'сметаны', box: 'банка', boxes: 'банок', unit: 'кг' },
+  { item: 'мёда', box: 'банка', boxes: 'банок', unit: 'кг' },
+  { item: 'конфет', box: 'пакет', boxes: 'пакетов', unit: 'кг' },
+]
+const TREES = [
+  ['слив', 'груш', 'яблонь'],
+  ['берёз', 'клёнов', 'дубов'],
+  ['роз', 'тюльпанов', 'ромашек'],
+]
+
+function qComposite(allowMult) {
+  const mk = (prompt, answer, hint, topic = 'composite') => ({ kind: 'pad', prompt, answer, topic, hint })
+  const forms = []
+
+  // 1. Two groups vs one — "кто меньше и на сколько"
+  forms.push(() => {
+    const s = pick(STUFF)
+    const a = rnd(11, 30)
+    const b = rnd(8, 25)
+    const c = rnd(a + b + 2, a + b + 30)
+    return mk(
+      `Девочки ${s.v} ${a} ${s.many} и ещё ${b}, а мальчики — ${c}. На сколько мальчики ${s.v} больше?`,
+      c - a - b,
+      `Сначала у девочек: ${a} + ${b} = ${a + b}. Потом ${c} − ${a + b}.`,
+    )
+  })
+
+  // 2. "столько же" + "на N больше"
+  forms.push(() => {
+    const [x, y, z] = pick(TREES)
+    const n = rnd(8, 25)
+    const more = rnd(5, 25)
+    return mk(
+      `В саду ${n} ${x} и столько же ${y}, а ${z} — на ${more} больше, чем ${y}. Сколько всего?`,
+      n + n + (n + more),
+      `${y}: ${n}. ${z}: ${n} + ${more} = ${n + more}. Всего ${n} + ${n} + ${n + more}.`,
+    )
+  })
+
+  // 3. Было — потратили — сколько осталось (два вычитания)
+  forms.push(() => {
+    const who = pick(NAMES)
+    const total = rnd(50, 99)
+    const a = rnd(10, 30)
+    const b = rnd(5, 25)
+    return mk(
+      `У ${who === 'Миша' || who === 'Петя' || who === 'Саша' || who === 'Дима' || who === 'Коля' ? who + 'и' : who} было ${total} рублей. Купил${who.endsWith('а') ? 'а' : ''} игрушку за ${a} и книгу за ${b}. Сколько осталось?`,
+      total - a - b,
+      `Потратили: ${a} + ${b} = ${a + b}. Осталось: ${total} − ${a + b}.`,
+    )
+  })
+
+  // 4. Прибавили — убавили
+  forms.push(() => {
+    const s = pick(STUFF)
+    const a = rnd(20, 50)
+    const b = rnd(10, 30)
+    const c = rnd(5, Math.min(25, a + b - 1))
+    return mk(
+      `Было ${a} ${s.many}. Принесли ещё ${b}, а потом ${c} унесли. Сколько стало?`,
+      a + b - c,
+      `${a} + ${b} = ${a + b}. Потом ${a + b} − ${c}.`,
+    )
+  })
+
+  if (allowMult) {
+    // 5. Ящики по N кг — продали — осталось
+    forms.push(() => {
+      const o = pick(BOXED)
+      const boxes = rnd(4, 9)
+      const per = pick([2, 3, 4, 5])
+      const total = boxes * per
+      const sold = rnd(5, total - 3)
+      return mk(
+        `Привезли ${boxes} ${o.boxes} ${o.item} по ${per} ${o.unit} в каждом. Продали ${sold} ${o.unit}. Сколько осталось?`,
+        total - sold,
+        `Всего: ${boxes} · ${per} = ${total} ${o.unit}. Осталось: ${total} − ${sold}.`,
+        'composite-mult',
+      )
+    })
+
+    // 6. Разлили по банкам + остаток → сколько было
+    forms.push(() => {
+      const o = pick(BOXED)
+      const jars = rnd(4, 9)
+      const per = pick([2, 3, 4, 5])
+      const left = rnd(8, 30)
+      return mk(
+        `${o.item[0].toUpperCase() + o.item.slice(1)} разлили в ${jars} ${o.boxes} по ${per} ${o.unit}. Осталось ещё ${left} ${o.unit}. Сколько было всего?`,
+        jars * per + left,
+        `В банках: ${jars} · ${per} = ${jars * per}. Всего: ${jars * per} + ${left}.`,
+        'composite-mult',
+      )
+    })
+
+    // 7. Поровну разделить остаток
+    forms.push(() => {
+      const who = rnd(2, 5)
+      const each = rnd(2, 9)
+      const extra = rnd(3, 20)
+      return mk(
+        `Купили ${who * each + extra} конфет. ${extra} оставили маме, остальные разделили поровну на ${who} детей. Сколько каждому?`,
+        each,
+        `Осталось детям: ${who * each + extra} − ${extra} = ${who * each}. Каждому: ${who * each} : ${who}.`,
+        'composite-mult',
+      )
+    })
+  }
+
+  return pick(forms)()
+}
+
 const OBJECTS = [
   { emoji: '🍎', one: 'яблоко', few: 'яблока', many: 'яблок' },
   { emoji: '🚗', one: 'машинка', few: 'машинки', many: 'машинок' },
@@ -320,6 +564,16 @@ const OBJECTS = [
   { emoji: '🍪', one: 'печенье', few: 'печенья', many: 'печений' },
   { emoji: '⭐', one: 'звезда', few: 'звезды', many: 'звёзд' },
   { emoji: '🐟', one: 'рыбка', few: 'рыбки', many: 'рыбок' },
+  { emoji: '🍓', one: 'ягода', few: 'ягоды', many: 'ягод' },
+  { emoji: '🌰', one: 'орешек', few: 'орешка', many: 'орешков' },
+  { emoji: '🍄', one: 'гриб', few: 'гриба', many: 'грибов' },
+  { emoji: '🐞', one: 'божья коровка', few: 'божьи коровки', many: 'божьих коровок' },
+  { emoji: '🦋', one: 'бабочка', few: 'бабочки', many: 'бабочек' },
+  { emoji: '🌸', one: 'цветок', few: 'цветка', many: 'цветов' },
+  { emoji: '🍋', one: 'лимон', few: 'лимона', many: 'лимонов' },
+  { emoji: '🐤', one: 'цыплёнок', few: 'цыплёнка', many: 'цыплят' },
+  { emoji: '🧁', one: 'кекс', few: 'кекса', many: 'кексов' },
+  { emoji: '🪁', one: 'змей', few: 'змея', many: 'змеев' },
 ]
 
 function qWord() {
@@ -333,11 +587,20 @@ function qWord() {
   // печенья, 8 съел" asks a second-grader for −4 — on a pad with no minus key.
   const b = add ? rnd(2, 8) : rnd(2, a - 1)
 
+  // The friend's name is picked per question so the stories don't all star the
+  // same character, and so they read the same whichever buddy was chosen.
+  const who = pick(['Лео', 'Тиг', 'Пятныш', 'Миша', 'Катя', 'Оля', 'Петя'])
+
   if (add) {
     const t = pick([
-      `У Лео ${a} ${n(a)}. Ему дали ещё ${b}.`,
+      `У ${who} ${a} ${n(a)}. Ему дали ещё ${b}.`,
       `В корзине ${a} ${n(a)}, а в коробке ${b}.`,
-      `Лео нашёл ${a} ${n(a)}, а потом ещё ${b}.`,
+      `${who} нашёл ${a} ${n(a)}, а потом ещё ${b}.`,
+      `На поляне ${a} ${n(a)}, прилетело ещё ${b}.`,
+      `В первый день собрали ${a} ${n(a)}, во второй — ${b}.`,
+      `На верхней полке ${a} ${n(a)}, на нижней — ${b}.`,
+      `Утром было ${a} ${n(a)}, днём добавили ${b}.`,
+      `${who} собрал ${a} ${n(a)}, а друг подарил ещё ${b}.`,
     ])
     return {
       kind: 'word',
@@ -350,9 +613,13 @@ function qWord() {
   }
 
   const t = pick([
-    `У Лео было ${a} ${n(a)}. ${b} он отдал друзьям.`,
+    `У ${who} было ${a} ${n(a)}. ${b} он отдал друзьям.`,
     `Было ${a} ${n(a)}. ${b} потерялось.`,
-    `Лео испёк ${a} ${n(a)} и ${b} съел.`,
+    `${who} испёк ${a} ${n(a)} и ${b} съел.`,
+    `На ветке сидели ${a} ${n(a)}, ${b} улетели.`,
+    `Было ${a} ${n(a)}, ${b} подарили соседям.`,
+    `В корзине лежало ${a} ${n(a)}, ${b} забрали.`,
+    `${who} собрал ${a} ${n(a)}, но ${b} укатились.`,
   ])
   return {
     kind: 'word',
@@ -630,6 +897,18 @@ export function buildLesson(lessonId, state) {
 
     case 'terms':
       return repeat(12, qTerms)
+
+    case 'order':
+      return repeat(12, () => qOrder(false))
+
+    case 'composite':
+      return repeat(10, () => qComposite(false))
+
+    case 'order-mult':
+      return repeat(12, () => qOrder(true))
+
+    case 'composite-mult':
+      return repeat(10, () => qComposite(true))
 
     // Chains are mixed straight into "find the missing number": same skill,
     // and they're what he's already meeting at school.
