@@ -114,11 +114,20 @@
   top: 3.7rem;
   z-index: 10;
 }
+/* Every colour a unit can declare must exist here. Adding blue and orange
+   units without these rules left the banner with no background at all —
+   white text on white, invisible. */
 .unit-banner--green {
   background: var(--green);
 }
 .unit-banner--purple {
   background: var(--purple);
+}
+.unit-banner--blue {
+  background: var(--blue);
+}
+.unit-banner--orange {
+  background: var(--orange);
 }
 .unit-meta {
   display: flex;

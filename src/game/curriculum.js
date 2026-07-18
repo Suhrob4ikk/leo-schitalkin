@@ -5,9 +5,8 @@
  *  anywhere; three or four lessons is finishable in a couple of sittings, and
  *  every finish is a celebration and a new colour.
  *
- *  `exam: false` on the first unit only — there has to be somewhere the child
- *  actually starts, and skipping the very first lesson would leave them with an
- *  empty map.
+ *  Colours cycle green → blue → orange → purple; every value used here needs a
+ *  matching .unit-banner--<colour> rule in Home.css.
  */
 export const UNITS = [
   {
@@ -16,7 +15,6 @@ export const UNITS = [
     subtitle: 'Разминка',
     color: 'green',
     icon: '🔢',
-    exam: false,
     lessons: [
       { id: 'numberline', title: 'Числовая прямая', icon: '📏', sticker: 'ruler' },
       { id: 'basten', title: 'Десятки и единицы', icon: '🧱', sticker: 'blocks' },
@@ -118,16 +116,22 @@ export const UNITS = [
   },
 ]
 
-/** Units the child could test out of: the next one they haven't finished, and
-    only if it isn't the very first thing in the app. */
+/*  Which unit offers a test-out exam: the first one that isn't finished — the
+ *  one actually standing in the way.
+ *
+ *  Including the very first unit, deliberately. A child who has just finished
+ *  year 1 already knows addition to 100, and the earlier rule (no exam on unit
+ *  one, and later units gated behind finishing it) meant a brand-new user could
+ *  not test out of anything at all — the feature was invisible exactly when it
+ *  was most useful.
+ *
+ *  One unit at a time, so passing chains forward: clear unit 1, unit 2's exam
+ *  appears, and so on. That keeps the map free of holes and means every exam
+ *  actually tested the content it unlocked.
+ */
 export function canTakeExam(unit, lessons) {
-  if (unit.exam === false) return false
-  const done = unit.lessons.filter((l) => lessons[l.id]?.done).length
-  if (done === unit.lessons.length) return false // already finished it
-  // Unlocked means the unit before it is complete.
-  const i = UNITS.indexOf(unit)
-  if (i <= 0) return true
-  return UNITS[i - 1].lessons.every((l) => lessons[l.id]?.done)
+  const firstIncomplete = UNITS.find((u) => !u.lessons.every((l) => lessons[l.id]?.done))
+  return firstIncomplete?.id === unit.id
 }
 
 export const UNIT_BY_ID = Object.fromEntries(UNITS.map((u) => [u.id, u]))
