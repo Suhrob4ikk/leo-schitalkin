@@ -12,6 +12,7 @@ export const STICKERS = {
   brackets: { emoji: '🔀', label: 'Хозяин скобок', color: 'green' },
   puzzle: { emoji: '🧩', label: 'Два действия', color: 'orange' },
   target: { emoji: '🎯', label: 'Меткий счёт', color: 'orange' },
+  repeat: { emoji: '🔁', label: 'Ничего не забыл', color: 'blue' },
 
   bulb: { emoji: '💡', label: 'Понял умножение!', color: 'gold' },
   x2: { emoji: '2️⃣', label: 'Двойка покорена', color: 'green' },

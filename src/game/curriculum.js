@@ -8,7 +8,18 @@
  *  Colours cycle green → blue → orange → purple; every value used here needs a
  *  matching .unit-banner--<colour> rule in Home.css.
  */
-export const UNITS = [
+/** Every unit ends with a review that mixes questions from all of its lessons.
+    Practising a topic once and moving on is how it gets forgotten; the review
+    is the last gate before the next unit, so nothing is left half-learned. */
+const REVIEW = (unitId) => ({
+  id: `review-${unitId}`,
+  title: 'Повторение',
+  icon: '🔁',
+  sticker: 'repeat',
+  review: true,
+})
+
+const RAW_UNITS = [
   {
     id: 'u1',
     title: 'Числа до 100',
@@ -115,6 +126,10 @@ export const UNITS = [
     ],
   },
 ]
+
+/* Each unit gets its review appended automatically, so adding a lesson later
+   can't leave a unit without one. */
+export const UNITS = RAW_UNITS.map((u) => ({ ...u, lessons: [...u.lessons, REVIEW(u.id)] }))
 
 /*  Which unit offers a test-out exam: the first one that isn't finished — the
  *  one actually standing in the way.

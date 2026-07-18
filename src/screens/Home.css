@@ -160,31 +160,47 @@
 
 /* Test-out. Gold so it reads as an opportunity rather than an obligation —
    it sits on a coloured banner and must not compete with the path below. */
+/* Gold on the coloured banner so it reads as an opportunity, and pulsing
+   gently so the eye finds it — it is easy to miss an option you don't know
+   exists, and this one only appears for a while. */
 .unit-exam {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.05rem;
+  gap: 0.3rem;
   flex: none;
-  min-height: 3.1rem;
-  padding: 0.3rem 0.6rem;
+  min-height: 3rem;
+  padding: 0.35rem 0.7rem;
   border-radius: var(--r-md);
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--gold-dark);
-  font-size: 0.62rem;
+  background: var(--gold);
+  color: var(--ink-strong);
+  font-size: 0.7rem;
   font-weight: 900;
+  line-height: 1.05;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  box-shadow: 0 0.18rem 0 rgba(0, 0, 0, 0.18);
+  letter-spacing: 0.02em;
+  text-align: left;
+  box-shadow: 0 0.2rem 0 var(--gold-dark);
+  animation: exam-nudge 2.8s ease-in-out infinite;
   transition: transform 0.1s var(--ease-out), box-shadow 0.1s var(--ease-out);
 }
 .unit-exam:active {
-  transform: translateY(0.18rem);
+  transform: translateY(0.2rem);
   box-shadow: none;
+  animation: none;
 }
 .unit-exam-icon {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   line-height: 1;
+}
+@keyframes exam-nudge {
+  0%,
+  88%,
+  100% {
+    transform: scale(1);
+  }
+  94% {
+    transform: scale(1.07);
+  }
 }
 
 /* What each level of care is worth, shown before the exam starts. */

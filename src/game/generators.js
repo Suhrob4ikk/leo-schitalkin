@@ -892,20 +892,31 @@ const repeat = (n, fn) => Array.from({ length: n }, (_, i) => fn(i))
 export const EXAM_LENGTH = 12
 export const EXAM_MAX_MISTAKES = 3
 
-export function buildExam(unit, state) {
-  const perLesson = Math.max(2, Math.ceil(EXAM_LENGTH / unit.lessons.length))
+/** Pulls a spread of questions from every real lesson in a unit. Shared by the
+    exam and the end-of-unit review — same sampling, different stakes. */
+function unitPool(unit, state, perLesson) {
   const pool = []
-
   for (const l of unit.lessons) {
+    // Skip the review/exam themselves, or they would recurse into this.
+    if (l.review) continue
     const qs = buildLesson(l.id, state)
       .filter((q) => q.kind !== 'teach' && q.kind !== 'match')
       .slice(0, perLesson)
     pool.push(...qs)
   }
+  return pool
+}
 
-  return shuffle(pool)
+export function buildExam(unit, state) {
+  const perLesson = Math.max(2, Math.ceil(EXAM_LENGTH / Math.max(1, unit.lessons.length - 1)))
+  return shuffle(unitPool(unit, state, perLesson))
     .slice(0, EXAM_LENGTH)
     .map((q) => ({ ...q, exam: true }))
+}
+
+/** Повторение — the same mix, but a normal lesson: retries, hints, no stakes. */
+export function buildReview(unit, state) {
+  return shuffle(unitPool(unit, state, 4)).slice(0, 12)
 }
 
 export function buildLesson(lessonId, state) {
@@ -914,6 +925,10 @@ export function buildLesson(lessonId, state) {
   if (lessonId.startsWith('exam-')) {
     const unit = UNIT_BY_ID[lessonId.slice(5)]
     return unit ? buildExam(unit, state) : []
+  }
+  if (lessonId.startsWith('review-')) {
+    const unit = UNIT_BY_ID[lessonId.slice(7)]
+    return unit ? buildReview(unit, state) : []
   }
 
   const lesson = LESSON_BY_ID[lessonId]

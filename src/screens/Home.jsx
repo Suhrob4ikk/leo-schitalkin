@@ -21,7 +21,10 @@ import './Home.css'
  * meant that at "Огромный" the next node landed on top of the previous node's
  * title and the road stopped lining up with the nodes entirely. */
 const SP_BASE = 128 // vertical gap between node centres, at text scale 1
-const HEAD_BASE = 100 // room above the first node for Лео + the sticky banner
+/* Headroom above the first node. The mascot hangs off the top of its slot and
+   reaches ~135px above the node's centre; at 100 it stuck out past the top of
+   .path, where the sticky unit banner (higher z-index) sliced its ears off. */
+const HEAD_BASE = 155
 const TAIL_BASE = 78 // room under the last node for its title
 const AMP = 27 // horizontal swing, in % of the column
 
@@ -201,14 +204,21 @@ export default function Home() {
                 {/* Test-out. Only on a unit that's open but unfinished — there
                     is nothing to skip past otherwise. */}
                 {canTakeExam(unit, state.lessons) ? (
+                  /* Names the intent, not the mechanism. "Проверка" describes
+                     what the button does internally; a child needs to know what
+                     it's FOR — and so does a parent glancing at the screen. */
                   <button
                     type="button"
                     className="unit-exam"
                     onClick={() => setExamUnit(unit)}
-                    aria-label={`Проверка: ${unit.title}`}
+                    aria-label={`Пропустить раздел «${unit.title}» — сдать проверку`}
                   >
-                    <span className="unit-exam-icon">🎓</span>
-                    <span>Проверка</span>
+                    <span className="unit-exam-icon">⚡</span>
+                    <span>
+                      Знаю
+                      <br />
+                      это!
+                    </span>
                   </button>
                 ) : (
                   <span className="unit-icon">{unit.icon}</span>
