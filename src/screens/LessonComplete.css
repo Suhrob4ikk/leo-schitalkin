@@ -39,6 +39,20 @@
 .done-title.is-perfect {
   color: var(--gold-dark);
 }
+/* A failed exam: warm, not celebratory, and not a scolding either. */
+.done--soft {
+  background: linear-gradient(180deg, var(--blue-soft) 0%, var(--bg) 46%);
+}
+.done-title.is-soft {
+  color: var(--blue-dark);
+}
+.unlock-card--soft {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+}
+.unlock-card--soft b {
+  color: var(--blue-dark);
+}
 
 .done-lesson {
   margin-top: -0.2rem;

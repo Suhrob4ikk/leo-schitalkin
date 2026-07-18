@@ -4,8 +4,8 @@ import Mascot from '../components/Mascot.jsx'
 import { Hearts, ProgressBar, SpeakButton } from '../components/ui.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore } from '../game/store.jsx'
-import { LESSON_BY_ID } from '../game/curriculum.js'
-import { buildLesson, checkAnswer } from '../game/generators.js'
+import { LESSON_BY_ID, UNIT_BY_ID } from '../game/curriculum.js'
+import { buildLesson, checkAnswer, EXAM_MAX_MISTAKES } from '../game/generators.js'
 import { sfx, stopSpeaking } from '../game/audio.js'
 import { burst, burstFrom, rain } from '../game/confetti.js'
 
@@ -63,7 +63,13 @@ export default function Lesson() {
   const { id } = useParams()
   const nav = useNavigate()
   const { state, dispatch } = useStore()
-  const lesson = LESSON_BY_ID[id]
+
+  // Exams travel as `exam-<unitId>` through this same screen: same questions,
+  // same grading, different stakes.
+  const examUnit = id.startsWith('exam-') ? UNIT_BY_ID[id.slice(5)] : null
+  const lesson = examUnit
+    ? { id, title: `Проверка: ${examUnit.title}`, sticker: null }
+    : LESSON_BY_ID[id]
 
   const [questions] = useState(() => buildLesson(id, state))
   const [idx, setIdx] = useState(0)
@@ -86,6 +92,8 @@ export default function Lesson() {
   const startedAt = useRef(Date.now())
   const advanceTimer = useRef(null)
   const finished = useRef(false)
+  const examMisses = useRef(0)
+  const examFailed = useRef(false)
 
   const q = questions[idx]
   const locked = phase !== 'asking'
@@ -95,27 +103,57 @@ export default function Lesson() {
 
   // Guarded: `next` can fire from both the auto-advance timer and a Дальше tap,
   // and finishing twice would double-count the lesson.
-  const finish = useCallback(() => {
-    if (finished.current) return
-    finished.current = true
-    const { first, graded } = tally.current
-    const seconds = Math.round((Date.now() - startedAt.current) / 1000)
-    const accuracy = graded ? first / graded : 1
-    const perfect = graded > 0 && first === graded
-    const bonusXp = perfect ? 25 : 10
+  const finish = useCallback(
+    (failed = false) => {
+      if (finished.current) return
+      finished.current = true
+      const { first, graded } = tally.current
+      const seconds = Math.round((Date.now() - startedAt.current) / 1000)
+      const accuracy = graded ? first / graded : 1
+      const perfect = graded > 0 && first === graded
 
-    dispatch({ type: 'finishLesson', lessonId: id, correct: first, total: graded, seconds, bonusXp })
-    if (lesson?.sticker) dispatch({ type: 'unlockSticker', id: lesson.sticker })
+      if (examUnit) {
+        const passed = !failed
+        if (passed) {
+          dispatch({
+            type: 'passExam',
+            unitId: examUnit.id,
+            lessonIds: examUnit.lessons.map((l) => l.id),
+            seconds,
+            accuracy,
+          })
+        } else {
+          // A failed exam still costs time and still counts as practice — it
+          // just doesn't unlock anything. Nothing is taken away for trying.
+          if (seconds > 3) dispatch({ type: 'addTime', seconds })
+        }
+        nav(`/done/${id}`, {
+          replace: true,
+          state: { accuracy, perfect: false, seconds, bonusXp: passed ? 60 : 0, hearts, xp: passed ? 60 : 0, exam: true, passed, unitId: examUnit.id },
+        })
+        return
+      }
 
-    nav(`/done/${id}`, {
-      replace: true,
-      state: { accuracy, perfect, seconds, bonusXp, hearts, xp: tally.current.xp + bonusXp },
-    })
-  }, [dispatch, hearts, id, lesson, nav])
+      const bonusXp = perfect ? 25 : 10
+      dispatch({ type: 'finishLesson', lessonId: id, correct: first, total: graded, seconds, bonusXp })
+      if (lesson?.sticker) dispatch({ type: 'unlockSticker', id: lesson.sticker })
+
+      nav(`/done/${id}`, {
+        replace: true,
+        state: { accuracy, perfect, seconds, bonusXp, hearts, xp: tally.current.xp + bonusXp },
+      })
+    },
+    [dispatch, examUnit, hearts, id, lesson, nav],
+  )
 
   const next = useCallback(() => {
     clearTimeout(advanceTimer.current)
     stopSpeaking()
+    // Out of mistakes: stop here, whatever question we were on.
+    if (examFailed.current) {
+      finish(true)
+      return
+    }
     if (idx + 1 >= questions.length) {
       finish()
       return
@@ -184,6 +222,23 @@ export default function Lesson() {
     sfx.soft()
     setCombo(0)
     setHearts((h) => Math.max(0, h - 1))
+
+    // An exam gets one attempt per question — a retry would make the mistake
+    // budget meaningless. Three mistakes ends it, but gently, and nothing the
+    // child already had is taken away.
+    if (examUnit) {
+      examMisses.current += 1
+      const out = examMisses.current >= EXAM_MAX_MISTAKES
+      grade(false, false)
+      setPhase('reveal')
+      setLeo('think')
+      setMsg(out ? 'Это была третья ошибка' : pickOne(SOFT))
+      // A ref, not a timer: tapping "Понятно" runs next(), which clears every
+      // pending timer — a timeout here was silently cancelled and the exam
+      // passed with five mistakes. next() reads this flag instead.
+      if (out) examFailed.current = true
+      return
+    }
 
     // First slip gets a nudge and another go; the second shows the answer with
     // the reasoning. Neither ever ends the lesson.

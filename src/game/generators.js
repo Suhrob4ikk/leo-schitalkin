@@ -1,4 +1,4 @@
-import { learnedTables, LESSON_BY_ID } from './curriculum.js'
+import { learnedTables, LESSON_BY_ID, UNIT_BY_ID } from './curriculum.js'
 
 /* ── Dice ──────────────────────────────────────────────────────────────── */
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1))
@@ -881,7 +881,41 @@ function sampleWeighted(pool, n) {
 
 const repeat = (n, fn) => Array.from({ length: n }, (_, i) => fn(i))
 
+/*  Проверка — the test-out exam.
+ *
+ *  Samples across every lesson in the unit rather than drilling one, because
+ *  the claim being tested is "I already know this whole section". Teaching
+ *  screens are dropped: an exam asks, it doesn't explain. 12 questions with a
+ *  3-mistake budget, so passing needs ~75% — high enough to mean something,
+ *  low enough that one slip of the thumb doesn't fail a child who does know it.
+ */
+export const EXAM_LENGTH = 12
+export const EXAM_MAX_MISTAKES = 3
+
+export function buildExam(unit, state) {
+  const perLesson = Math.max(2, Math.ceil(EXAM_LENGTH / unit.lessons.length))
+  const pool = []
+
+  for (const l of unit.lessons) {
+    const qs = buildLesson(l.id, state)
+      .filter((q) => q.kind !== 'teach' && q.kind !== 'match')
+      .slice(0, perLesson)
+    pool.push(...qs)
+  }
+
+  return shuffle(pool)
+    .slice(0, EXAM_LENGTH)
+    .map((q) => ({ ...q, exam: true }))
+}
+
 export function buildLesson(lessonId, state) {
+  // Exams are addressed as `exam-<unitId>` so they travel through the same
+  // route, the same Lesson screen and the same grading as any other lesson.
+  if (lessonId.startsWith('exam-')) {
+    const unit = UNIT_BY_ID[lessonId.slice(5)]
+    return unit ? buildExam(unit, state) : []
+  }
+
   const lesson = LESSON_BY_ID[lessonId]
   if (!lesson) return []
 

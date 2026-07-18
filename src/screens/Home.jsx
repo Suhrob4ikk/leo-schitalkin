@@ -7,7 +7,8 @@ import { Stars } from '../components/ui.jsx'
 import StreakCalendar from '../components/StreakCalendar.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore, usePracticedToday, useStreak } from '../game/store.jsx'
-import { UNITS, isUnlocked, currentLessonId, unitProgress } from '../game/curriculum.js'
+import { UNITS, isUnlocked, currentLessonId, unitProgress, canTakeExam } from '../game/curriculum.js'
+import { EXAM_LENGTH, EXAM_MAX_MISTAKES } from '../game/generators.js'
 import { sfx } from '../game/audio.js'
 import './Home.css'
 
@@ -133,6 +134,7 @@ export default function Home() {
   const practiced = usePracticedToday()
   const [showCal, setShowCal] = useState(false)
   const [adult, setAdult] = useState(false)
+  const [examUnit, setExamUnit] = useState(null)
 
   // First run: pick a companion before anything else. Nothing on the map means
   // anything until the child knows who they're travelling with.
@@ -196,7 +198,21 @@ export default function Home() {
                     {p.done} из {p.total} · {unit.subtitle}
                   </span>
                 </div>
-                <span className="unit-icon">{unit.icon}</span>
+                {/* Test-out. Only on a unit that's open but unfinished — there
+                    is nothing to skip past otherwise. */}
+                {canTakeExam(unit, state.lessons) ? (
+                  <button
+                    type="button"
+                    className="unit-exam"
+                    onClick={() => setExamUnit(unit)}
+                    aria-label={`Проверка: ${unit.title}`}
+                  >
+                    <span className="unit-exam-icon">🎓</span>
+                    <span>Проверка</span>
+                  </button>
+                ) : (
+                  <span className="unit-icon">{unit.icon}</span>
+                )}
               </div>
 
               <UnitPath
@@ -212,6 +228,30 @@ export default function Home() {
       </div>
 
       {showCal && <StreakCalendar onClose={() => setShowCal(false)} />}
+
+      {examUnit && (
+        <Sheet onClose={() => setExamUnit(null)}>
+          <Mascot size={100} state="wave" />
+          <b className="h2">Уже умеешь?</b>
+          <p className="sub">
+            Проверка по разделу «{examUnit.title}». {EXAM_LENGTH} вопросов, можно ошибиться{' '}
+            {EXAM_MAX_MISTAKES} раза.
+          </p>
+          <p className="sub">Сдашь — весь раздел откроется сразу!</p>
+          <button
+            className="btn btn--gold btn--block"
+            onClick={() => {
+              sfx.tap()
+              nav(`/lesson/exam-${examUnit.id}`)
+            }}
+          >
+            🎓 Начать проверку
+          </button>
+          <button className="btn btn--ghost btn--block" onClick={() => setExamUnit(null)}>
+            Лучше пройду уроки
+          </button>
+        </Sheet>
+      )}
 
       {adult && (
         <Sheet onClose={() => setAdult(false)}>

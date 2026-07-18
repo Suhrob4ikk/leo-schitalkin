@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Mascot from '../components/Mascot.jsx'
 import { Stars, Sticker } from '../components/ui.jsx'
 import { useStore, starsFor } from '../game/store.jsx'
-import { ALL_LESSONS, LESSON_BY_ID, UNITS, lessonIndex } from '../game/curriculum.js'
+import { ALL_LESSONS, LESSON_BY_ID, UNITS, UNIT_BY_ID, lessonIndex } from '../game/curriculum.js'
 import { earnedMilestones, STICKERS } from '../game/stickers.js'
 import { sfx } from '../game/audio.js'
 import { cannons, rain } from '../game/confetti.js'
@@ -48,8 +48,19 @@ export default function LessonComplete() {
     if (fired.current || !res) return
     fired.current = true
 
-    // Three tiers of party, so "perfect" and "new unit" actually feel different.
-    if (nextUnit) {
+    // A failed exam gets no party at all — confetti over "почти получилось"
+    // would read as mockery. Just the soft cue, and warm words on screen.
+    if (res.exam && !res.passed) {
+      sfx.soft()
+      return
+    }
+
+    // Four tiers, so each of these actually feels different.
+    if (res.exam) {
+      sfx.bigWin()
+      cannons({ count: 80 })
+      rain(2600, { perTick: 8 })
+    } else if (nextUnit) {
       sfx.bigWin()
       cannons({ count: 90 })
       rain(3200, { perTick: 9 })
@@ -64,7 +75,69 @@ export default function LessonComplete() {
   }, [nextUnit, perfect, res])
 
   // Landing here directly (a refresh, a bookmark) has no result to show.
-  if (!lesson || !res) return <Navigate to="/" replace />
+  if (!res) return <Navigate to="/" replace />
+
+  // Exam result: pass unlocks a whole unit, fail costs nothing but the time.
+  if (res.exam) {
+    const unit = UNIT_BY_ID[res.unitId]
+    return (
+      <div className={`screen done ${res.passed ? '' : 'done--soft'}`}>
+        <div className="shell done-body safe-top">
+          <div className="done-leo">
+            <Mascot size={190} state={res.passed ? 'happy' : 'think'} />
+          </div>
+          <h1 className={`done-title ${res.passed ? '' : 'is-soft'}`}>
+            {res.passed ? 'Сдал!' : 'Почти получилось!'}
+          </h1>
+          <p className="sub done-lesson">{unit?.title}</p>
+
+          {res.passed ? (
+            <>
+              <div className="perfect-badge">🎓 Раздел пройден!</div>
+              <div className="unlock-card">
+                <span className="unlock-icon">{unit?.icon}</span>
+                <div>
+                  <b>Все уроки раздела открыты</b>
+                  <span className="sub">Можно идти дальше</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="unlock-card unlock-card--soft">
+              <span className="unlock-icon">💪</span>
+              <div>
+                <b>Пройди уроки — и всё получится</b>
+                <span className="sub">Проверку можно повторить в любой момент</span>
+              </div>
+            </div>
+          )}
+
+          <div className="done-stats">
+            <div className="dstat dstat--xp">
+              <span className="dstat-label">Очки</span>
+              <b className="tnum">+{res.xp}</b>
+            </div>
+            <div className="dstat dstat--acc">
+              <span className="dstat-label">Точность</span>
+              <b className="tnum">{Math.round(res.accuracy * 100)}%</b>
+            </div>
+            <div className="dstat dstat--time">
+              <span className="dstat-label">Время</span>
+              <b className="tnum">{fmtTime(res.seconds)}</b>
+            </div>
+          </div>
+        </div>
+
+        <div className="done-actions shell safe-bottom">
+          <button className="btn btn--green btn--block btn--big" onClick={() => nav('/', { replace: true })}>
+            На карту
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!lesson) return <Navigate to="/" replace />
 
   const stars = starsFor(res.accuracy)
   const pct = Math.round(res.accuracy * 100)

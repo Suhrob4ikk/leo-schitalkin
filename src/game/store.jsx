@@ -150,6 +150,41 @@ function reducer(state, action) {
       }
     }
 
+    /* Passed a unit's test-out exam: every lesson in it counts as done.
+       Two stars, not three — three stay the reward for actually working
+       through a lesson, or skipping would pay better than learning. */
+    case 'passExam': {
+      const { unitId, lessonIds, seconds, accuracy } = action
+      const lessons = { ...state.lessons }
+      for (const id of lessonIds) {
+        const prev = lessons[id]
+        if (prev?.done) continue
+        lessons[id] = {
+          done: true,
+          stars: Math.max(2, prev?.stars ?? 0),
+          best: Math.max(accuracy, prev?.best ?? 0),
+          plays: prev?.plays ?? 0,
+          perfect: prev?.perfect ?? false,
+          lastAccuracy: accuracy,
+          lastPlayed: new Date().toISOString(),
+          // Flagged so the tutor dashboard can distinguish "tested out of" from
+          // "practised", which are very different things to a parent.
+          viaExam: true,
+        }
+      }
+      return {
+        ...state,
+        lessons,
+        xp: state.xp + 60,
+        streak: advanceStreak(state.streak),
+        days: touchDay(state.days, (d) => ({ seconds: d.seconds + seconds, xp: d.xp + 60 })),
+        sessions: [
+          ...state.sessions.slice(-199),
+          { lessonId: `exam-${unitId}`, at: new Date().toISOString(), seconds, correct: 0, total: 0, exam: true },
+        ],
+      }
+    }
+
     /* Time spent in a lesson the child backed out of — still real practice. */
     case 'addTime':
       return { ...state, days: touchDay(state.days, (d) => ({ seconds: d.seconds + action.seconds })) }
