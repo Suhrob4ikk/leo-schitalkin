@@ -87,18 +87,26 @@ export default function LessonComplete() {
             <Mascot size={190} state={res.passed ? 'happy' : 'think'} />
           </div>
           <h1 className={`done-title ${res.passed ? '' : 'is-soft'}`}>
-            {res.passed ? 'Сдал!' : 'Почти получилось!'}
+            {res.passed ? (res.mistakes === 0 ? 'Идеально!' : 'Сдал!') : 'Почти получилось!'}
           </h1>
           <p className="sub done-lesson">{unit?.title}</p>
 
           {res.passed ? (
             <>
-              <div className="perfect-badge">🎓 Раздел пройден!</div>
+              <div className="perfect-badge">
+                {res.mistakes === 0 ? '🎓 Без единой ошибки!' : '🎓 Раздел пройден!'}
+              </div>
+              {/* The stars every lesson in the unit just received. */}
+              <Stars count={res.stars} size="lg" animate />
               <div className="unlock-card">
                 <span className="unlock-icon">{unit?.icon}</span>
                 <div>
                   <b>Все уроки раздела открыты</b>
-                  <span className="sub">Можно идти дальше</span>
+                  <span className="sub">
+                    {res.mistakes === 0
+                      ? 'И везде по три звезды!'
+                      : `Ошибок: ${res.mistakes} · звёзд: ${res.stars}`}
+                  </span>
                 </div>
               </div>
             </>

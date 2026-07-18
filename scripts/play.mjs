@@ -293,7 +293,13 @@ for (let i = 0; i < 90; i++) {
   if (onDone) break
 
   const isTeach = await evaluate(`!!(window.__leoQ && window.__leoQ.kind === 'teach')`)
-  const wrong = Number(wrongEvery) > 0 && step > 0 && step % Number(wrongEvery) === 0
+  // `wrongEvery` as "exactly:N" fluffs the first N questions and then plays
+  // clean — needed to land an exam on a precise mistake count.
+  const exactly = String(wrongEvery).startsWith('exactly:') ? Number(String(wrongEvery).slice(8)) : null
+  const wrong =
+    exactly !== null
+      ? step < exactly
+      : Number(wrongEvery) > 0 && step > 0 && step % Number(wrongEvery) === 0
 
   const problem = await evaluate(audit)
   if (problem) audits.push(problem)

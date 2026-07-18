@@ -237,6 +237,19 @@ export default function Home() {
             Проверка по разделу «{examUnit.title}». {EXAM_LENGTH} вопросов, можно ошибиться{' '}
             {EXAM_MAX_MISTAKES} раза.
           </p>
+          {/* Shown up front: the reward for care is visible before the child
+              starts, not discovered afterwards. */}
+          <div className="exam-scale">
+            <span>
+              <b>0 ошибок</b> <Stars count={3} size="sm" />
+            </span>
+            <span>
+              <b>1 ошибка</b> <Stars count={2} size="sm" />
+            </span>
+            <span>
+              <b>2 ошибки</b> <Stars count={1} size="sm" />
+            </span>
+          </div>
           <p className="sub">Сдашь — весь раздел откроется сразу!</p>
           <button
             className="btn btn--gold btn--block"

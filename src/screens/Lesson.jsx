@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Mascot from '../components/Mascot.jsx'
 import { Hearts, ProgressBar, SpeakButton } from '../components/ui.jsx'
 import Sheet from '../components/Sheet.jsx'
-import { useStore } from '../game/store.jsx'
+import { useStore, examStars, EXAM_XP } from '../game/store.jsx'
 import { LESSON_BY_ID, UNIT_BY_ID } from '../game/curriculum.js'
 import { buildLesson, checkAnswer, EXAM_MAX_MISTAKES } from '../game/generators.js'
 import { sfx, stopSpeaking } from '../game/audio.js'
@@ -114,6 +114,9 @@ export default function Lesson() {
 
       if (examUnit) {
         const passed = !failed
+        const mistakes = examMisses.current
+        const stars = examStars(mistakes)
+        const gained = passed ? (EXAM_XP[stars] ?? 40) : 0
         if (passed) {
           dispatch({
             type: 'passExam',
@@ -121,6 +124,7 @@ export default function Lesson() {
             lessonIds: examUnit.lessons.map((l) => l.id),
             seconds,
             accuracy,
+            mistakes,
           })
         } else {
           // A failed exam still costs time and still counts as practice — it
@@ -129,7 +133,19 @@ export default function Lesson() {
         }
         nav(`/done/${id}`, {
           replace: true,
-          state: { accuracy, perfect: false, seconds, bonusXp: passed ? 60 : 0, hearts, xp: passed ? 60 : 0, exam: true, passed, unitId: examUnit.id },
+          state: {
+            accuracy,
+            perfect: passed && mistakes === 0,
+            seconds,
+            bonusXp: gained,
+            hearts,
+            xp: gained,
+            exam: true,
+            passed,
+            mistakes,
+            stars,
+            unitId: examUnit.id,
+          },
         })
         return
       }

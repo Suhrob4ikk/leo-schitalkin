@@ -81,6 +81,19 @@ export function starsFor(accuracy) {
   return 1
 }
 
+/** Stars for a passed test-out exam, by mistakes spent. Deliberately stricter
+    than a lesson's accuracy scale: one exam awards stars across a whole unit,
+    so a flawless run is what it takes to claim three. Three mistakes is a
+    fail, so this only ever sees 0–2. */
+export function examStars(mistakes) {
+  if (mistakes <= 0) return 3
+  if (mistakes === 1) return 2
+  return 1
+}
+
+/** Bonus XP scales with the stars earned, for the same reason. */
+export const EXAM_XP = { 3: 80, 2: 55, 1: 35 }
+
 const bump = (rec = { correct: 0, total: 0 }, correct) => ({
   correct: rec.correct + (correct ? 1 : 0),
   total: rec.total + 1,
@@ -150,21 +163,25 @@ function reducer(state, action) {
       }
     }
 
-    /* Passed a unit's test-out exam: every lesson in it counts as done.
-       Two stars, not three — three stay the reward for actually working
-       through a lesson, or skipping would pay better than learning. */
+    /* Passed a unit's test-out exam: every lesson in it counts as done, with
+       stars earned by how cleanly it was passed (see examStars). A flat award
+       would either undervalue a flawless run or make skipping pay better than
+       learning — this way three stars still have to be earned without a slip. */
     case 'passExam': {
-      const { unitId, lessonIds, seconds, accuracy } = action
+      const { unitId, lessonIds, seconds, accuracy, mistakes } = action
+      const stars = examStars(mistakes)
+      const bonusXp = EXAM_XP[stars] ?? 40
       const lessons = { ...state.lessons }
       for (const id of lessonIds) {
         const prev = lessons[id]
         if (prev?.done) continue
         lessons[id] = {
           done: true,
-          stars: Math.max(2, prev?.stars ?? 0),
+          // Never lower what was already earned by actually playing the lesson.
+          stars: Math.max(stars, prev?.stars ?? 0),
           best: Math.max(accuracy, prev?.best ?? 0),
           plays: prev?.plays ?? 0,
-          perfect: prev?.perfect ?? false,
+          perfect: prev?.perfect || mistakes === 0,
           lastAccuracy: accuracy,
           lastPlayed: new Date().toISOString(),
           // Flagged so the tutor dashboard can distinguish "tested out of" from
@@ -175,9 +192,9 @@ function reducer(state, action) {
       return {
         ...state,
         lessons,
-        xp: state.xp + 60,
+        xp: state.xp + bonusXp,
         streak: advanceStreak(state.streak),
-        days: touchDay(state.days, (d) => ({ seconds: d.seconds + seconds, xp: d.xp + 60 })),
+        days: touchDay(state.days, (d) => ({ seconds: d.seconds + seconds, xp: d.xp + bonusXp })),
         sessions: [
           ...state.sessions.slice(-199),
           { lessonId: `exam-${unitId}`, at: new Date().toISOString(), seconds, correct: 0, total: 0, exam: true },
