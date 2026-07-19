@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import UiIcon from '../components/UiIcon.jsx'
 import Icon from '../components/Icon.jsx'
-import Mascot from '../components/Mascot.jsx'
+import Teacher from '../components/Teacher.jsx'
 import { Hearts, ProgressBar, SpeakButton } from '../components/ui.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore, examStars, EXAM_XP } from '../game/store.jsx'
@@ -405,7 +405,7 @@ export default function Lesson() {
       {phase !== 'asking' && (
         <div className={`fb fb--${phase}`} role="status">
           <div className="fb-inner shell">
-            <Mascot size={96} state={leo} className="fb-leo" />
+            <Teacher lessonId={id} size={96} state={leo} className="fb-leo" />
             <div className="fb-text">
               <b className="fb-title">{msg}</b>
               {phase === 'reveal' && (
@@ -440,7 +440,7 @@ export default function Lesson() {
 
       {quitting && (
         <Sheet onClose={() => setQuitting(false)}>
-          <Mascot size={90} state="think" />
+          <Teacher lessonId={id} size={90} state="think" />
           <b className="h2">Закончить урок?</b>
           <p className="sub">Друг ещё не всё показал!</p>
           <button className="btn btn--green btn--block" onClick={() => setQuitting(false)}>

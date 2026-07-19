@@ -212,14 +212,21 @@ export default function LessonComplete() {
           </div>
         )}
 
-        {/* Finishing a unit hands the child over to whoever hosts the next one,
-            so the map reads as a journey between friends rather than a list. */}
-        {nextUnit && nextUnit.host !== unlockedFrom?.host && (
+        {/* Finishing a unit hands the child over to whoever hosts the next one.
+            Written as a short exchange — the child reports what they just
+            learned, the next friend answers with what's coming — so the map
+            reads as a journey between friends rather than a list of topics. */}
+        {nextUnit && (
           <div className="handoff">
-            <Cub species={nextUnit.host} state="wave" size={104} />
-            <div className="handoff-text">
-              <b>{SPECIES[nextUnit.host]?.name} ждёт тебя!</b>
-              <span className="sub">Дальше занимаемся с ним</span>
+            <p className="handoff-said">
+              Я прошёл: <b>{unlockedFrom?.title}</b>!
+            </p>
+            <div className="handoff-reply">
+              <Cub species={nextUnit.host} state="wave" size={110} />
+              <div className="handoff-bubble">
+                <b className="handoff-who">{SPECIES[nextUnit.host]?.name}</b>
+                <span>{nextUnit.greeting}</span>
+              </div>
             </div>
           </div>
         )}
