@@ -84,8 +84,10 @@ export default function Lesson() {
   const [msg, setMsg] = useState('')
   const [quitting, setQuitting] = useState(false)
   const [timeLeft, setTimeLeft] = useState(null)
-  const [combo, setCombo] = useState(0)
   const [comboPop, setComboPop] = useState(null)
+  // Lives in the store so it survives finishing a lesson, closing the app and
+  // coming back tomorrow — the run is the child's, not the lesson's.
+  const combo = state.combo ?? 0
 
   // Kept in refs, not state: these are read inside timeout callbacks, which
   // would otherwise close over a stale render.
@@ -209,8 +211,9 @@ export default function Lesson() {
 
     if (ok) {
       const firstTry = attempt === 0 && missCount.current === 0
+      // The store updates the run when `answer` is graded below; this is what
+      // it will become, needed now to decide whether a milestone just landed.
       const streak = firstTry ? combo + 1 : 0
-      setCombo(streak)
       setPhase('correct')
       setLeo('happy')
 
@@ -238,7 +241,6 @@ export default function Lesson() {
     }
 
     sfx.soft()
-    setCombo(0)
     setHearts((h) => Math.max(0, h - 1))
 
     // An exam gets one attempt per question — a retry would make the mistake
@@ -275,6 +277,7 @@ export default function Lesson() {
 
   const handleMiss = () => {
     missCount.current += 1
+    dispatch({ type: 'breakCombo' })
     setHearts((h) => Math.max(0, h - 1))
   }
 

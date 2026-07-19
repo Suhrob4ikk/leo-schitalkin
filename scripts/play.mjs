@@ -8,7 +8,7 @@
  *  non-perfect path and the star maths can be checked too.
  */
 import { spawn } from 'node:child_process'
-import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const CHROME = [
@@ -16,7 +16,7 @@ const CHROME = [
   'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
 ].find(existsSync)
 
-const [, , lesson = 'numberline', name = 'played', wrongEvery = '0'] = process.argv
+const [, , lesson = 'numberline', name = 'played', wrongEvery = '0', seedFile = ''] = process.argv
 const OUT = join(
   process.env.LOCALAPPDATA,
   'Temp/claude/C--Users-Suhrob-Documents-New-folder/d5f1df7a-e1b8-401c-81b5-4bbf8c9465f9/scratchpad/shots',
@@ -112,7 +112,18 @@ ws.addEventListener('message', (m) => {
 })
 
 await send('Page.navigate', { url: `http://localhost:5173/#/lesson/${lesson}` })
-await sleep(1800)
+await sleep(700)
+
+// Optional starting profile, so a run can begin mid-combo or mid-progress.
+// Reload rather than navigate: the URL is unchanged, so a second navigate is
+// only a hash change and the store never re-reads storage.
+if (seedFile) {
+  const json = readFileSync(seedFile, 'utf8')
+  await evaluate(`localStorage.setItem('leo-schitalkin/v1', ${JSON.stringify(json)})`)
+  await send('Page.reload', { ignoreCache: true })
+  await sleep(1400)
+}
+await sleep(1200)
 
 /* One question: read window.__leoQ, work out the right taps, perform them. */
 const answerOnce = (deliberatelyWrong) => `(() => {
@@ -332,6 +343,7 @@ console.log('steps:', log.length, log.slice(0, 4).join(' | '))
 console.log('hash:', await evaluate('location.hash'))
 console.log('xp:', state.xp, '| lessons:', JSON.stringify(state.lessons), '| stickers:', state.stickers)
 console.log('topics:', JSON.stringify(state.topics))
+console.log('combo:', state.combo, '| best:', state.bestCombo)
 if (errors.length) console.log('PAGE ERRORS:', errors.slice(0, 3))
 if (audits.length) console.log('!! RENDER AUDIT FAILED:', [...new Set(audits)].join(' | '))
 else console.log('render audit: every question was visible on screen')

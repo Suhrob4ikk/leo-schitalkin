@@ -41,6 +41,12 @@ const initial = () => ({
   /* "YYYY-MM-DD" -> { seconds, xp, correct, total } */
   days: {},
   streak: { current: 0, longest: 0, lastDay: null },
+  /* Correct-in-a-row, carried across lessons and sessions rather than reset at
+     every finish line. A run of 20 spanning three lessons is a real
+     achievement; the same 20 chopped into per-lesson counters is three
+     forgettable fives. */
+  combo: 0,
+  bestCombo: 0,
   stickers: [],
   sessions: [],
   // buddy: null means "hasn't chosen yet" and triggers the picker on first run.
@@ -121,9 +127,14 @@ function reducer(state, action) {
     case 'answer': {
       const { topic, fact, correct, firstTry } = action
       const gain = correct ? (firstTry ? 4 : 2) : 0
+      // Only a clean first try extends the run; a correct retry keeps its XP
+      // but breaks the chain, same rule the stars use.
+      const combo = correct && firstTry ? state.combo + 1 : 0
       return {
         ...state,
         xp: state.xp + gain,
+        combo,
+        bestCombo: Math.max(state.bestCombo ?? 0, combo),
         topics: topic ? { ...state.topics, [topic]: bump(state.topics[topic], firstTry) } : state.topics,
         facts: fact ? { ...state.facts, [fact]: bump(state.facts[fact], firstTry) } : state.facts,
         days: touchDay(state.days, (d) => ({
@@ -205,6 +216,11 @@ function reducer(state, action) {
     /* Time spent in a lesson the child backed out of — still real practice. */
     case 'addTime':
       return { ...state, days: touchDay(state.days, (d) => ({ seconds: d.seconds + action.seconds })) }
+
+    /* A mismatch in the matching exercise is a mistake too, but it doesn't go
+       through `answer` — the pair is retried inside the same question. */
+    case 'breakCombo':
+      return state.combo === 0 ? state : { ...state, combo: 0 }
 
     case 'unlockSticker':
       return state.stickers.includes(action.id)

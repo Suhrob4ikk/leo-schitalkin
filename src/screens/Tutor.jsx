@@ -167,6 +167,10 @@ export default function Tutor() {
             <b className="tnum">{state.xp}</b>
             <span>очков</span>
           </div>
+          <div className="kpi">
+            <b className="tnum">{state.bestCombo ?? 0}</b>
+            <span>лучшая серия</span>
+          </div>
         </div>
 
         {struggling.length > 0 ? (

@@ -62,6 +62,10 @@
   background: var(--blue-soft);
   color: var(--blue-dark);
 }
+.chip--combo {
+  background: var(--purple-soft);
+  color: var(--purple-dark);
+}
 
 .chip-btn {
   margin-left: auto;

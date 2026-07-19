@@ -172,6 +172,15 @@ export default function Home() {
             <b className="tnum">{state.xp}</b>
           </div>
 
+          {/* A run in progress is worth protecting, so it has to be visible
+              before the next lesson starts — not only during one. */}
+          {state.combo >= 3 && (
+            <div className="chip chip--combo" title="Правильных подряд">
+              <Icon e="🎯" className="chip-icon" size="1.15rem" />
+              <b className="tnum">{state.combo}</b>
+            </div>
+          )}
+
           <Link to="/collection" className="icon-btn chip-btn" aria-label="Коллекция">
             <Icon e="🎖️" size="1.4rem" />
           </Link>

@@ -24,9 +24,11 @@
 }
 
 /* ── KPIs ───────────────────────────────────────────────────────────────── */
+/* Auto-fit rather than a fixed four: adding a fifth KPI to a hard-coded
+   four-column grid silently pushed it onto its own row, alone. */
 .kpis {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(4.2rem, 1fr));
   gap: 0.45rem;
 }
 .kpi {
