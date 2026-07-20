@@ -3,13 +3,13 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Icon from '../components/Icon.jsx'
 import Mascot from '../components/Mascot.jsx'
 import Cub, { SPECIES } from '../components/Cub.jsx'
-import Sheet from '../components/Sheet.jsx'
+import NotifyGuide from '../components/NotifyGuide.jsx'
 import { Stars, Sticker } from '../components/ui.jsx'
 import { useStore, starsFor } from '../game/store.jsx'
 import { ALL_LESSONS, LESSON_BY_ID, UNITS, UNIT_BY_ID, lessonIndex } from '../game/curriculum.js'
 import { earnedMilestones, STICKERS } from '../game/stickers.js'
 import { sfx } from '../game/audio.js'
-import { canNotify, notifyPermission, requestNotifications, registerDailySync, sendTestNotification } from '../game/notify.js'
+import { canNotify, notifyPermission } from '../game/notify.js'
 import { cannons, rain } from '../game/confetti.js'
 import './LessonComplete.css'
 
@@ -266,32 +266,17 @@ export default function LessonComplete() {
           has any reason to want reminders gets denied, and a denial is
           permanent until someone digs through browser settings. By now they
           have finished a lesson and there's a streak worth protecting. */}
+      {/* The guide explains reminders before the browser's one-shot, permanent
+          permission prompt — and covers installing to the home screen, without
+          which background reminders silently never fire. */}
       {askNotify && (
-        <Sheet onClose={dismissNotify}>
-          <Mascot size={100} state="wave" />
-          <b className="h2">Напоминать?</b>
-          <p className="sub">
-            {SPECIES[state.settings.buddy]?.name ?? 'Лео'} может звать заниматься раз в день, чтобы
-            серия не прервалась.
-          </p>
-          <button
-            className="btn btn--green btn--block"
-            onClick={async () => {
-              const res = await requestNotifications()
-              if (res === 'granted') {
-                dispatch({ type: 'setSetting', key: 'notify', value: true })
-                await registerDailySync()
-                sendTestNotification(SPECIES[state.settings.buddy]?.name ?? 'Лео')
-              }
-              dismissNotify()
-            }}
-          >
-            Да, напоминай
-          </button>
-          <button className="btn btn--ghost btn--block" onClick={dismissNotify}>
-            Не сейчас
-          </button>
-        </Sheet>
+        <NotifyGuide
+          buddyName={SPECIES[state.settings.buddy]?.name ?? 'Лео'}
+          onDone={(ok) => {
+            if (ok) dispatch({ type: 'setSetting', key: 'notify', value: true })
+            dismissNotify()
+          }}
+        />
       )}
 
       <div className="done-actions shell safe-bottom">

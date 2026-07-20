@@ -436,6 +436,9 @@ export default function Home() {
           <Icon e="👋" size="2.6rem" />
           <b className="h2">Для взрослых</b>
           <p className="sub">Здесь настройки и успехи. Позови маму или папу!</p>
+          {/* Both destinations offered here. Settings used to be four taps
+              deep — gear, "Я взрослый", Успехи, gear again — which is how the
+              reset buttons became impossible to find. */}
           <button
             className="btn btn--blue btn--block"
             onClick={() => {
@@ -443,7 +446,16 @@ export default function Home() {
               nav('/tutor')
             }}
           >
-            Я взрослый
+            <UiIcon name="chart" size="1.1rem" /> Успехи
+          </button>
+          <button
+            className="btn btn--white btn--block"
+            onClick={() => {
+              setAdult(false)
+              nav('/settings')
+            }}
+          >
+            <UiIcon name="gear" size="1.1rem" /> Настройки
           </button>
           <button className="btn btn--ghost btn--block" onClick={() => setAdult(false)}>
             Назад к игре

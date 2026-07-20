@@ -4,15 +4,10 @@ import UiIcon from '../components/UiIcon.jsx'
 import Mascot from '../components/Mascot.jsx'
 import Cub, { CAST, SPECIES } from '../components/Cub.jsx'
 import Sheet from '../components/Sheet.jsx'
+import NotifyGuide from '../components/NotifyGuide.jsx'
 import { useStore } from '../game/store.jsx'
 import { canSpeak, sfx, speak } from '../game/audio.js'
-import {
-  notifyPermission,
-  requestNotifications,
-  registerDailySync,
-  unregisterDailySync,
-  sendTestNotification,
-} from '../game/notify.js'
+import { notifyPermission, unregisterDailySync } from '../game/notify.js'
 import './Settings.css'
 
 const SIZES = [
@@ -42,6 +37,7 @@ export default function Settings() {
   const [confirmReset, setConfirmReset] = useState(false)
   const [confirmReplay, setConfirmReplay] = useState(false)
   const [notifyState, setNotifyState] = useState(() => notifyPermission())
+  const [showGuide, setShowGuide] = useState(false)
 
   const set = (key, value) => dispatch({ type: 'setSetting', key, value })
 
@@ -86,19 +82,15 @@ export default function Settings() {
                 : `${SPECIES[buddy]?.name ?? 'Лео'} будет звать заниматься`
           }
           on={notify && notifyState === 'granted'}
-          onChange={async (v) => {
+          onChange={(v) => {
             if (!v) {
               set('notify', false)
               unregisterDailySync()
               return
             }
-            // Must be inside the click for iOS/Safari to accept the prompt.
-            const res = await requestNotifications()
-            setNotifyState(res)
-            if (res !== 'granted') return
-            set('notify', true)
-            await registerDailySync()
-            sendTestNotification(SPECIES[buddy]?.name ?? 'Лео')
+            // The guide explains what reminders are before the browser's
+            // one-shot, permanent permission prompt appears.
+            setShowGuide(true)
           }}
         />
 
@@ -196,22 +188,40 @@ export default function Settings() {
           <p className="sub">{SPECIES[buddy]?.name ?? 'Лео'} готов заниматься!</p>
         </div>
 
-        {/* Two different things, deliberately separated. Replaying the path is
-            something a child might want weekly; erasing everything is a last
-            resort and shouldn't be one tap away from it. */}
-        <button className="btn btn--blue btn--block" onClick={() => setConfirmReplay(true)}>
-          Пройти заново
-        </button>
+        {/* Titled and boxed rather than two loose buttons at the bottom of a
+            long page — that's where they were, and they couldn't be found. */}
+        <div className="block">
+          <b>Прогресс</b>
+          <button className="btn btn--blue btn--block" onClick={() => setConfirmReplay(true)}>
+            Пройти заново
+          </button>
+          <span className="sub">Карта откроется сначала. Очки и наклейки останутся.</span>
 
-        <button className="btn btn--ghost btn--block" onClick={() => setConfirmReset(true)}>
-          Стереть всё
-        </button>
+          <button
+            className="btn btn--ghost btn--block setts-danger"
+            onClick={() => setConfirmReset(true)}
+          >
+            Стереть всё
+          </button>
+          <span className="sub">Удалит вообще всё, включая очки и дни подряд.</span>
+        </div>
 
         {/* CC-BY requires attribution wherever the graphics are used. */}
         <p className="setts-credit sub">
           Иконки — Twemoji (CC-BY 4.0) и Material Symbols (Apache 2.0), шрифт — Nunito (SIL OFL)
         </p>
       </div>
+
+      {showGuide && (
+        <NotifyGuide
+          buddyName={SPECIES[buddy]?.name ?? 'Лео'}
+          onDone={(ok) => {
+            setShowGuide(false)
+            setNotifyState(notifyPermission())
+            if (ok) set('notify', true)
+          }}
+        />
+      )}
 
       {confirmReplay && (
         <Sheet onClose={() => setConfirmReplay(false)}>
