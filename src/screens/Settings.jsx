@@ -126,6 +126,31 @@ export default function Settings() {
         )}
 
         <div className="block">
+          <b>Цель на день</b>
+          <div className="size-row">
+            {[
+              { v: 20, label: 'полурока' },
+              { v: 40, label: 'один урок' },
+              { v: 80, label: 'два урока' },
+            ].map((g) => (
+              <button
+                key={g.v}
+                type="button"
+                className={`size-btn ${(state.settings.dailyGoal ?? 40) === g.v ? 'is-on' : ''}`}
+                onClick={() => {
+                  sfx.tap()
+                  set('dailyGoal', g.v)
+                }}
+              >
+                <span>{g.v}</span>
+                {g.label}
+              </button>
+            ))}
+          </div>
+          <span className="sub">Очки за правильные ответы. Цель видна на карте.</span>
+        </div>
+
+        <div className="block">
           <b>Размер текста</b>
           <div className="size-row">
             {SIZES.map((s) => (

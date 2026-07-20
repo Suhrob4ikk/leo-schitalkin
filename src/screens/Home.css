@@ -86,6 +86,118 @@
   padding-top: 0.9rem;
 }
 
+/* ── Today: the daily goal, and the mistakes worth revisiting ────────────── */
+/* Lives inside the sticky header, so the map's auto-scroll to the current node
+   can't carry it off screen. Compact for the same reason — it has to earn its
+   permanent strip of a phone. */
+.today-row {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.today-pill {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--r-md);
+  background: var(--sunken);
+  border: 0.12rem solid var(--line);
+  text-align: left;
+}
+
+.today-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  line-height: 1.15;
+}
+.today-text b {
+  font-size: 0.78rem;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.today-text .sub {
+  font-size: 0.72rem;
+}
+
+.goal-pill.is-done {
+  background: var(--green-tint);
+  border-color: var(--green-soft);
+}
+.goal-pill.is-done .today-text b {
+  color: var(--green-dark);
+}
+
+/* The ring. Rotated so it fills clockwise from twelve o'clock. */
+.goal-ring {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.goal-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.goal-track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 5;
+}
+.goal-fill {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s var(--ease-out);
+}
+.goal-ring.is-done .goal-fill {
+  stroke: var(--gold);
+}
+.goal-inner {
+  position: relative;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  line-height: 1;
+}
+
+.mistakes-pill {
+  background: var(--orange-soft);
+  border-color: #ffcf9a;
+  transition: transform 0.1s var(--spring);
+}
+.mistakes-pill:active {
+  transform: scale(0.96);
+}
+.mistakes-pill .today-text b {
+  color: var(--orange-dark);
+}
+.mistakes-count {
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-full);
+  background: var(--orange);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
 .nudge-card {
   display: flex;
   flex-direction: column;

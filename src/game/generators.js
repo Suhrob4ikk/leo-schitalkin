@@ -943,7 +943,20 @@ export function buildReview(unit, state) {
   return shuffle(unitPool(unit, state, 4)).slice(0, 12)
 }
 
+/** Работа над ошибками — the questions actually missed, oldest first so the
+    ones fading from memory come back soonest. */
+export function buildMistakes(state) {
+  return [...(state.mistakes ?? [])]
+    .sort((a, b) => (a.at ?? 0) - (b.at ?? 0))
+    .slice(0, 10)
+    // Strip the timer off blitz questions: a review is for understanding, not
+    // for being caught out twice by the same clock.
+    .map(({ at: _at, timed: _timed, timeLimit: _timeLimit, ...q }) => q)
+}
+
 export function buildLesson(lessonId, state) {
+  if (lessonId === 'mistakes') return buildMistakes(state)
+
   // Exams are addressed as `exam-<unitId>` so they travel through the same
   // route, the same Lesson screen and the same grading as any other lesson.
   if (lessonId.startsWith('jump-')) {

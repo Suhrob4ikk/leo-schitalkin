@@ -37,7 +37,9 @@ export default function LessonComplete() {
   const loc = useLocation()
   const fired = useRef(false)
 
-  const lesson = LESSON_BY_ID[id]
+  // The mistake review isn't a node on the map, so it has no curriculum entry.
+  const lesson =
+    id === 'mistakes' ? { id, title: 'Работа над ошибками', sticker: null } : LESSON_BY_ID[id]
   const res = loc.state
   const [fresh, setFresh] = useState([])
 

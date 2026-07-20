@@ -52,13 +52,29 @@ const initial = () => ({
      forgettable fives. */
   combo: 0,
   bestCombo: 0,
+  /* Questions actually got wrong, kept so they can be re-asked later. The
+     weakness-weighted sampling already covers multiplication facts, but a
+     missed column sum or word problem simply vanished — the one thing a child
+     most needs to meet again. Stored whole because questions are plain data. */
+  mistakes: [],
   stickers: [],
   sessions: [],
   // buddy: null means "hasn't chosen yet" and triggers the picker on first run.
   // notify defaults to false: a permission prompt on first launch, before the
   // child has any reason to want reminders, is how permission gets denied
   // permanently. It's offered after the first finished lesson instead.
-  settings: { sound: true, voice: true, textScale: 1, buddy: null, notify: false, notifyHour: 18 },
+  /* dailyGoal is in XP, not minutes: minutes reward leaving the app open, XP
+     rewards answering. 40 ≈ one finished lesson, which is the right daily ask
+     for a seven-year-old — small enough to never be a chore. */
+  settings: {
+    sound: true,
+    voice: true,
+    textScale: 1,
+    buddy: null,
+    notify: false,
+    notifyHour: 18,
+    dailyGoal: 40,
+  },
   createdAt: new Date().toISOString(),
 })
 
@@ -89,6 +105,14 @@ function save(state) {
 }
 
 /* ── Helpers ───────────────────────────────────────────────────────────── */
+/* Enough to fill a review lesson twice over, few enough that a bad afternoon
+   in September isn't still being drilled in December. */
+const MAX_MISTAKES = 24
+
+/** Identity of a question, for de-duplicating the mistake list. */
+export const mistakeKey = (q) =>
+  `${q.kind}|${q.prompt ?? ''}|${q.expr ?? ''}|${JSON.stringify(q.answer ?? '')}`
+
 export function starsFor(accuracy) {
   if (accuracy >= 0.9) return 3
   if (accuracy >= 0.7) return 2
@@ -230,6 +254,24 @@ function reducer(state, action) {
     case 'breakCombo':
       return state.combo === 0 ? state : { ...state, combo: 0 }
 
+    /* Remember a question that was missed, or forget one that's now been
+       answered right. Keyed on the question text so the same sum isn't
+       collected twice, and capped so the list stays a review rather than an
+       archive of every slip since September. */
+    case 'noteMistake': {
+      const { q } = action
+      if (!q || q.kind === 'teach' || q.kind === 'match') return state
+      const key = mistakeKey(q)
+      const without = state.mistakes.filter((m) => mistakeKey(m) !== key)
+      return { ...state, mistakes: [...without, { ...q, at: Date.now() }].slice(-MAX_MISTAKES) }
+    }
+
+    case 'clearMistake': {
+      const key = mistakeKey(action.q)
+      const next = state.mistakes.filter((m) => mistakeKey(m) !== key)
+      return next.length === state.mistakes.length ? state : { ...state, mistakes: next }
+    }
+
     case 'unlockSticker':
       return state.stickers.includes(action.id)
         ? state
@@ -331,6 +373,14 @@ export function useStore() {
 export function usePracticedToday() {
   const { state } = useStore()
   return (state.days[dayKey()]?.total ?? 0) > 0
+}
+
+/** Today's XP against the daily goal. */
+export function useDailyGoal() {
+  const { state } = useStore()
+  const goal = state.settings.dailyGoal ?? 40
+  const earned = state.days[dayKey()]?.xp ?? 0
+  return { goal, earned, ratio: Math.min(1, earned / goal), done: earned >= goal }
 }
 
 /** Streak, but self-healing: a missed day reads as 0 without needing a write. */

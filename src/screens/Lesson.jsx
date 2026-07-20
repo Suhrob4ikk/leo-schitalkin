@@ -84,7 +84,9 @@ export default function Lesson() {
   const maxMistakes = isJump ? JUMP_MAX_MISTAKES : EXAM_MAX_MISTAKES
   const lesson = examUnit
     ? { id, title: isJump ? `Переход к: ${examUnit.title}` : `Проверка: ${examUnit.title}`, sticker: null }
-    : LESSON_BY_ID[id]
+    : id === 'mistakes'
+      ? { id, title: 'Работа над ошибками', sticker: null }
+      : LESSON_BY_ID[id]
 
   const [questions] = useState(() => buildLesson(id, state))
   const [idx, setIdx] = useState(0)
@@ -172,12 +174,22 @@ export default function Lesson() {
       }
 
       const bonusXp = perfect ? 25 : 10
-      dispatch({ type: 'finishLesson', lessonId: id, correct: first, total: graded, seconds, bonusXp })
-      if (lesson?.sticker) dispatch({ type: 'unlockSticker', id: lesson.sticker })
+      // The mistake review isn't a node on the map, so it must not be recorded
+      // as one — it would show up as a phantom completed lesson. Its time and
+      // XP still count.
+      if (id === 'mistakes') {
+        // XP for each answer was already awarded as it was graded; there's no
+        // completion bonus for a review.
+        dispatch({ type: 'addTime', seconds })
+      } else {
+        dispatch({ type: 'finishLesson', lessonId: id, correct: first, total: graded, seconds, bonusXp })
+        if (lesson?.sticker) dispatch({ type: 'unlockSticker', id: lesson.sticker })
+      }
 
+      const gained = id === 'mistakes' ? tally.current.xp : tally.current.xp + bonusXp
       nav(`/done/${id}`, {
         replace: true,
-        state: { accuracy, perfect, seconds, bonusXp, hearts, xp: tally.current.xp + bonusXp },
+        state: { accuracy, perfect, seconds, bonusXp, hearts, xp: gained, review: id === 'mistakes' },
       })
     },
     [dispatch, examUnit, hearts, id, lesson, nav],
@@ -209,6 +221,10 @@ export default function Lesson() {
   // earned in this lesson rather than only the running total.
   const grade = (correct, firstTry) => {
     dispatch({ type: 'answer', topic: q.topic, fact: q.fact, correct, firstTry })
+    // Getting one right first time — including inside the review itself —
+    // retires it. Collection happens at the point of the slip, above.
+    if (correct && firstTry) dispatch({ type: 'clearMistake', q })
+    else if (!correct) dispatch({ type: 'noteMistake', q })
     tally.current.graded += 1
     if (correct) tally.current.xp += firstTry ? 4 : 2
     if (correct && firstTry) tally.current.first += 1
@@ -281,6 +297,11 @@ export default function Lesson() {
     // First slip gets a nudge and another go; the second shows the answer with
     // the reasoning. Neither ever ends the lesson.
     if (attempt === 0) {
+      // Collected here, on the FIRST slip — not only when they fail twice.
+      // "Wrong once, then right" is the most common case by far and the one
+      // most worth revisiting; grading only fires on the second failure, so
+      // hanging the review off it recorded almost nothing.
+      dispatch({ type: 'noteMistake', q })
       setPhase('retry')
       setLeo('think')
       setMsg(pickOne(NUDGES))

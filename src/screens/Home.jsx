@@ -8,7 +8,8 @@ import PickBuddy from './PickBuddy.jsx'
 import { Stars } from '../components/ui.jsx'
 import StreakCalendar from '../components/StreakCalendar.jsx'
 import Sheet from '../components/Sheet.jsx'
-import { useStore, usePracticedToday, useStreak } from '../game/store.jsx'
+import GoalRing from '../components/GoalRing.jsx'
+import { useStore, usePracticedToday, useStreak, useDailyGoal } from '../game/store.jsx'
 import { UNITS, isUnlocked, currentLessonId, unitProgress, canTakeExam, canJumpTo, unitsUpTo } from '../game/curriculum.js'
 import { EXAM_LENGTH, EXAM_MAX_MISTAKES, JUMP_LENGTH, JUMP_MAX_MISTAKES } from '../game/generators.js'
 import { sfx } from '../game/audio.js'
@@ -143,6 +144,8 @@ export default function Home() {
   const { state } = useStore()
   const streak = useStreak()
   const practiced = usePracticedToday()
+  const goal = useDailyGoal()
+  const mistakeCount = state.mistakes?.length ?? 0
   const [showCal, setShowCal] = useState(false)
   const [adult, setAdult] = useState(false)
   const [examUnit, setExamUnit] = useState(null)
@@ -220,6 +223,41 @@ export default function Home() {
           >
             <UiIcon name="gear" size="1.3rem" />
           </button>
+        </div>
+
+        {/* Today's goal, and mistakes worth revisiting. Part of the sticky
+            header rather than the top of the scroller: the map auto-scrolls to
+            the current node, which would carry anything above it off screen
+            and out of mind. */}
+        <div className="shell today-row">
+          <div className={`today-pill goal-pill ${goal.done ? 'is-done' : ''}`}>
+            <GoalRing ratio={goal.ratio} done={goal.done} size={34}>
+              {goal.done ? <Icon e="✅" size="0.9rem" /> : null}
+            </GoalRing>
+            <span className="today-text">
+              <b>{goal.done ? 'Цель дня!' : 'Цель дня'}</b>
+              <span className="sub tnum">
+                {goal.earned} / {goal.goal}
+              </span>
+            </span>
+          </div>
+
+          {mistakeCount >= 4 && (
+            <button
+              type="button"
+              className="today-pill mistakes-pill"
+              onClick={() => {
+                sfx.tap()
+                nav('/lesson/mistakes')
+              }}
+            >
+              <span className="mistakes-count tnum">{mistakeCount}</span>
+              <span className="today-text">
+                <b>Над ошибками</b>
+                <span className="sub">Повторить</span>
+              </span>
+            </button>
+          )}
         </div>
       </header>
 
