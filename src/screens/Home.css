@@ -224,6 +224,64 @@
   }
 }
 
+.unit-exam--jump {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--ink-strong);
+  box-shadow: 0 0.2rem 0 rgba(0, 0, 0, 0.18);
+  animation: none; /* only the reachable exam pulses for attention */
+}
+
+/* "Я тут" — a way back to the current node once it's scrolled off screen. */
+.here-btn {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.8rem;
+  padding: 0 1rem;
+  border-radius: var(--r-full);
+  background: var(--ink-strong);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  box-shadow: 0 0.25rem 0.6rem rgba(0, 0, 0, 0.25);
+  animation: pop-in 0.28s var(--spring-big) both;
+}
+.here-btn:active {
+  transform: translateX(-50%) scale(0.94);
+}
+.here-arrow {
+  transform: rotate(90deg);
+}
+
+/* Which units a jump has to prove, listed before it starts. */
+.jump-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  background: var(--sunken);
+  border-radius: var(--r-md);
+}
+.jump-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+.jump-item.is-target {
+  color: var(--green-dark);
+}
+
 /* What each level of care is worth, shown before the exam starts. */
 .exam-scale {
   display: flex;

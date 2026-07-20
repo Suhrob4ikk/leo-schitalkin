@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Mascot from '../components/Mascot.jsx'
 import Icon from '../components/Icon.jsx'
@@ -9,8 +9,8 @@ import { Stars } from '../components/ui.jsx'
 import StreakCalendar from '../components/StreakCalendar.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore, usePracticedToday, useStreak } from '../game/store.jsx'
-import { UNITS, isUnlocked, currentLessonId, unitProgress, canTakeExam } from '../game/curriculum.js'
-import { EXAM_LENGTH, EXAM_MAX_MISTAKES } from '../game/generators.js'
+import { UNITS, isUnlocked, currentLessonId, unitProgress, canTakeExam, canJumpTo, unitsUpTo } from '../game/curriculum.js'
+import { EXAM_LENGTH, EXAM_MAX_MISTAKES, JUMP_LENGTH, JUMP_MAX_MISTAKES } from '../game/generators.js'
 import { sfx } from '../game/audio.js'
 import './Home.css'
 
@@ -47,7 +47,7 @@ function roadPath(count, nodeY, sp) {
   return d
 }
 
-function UnitPath({ unit, lessons, currentId, leoState, scale }) {
+function UnitPath({ unit, lessons, currentId, leoState, scale, currentRef }) {
   const nav = useNavigate()
   const [bumped, setBumped] = useState(null)
   const count = unit.lessons.length
@@ -88,7 +88,8 @@ function UnitPath({ unit, lessons, currentId, leoState, scale }) {
         return (
           <div
             key={l.id}
-            className="node-slot"
+            ref={isCurrent ? currentRef : undefined}
+            className={`node-slot ${isCurrent ? 'is-here' : ''}`}
             style={{ left: `${nodeX(i)}%`, top: `${nodeY(i)}px` }}
           >
             {isCurrent && (
@@ -145,6 +146,31 @@ export default function Home() {
   const [showCal, setShowCal] = useState(false)
   const [adult, setAdult] = useState(false)
   const [examUnit, setExamUnit] = useState(null)
+  const [jumpUnit, setJumpUnit] = useState(null)
+  const currentRef = useRef(null)
+  const [offscreen, setOffscreen] = useState(false)
+
+  /* Scroll straight to where the child actually is, on every visit. Opening
+     eight units up at unit one and hunting downwards is the single most
+     repeated annoyance on this screen. */
+  useEffect(() => {
+    const el = currentRef.current
+    if (!el) return
+    const t = setTimeout(() => {
+      el.scrollIntoView({ block: 'center', behavior: 'auto' })
+    }, 60)
+    return () => clearTimeout(t)
+  }, [])
+
+  /* …and if they scroll away from it, offer a way back rather than making
+     them find it again. */
+  useEffect(() => {
+    const el = currentRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(([e]) => setOffscreen(!e.isIntersecting), { threshold: 0.4 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
   // First run: pick a companion before anything else. Nothing on the map means
   // anything until the child knows who they're travelling with.
@@ -246,6 +272,22 @@ export default function Home() {
                       это!
                     </span>
                   </button>
+                ) : canJumpTo(unit, state.lessons) ? (
+                  /* Locked units aren't dead ends: prove the ones in between
+                     and start here instead. */
+                  <button
+                    type="button"
+                    className="unit-exam unit-exam--jump"
+                    onClick={() => setJumpUnit(unit)}
+                    aria-label={`Перейти сразу к разделу «${unit.title}»`}
+                  >
+                    <UiIcon name="next" size="1.15rem" className="unit-exam-icon" />
+                    <span>
+                      Сразу
+                      <br />
+                      сюда
+                    </span>
+                  </button>
                 ) : (
                   <Icon e={unit.icon} className="unit-icon" size="1.9rem" />
                 )}
@@ -257,13 +299,62 @@ export default function Home() {
                 currentId={currentId}
                 leoState={leoState}
                 scale={state.settings.textScale}
+                currentRef={currentRef}
               />
             </section>
           )
         })}
       </div>
 
+      {/* Only while the current node is off screen, so it's a way back rather
+          than permanent clutter. */}
+      {offscreen && (
+        <button
+          type="button"
+          className="here-btn"
+          onClick={() => {
+            sfx.tap()
+            currentRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          }}
+        >
+          <UiIcon name="next" size="1.1rem" className="here-arrow" />
+          Я тут
+        </button>
+      )}
+
       {showCal && <StreakCalendar onClose={() => setShowCal(false)} />}
+
+      {jumpUnit && (
+        <Sheet onClose={() => setJumpUnit(null)}>
+          <Cub species={jumpUnit.host} size={100} state="wave" />
+          <b className="h2">Сразу сюда?</b>
+          <p className="sub">
+            Чтобы начать с раздела «{jumpUnit.title}», надо показать, что ты уже знаешь всё до него.
+          </p>
+          <div className="jump-list">
+            {unitsUpTo(jumpUnit, state.lessons).map((u, i, arr) => (
+              <span key={u.id} className={`jump-item ${i === arr.length - 1 ? 'is-target' : ''}`}>
+                <Icon e={u.icon} size="1.1rem" /> {u.title}
+              </span>
+            ))}
+          </div>
+          <p className="sub">
+            {JUMP_LENGTH} вопросов, можно ошибиться {JUMP_MAX_MISTAKES} раза.
+          </p>
+          <button
+            className="btn btn--gold btn--block"
+            onClick={() => {
+              sfx.tap()
+              nav(`/lesson/jump-${jumpUnit.id}`)
+            }}
+          >
+            Начать проверку
+          </button>
+          <button className="btn btn--ghost btn--block" onClick={() => setJumpUnit(null)}>
+            Отмена
+          </button>
+        </Sheet>
+      )}
 
       {examUnit && (
         <Sheet onClose={() => setExamUnit(null)}>

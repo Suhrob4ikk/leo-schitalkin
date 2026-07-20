@@ -33,6 +33,7 @@ export default function Settings() {
   const { state, dispatch } = useStore()
   const { sound, voice, textScale, buddy } = state.settings
   const [confirmReset, setConfirmReset] = useState(false)
+  const [confirmReplay, setConfirmReplay] = useState(false)
 
   const set = (key, value) => dispatch({ type: 'setSetting', key, value })
 
@@ -113,8 +114,15 @@ export default function Settings() {
           <p className="sub">{SPECIES[buddy]?.name ?? 'Лео'} готов заниматься!</p>
         </div>
 
+        {/* Two different things, deliberately separated. Replaying the path is
+            something a child might want weekly; erasing everything is a last
+            resort and shouldn't be one tap away from it. */}
+        <button className="btn btn--blue btn--block" onClick={() => setConfirmReplay(true)}>
+          Пройти заново
+        </button>
+
         <button className="btn btn--ghost btn--block" onClick={() => setConfirmReset(true)}>
-          Сбросить весь прогресс
+          Стереть всё
         </button>
 
         {/* CC-BY requires attribution wherever the graphics are used. */}
@@ -122,6 +130,29 @@ export default function Settings() {
           Иконки — Twemoji (CC-BY 4.0) и Material Symbols (Apache 2.0), шрифт — Nunito (SIL OFL)
         </p>
       </div>
+
+      {confirmReplay && (
+        <Sheet onClose={() => setConfirmReplay(false)}>
+          <Mascot size={90} state="wave" />
+          <b className="h2">Пройти заново?</b>
+          <p className="sub">
+            Карта откроется с самого начала. Очки, наклейки, дни подряд и лучшая серия останутся!
+          </p>
+          <button
+            className="btn btn--blue btn--block"
+            onClick={() => {
+              dispatch({ type: 'replay' })
+              setConfirmReplay(false)
+              nav('/', { replace: true })
+            }}
+          >
+            Да, начать сначала
+          </button>
+          <button className="btn btn--ghost btn--block" onClick={() => setConfirmReplay(false)}>
+            Отмена
+          </button>
+        </Sheet>
+      )}
 
       {confirmReset && (
         <Sheet onClose={() => setConfirmReset(false)}>

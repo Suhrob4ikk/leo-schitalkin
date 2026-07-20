@@ -165,6 +165,23 @@ export function canTakeExam(unit, lessons) {
   return firstIncomplete?.id === unit.id
 }
 
+/** Every unit from the first unfinished one up to and including `unit` — what
+    a jump straight to that unit has to prove the child already knows. */
+export function unitsUpTo(unit, lessons) {
+  const from = UNITS.findIndex((u) => !u.lessons.every((l) => lessons[l.id]?.done))
+  const to = UNITS.indexOf(unit)
+  if (from < 0 || to < from) return []
+  return UNITS.slice(from, to + 1)
+}
+
+/** Units the child could jump to: any locked one beyond the current position.
+    Jumping is always earned by an exam, never given — see buildJumpExam. */
+export function canJumpTo(unit, lessons) {
+  const from = UNITS.findIndex((u) => !u.lessons.every((l) => lessons[l.id]?.done))
+  const to = UNITS.indexOf(unit)
+  return from >= 0 && to > from
+}
+
 export const UNIT_BY_ID = Object.fromEntries(UNITS.map((u) => [u.id, u]))
 
 /** Every lesson, flattened into path order, each tagged with its unit. */

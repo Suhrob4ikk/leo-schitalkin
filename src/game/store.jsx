@@ -230,8 +230,15 @@ function reducer(state, action) {
     case 'setSetting':
       return { ...state, settings: { ...state.settings, [action.key]: action.value } }
 
+    /* Play the path again from the start, keeping who they are: XP, stickers,
+       best run, the daily streak and the chosen buddy all stay. Only the map
+       resets. Wiping a 40-day streak to replay a lesson would be a punishment
+       for wanting more practice. */
+    case 'replay':
+      return { ...state, lessons: {}, combo: 0 }
+
     case 'reset':
-      return initial()
+      return { ...initial(), settings: state.settings }
 
     default:
       return state

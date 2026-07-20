@@ -6,8 +6,8 @@ import Teacher from '../components/Teacher.jsx'
 import { Hearts, ProgressBar, SpeakButton } from '../components/ui.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore, examStars, EXAM_XP } from '../game/store.jsx'
-import { LESSON_BY_ID, UNIT_BY_ID } from '../game/curriculum.js'
-import { buildLesson, checkAnswer, EXAM_MAX_MISTAKES } from '../game/generators.js'
+import { LESSON_BY_ID, UNIT_BY_ID, unitsUpTo } from '../game/curriculum.js'
+import { buildLesson, checkAnswer, EXAM_MAX_MISTAKES, JUMP_MAX_MISTAKES } from '../game/generators.js'
 import { sfx, stopSpeaking } from '../game/audio.js'
 import { burst, burstFrom, rain } from '../game/confetti.js'
 
@@ -72,9 +72,18 @@ export default function Lesson() {
 
   // Exams travel as `exam-<unitId>` through this same screen: same questions,
   // same grading, different stakes.
-  const examUnit = id.startsWith('exam-') ? UNIT_BY_ID[id.slice(5)] : null
+  // A jump runs through the same screen as a single-unit exam; it just covers
+  // every unit being skipped and has its own length and mistake budget.
+  const isJump = id.startsWith('jump-')
+  const examUnit = isJump
+    ? UNIT_BY_ID[id.slice(5)]
+    : id.startsWith('exam-')
+      ? UNIT_BY_ID[id.slice(5)]
+      : null
+  const jumpUnits = isJump && examUnit ? unitsUpTo(examUnit, state.lessons) : null
+  const maxMistakes = isJump ? JUMP_MAX_MISTAKES : EXAM_MAX_MISTAKES
   const lesson = examUnit
-    ? { id, title: `Проверка: ${examUnit.title}`, sticker: null }
+    ? { id, title: isJump ? `Переход к: ${examUnit.title}` : `Проверка: ${examUnit.title}`, sticker: null }
     : LESSON_BY_ID[id]
 
   const [questions] = useState(() => buildLesson(id, state))
@@ -126,10 +135,12 @@ export default function Lesson() {
         const stars = examStars(mistakes)
         const gained = passed ? (EXAM_XP[stars] ?? 40) : 0
         if (passed) {
+          // A jump clears every unit it covered, not just the destination.
+          const covered = jumpUnits?.length ? jumpUnits : [examUnit]
           dispatch({
             type: 'passExam',
             unitId: examUnit.id,
-            lessonIds: examUnit.lessons.map((l) => l.id),
+            lessonIds: covered.flatMap((u) => u.lessons.map((l) => l.id)),
             seconds,
             accuracy,
             mistakes,
@@ -153,6 +164,8 @@ export default function Lesson() {
             mistakes,
             stars,
             unitId: examUnit.id,
+            jump: isJump,
+            covered: jumpUnits?.length ?? 1,
           },
         })
         return
@@ -253,11 +266,11 @@ export default function Lesson() {
     // child already had is taken away.
     if (examUnit) {
       examMisses.current += 1
-      const out = examMisses.current >= EXAM_MAX_MISTAKES
+      const out = examMisses.current >= maxMistakes
       grade(false, false)
       setPhase('reveal')
       setLeo('think')
-      setMsg(out ? 'Это была третья ошибка' : pickOne(SOFT))
+      setMsg(out ? `Ошибок: ${examMisses.current}` : pickOne(SOFT))
       // A ref, not a timer: tapping "Понятно" runs next(), which clears every
       // pending timer — a timeout here was silently cancelled and the exam
       // passed with five mistakes. next() reads this flag instead.

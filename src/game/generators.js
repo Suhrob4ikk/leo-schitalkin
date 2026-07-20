@@ -1,4 +1,4 @@
-import { learnedTables, LESSON_BY_ID, UNIT_BY_ID } from './curriculum.js'
+import { learnedTables, LESSON_BY_ID, UNIT_BY_ID, unitsUpTo } from './curriculum.js'
 
 /* ── Dice ──────────────────────────────────────────────────────────────── */
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1))
@@ -914,6 +914,27 @@ export function buildExam(unit, state) {
     .map((q) => ({ ...q, exam: true }))
 }
 
+/*  Jumping several units ahead has to prove every unit being skipped, not just
+ *  the destination — otherwise a child could land on multiplication without
+ *  ever showing they can add. Longer and slightly stricter than a single-unit
+ *  exam, because it's unlocking correspondingly more.
+ */
+export const JUMP_LENGTH = 16
+export const JUMP_MAX_MISTAKES = 4
+
+export function buildJumpExam(units, state) {
+  const perUnit = Math.max(2, Math.ceil(JUMP_LENGTH / Math.max(1, units.length)))
+  const pool = []
+  for (const u of units) {
+    // At least one question from every unit in the range, so none is skipped
+    // by luck of the shuffle.
+    pool.push(...shuffle(unitPool(u, state, 3)).slice(0, perUnit))
+  }
+  return shuffle(pool)
+    .slice(0, JUMP_LENGTH)
+    .map((q) => ({ ...q, exam: true }))
+}
+
 /** Повторение — the same mix, but a normal lesson: retries, hints, no stakes. */
 export function buildReview(unit, state) {
   return shuffle(unitPool(unit, state, 4)).slice(0, 12)
@@ -922,6 +943,11 @@ export function buildReview(unit, state) {
 export function buildLesson(lessonId, state) {
   // Exams are addressed as `exam-<unitId>` so they travel through the same
   // route, the same Lesson screen and the same grading as any other lesson.
+  if (lessonId.startsWith('jump-')) {
+    const unit = UNIT_BY_ID[lessonId.slice(5)]
+    if (!unit) return []
+    return buildJumpExam(unitsUpTo(unit, state.lessons), state)
+  }
   if (lessonId.startsWith('exam-')) {
     const unit = UNIT_BY_ID[lessonId.slice(5)]
     return unit ? buildExam(unit, state) : []
