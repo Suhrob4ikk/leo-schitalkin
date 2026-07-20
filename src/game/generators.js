@@ -920,7 +920,10 @@ export function buildExam(unit, state) {
  *  exam, because it's unlocking correspondingly more.
  */
 export const JUMP_LENGTH = 16
-export const JUMP_MAX_MISTAKES = 4
+// Same three-mistake budget as a single-unit exam, on the user's call: one
+// rule the child can hold in their head beats a per-mode budget that's
+// technically fairer but has to be re-read every time.
+export const JUMP_MAX_MISTAKES = 3
 
 export function buildJumpExam(units, state) {
   const perUnit = Math.max(2, Math.ceil(JUMP_LENGTH / Math.max(1, units.length)))

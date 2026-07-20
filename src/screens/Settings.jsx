@@ -6,6 +6,13 @@ import Cub, { CAST, SPECIES } from '../components/Cub.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore } from '../game/store.jsx'
 import { canSpeak, sfx, speak } from '../game/audio.js'
+import {
+  notifyPermission,
+  requestNotifications,
+  registerDailySync,
+  unregisterDailySync,
+  sendTestNotification,
+} from '../game/notify.js'
 import './Settings.css'
 
 const SIZES = [
@@ -31,9 +38,10 @@ function Toggle({ on, onChange, label, hint }) {
 export default function Settings() {
   const nav = useNavigate()
   const { state, dispatch } = useStore()
-  const { sound, voice, textScale, buddy } = state.settings
+  const { sound, voice, textScale, buddy, notify } = state.settings
   const [confirmReset, setConfirmReset] = useState(false)
   const [confirmReplay, setConfirmReplay] = useState(false)
+  const [notifyState, setNotifyState] = useState(() => notifyPermission())
 
   const set = (key, value) => dispatch({ type: 'setSetting', key, value })
 
@@ -67,6 +75,55 @@ export default function Settings() {
             if (v) speak(`Привет! Я ${SPECIES[buddy]?.name ?? 'Лео'}.`)
           }}
         />
+
+        <Toggle
+          label="Напоминания"
+          hint={
+            notifyState === 'unsupported'
+              ? 'Не поддерживается этим браузером'
+              : notifyState === 'denied'
+                ? 'Запрещены в настройках браузера'
+                : `${SPECIES[buddy]?.name ?? 'Лео'} будет звать заниматься`
+          }
+          on={notify && notifyState === 'granted'}
+          onChange={async (v) => {
+            if (!v) {
+              set('notify', false)
+              unregisterDailySync()
+              return
+            }
+            // Must be inside the click for iOS/Safari to accept the prompt.
+            const res = await requestNotifications()
+            setNotifyState(res)
+            if (res !== 'granted') return
+            set('notify', true)
+            await registerDailySync()
+            sendTestNotification(SPECIES[buddy]?.name ?? 'Лео')
+          }}
+        />
+
+        {notify && notifyState === 'granted' && (
+          <div className="block">
+            <b>Когда напоминать</b>
+            <div className="size-row">
+              {[16, 18, 20].map((h) => (
+                <button
+                  key={h}
+                  type="button"
+                  className={`size-btn ${(state.settings.notifyHour ?? 18) === h ? 'is-on' : ''}`}
+                  onClick={() => {
+                    sfx.tap()
+                    set('notifyHour', h)
+                  }}
+                >
+                  <span>{h}:00</span>
+                  {h === 16 ? 'после школы' : h === 18 ? 'вечером' : 'перед сном'}
+                </button>
+              ))}
+            </div>
+            <span className="sub">Одно напоминание в день, не чаще.</span>
+          </div>
+        )}
 
         <div className="block">
           <b>Размер текста</b>

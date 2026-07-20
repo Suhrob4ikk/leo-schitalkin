@@ -1,5 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react'
 import { setMuted, unlockAudio, stopSpeaking } from './audio.js'
+import { canNotify, syncStateToWorker, checkReminderNow, scheduleLocalNudge } from './notify.js'
+
+/* Kept here rather than imported from Cub.jsx: the store must not depend on a
+   component, and a reminder only needs the name. */
+const BUDDY_NAMES = { fox: 'Лео', leopard: 'Пятныш', tiger: 'Тиг' }
 
 const KEY = 'leo-schitalkin/v1'
 const VERSION = 1
@@ -50,7 +55,10 @@ const initial = () => ({
   stickers: [],
   sessions: [],
   // buddy: null means "hasn't chosen yet" and triggers the picker on first run.
-  settings: { sound: true, voice: true, textScale: 1, buddy: null },
+  // notify defaults to false: a permission prompt on first launch, before the
+  // child has any reason to want reminders, is how permission gets denied
+  // permanently. It's offered after the first finished lesson instead.
+  settings: { sound: true, voice: true, textScale: 1, buddy: null, notify: false, notifyHour: 18 },
   createdAt: new Date().toISOString(),
 })
 
@@ -272,6 +280,30 @@ export function StoreProvider({ children }) {
   useEffect(() => {
     if (!state.settings.voice) stopSpeaking()
   }, [state.settings.voice])
+
+  /* Keep the service worker's copy of the reminder facts current: it can't read
+     localStorage, and a stale copy means reminding a child who already
+     practised today. Also schedules the same-day nudge. */
+  useEffect(() => {
+    if (!canNotify()) return
+    const buddyName = BUDDY_NAMES[state.settings.buddy] ?? 'Лео'
+    const enabled = Boolean(state.settings.notify) && Notification.permission === 'granted'
+    syncStateToWorker({
+      enabled,
+      lastPracticeDay: state.streak.lastDay,
+      streak: state.streak.current,
+      buddyName,
+    })
+    if (enabled) {
+      checkReminderNow()
+      scheduleLocalNudge({
+        hour: state.settings.notifyHour ?? 18,
+        streak: state.streak.current,
+        buddyName,
+        practicedToday: state.streak.lastDay === dayKey(),
+      })
+    }
+  }, [state.settings.notify, state.settings.notifyHour, state.settings.buddy, state.streak])
 
   // Mobile browsers keep the AudioContext suspended until a real gesture, so the
   // very first tap anywhere is what makes every later sound instant.

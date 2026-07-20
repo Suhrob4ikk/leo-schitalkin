@@ -3,11 +3,13 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Icon from '../components/Icon.jsx'
 import Mascot from '../components/Mascot.jsx'
 import Cub, { SPECIES } from '../components/Cub.jsx'
+import Sheet from '../components/Sheet.jsx'
 import { Stars, Sticker } from '../components/ui.jsx'
 import { useStore, starsFor } from '../game/store.jsx'
 import { ALL_LESSONS, LESSON_BY_ID, UNITS, UNIT_BY_ID, lessonIndex } from '../game/curriculum.js'
 import { earnedMilestones, STICKERS } from '../game/stickers.js'
 import { sfx } from '../game/audio.js'
+import { canNotify, notifyPermission, requestNotifications, registerDailySync, sendTestNotification } from '../game/notify.js'
 import { cannons, rain } from '../game/confetti.js'
 import './LessonComplete.css'
 
@@ -52,6 +54,22 @@ export default function LessonComplete() {
   const nextUnit = unlockedUnit(id)
   const unlockedFrom = finishedUnit(id)
   const perfect = res?.perfect
+
+  /* Offer reminders once, after a lesson is actually finished. Asked only if
+     the browser hasn't already been answered, and never twice. */
+  const [askNotify, setAskNotify] = useState(false)
+  useEffect(() => {
+    if (!res || res.exam) return
+    if (localStorage.getItem('leo-asked-notify')) return
+    if (!canNotify() || notifyPermission() !== 'default') return
+    const t = setTimeout(() => setAskNotify(true), 2600) // let the party land first
+    return () => clearTimeout(t)
+  }, [res])
+
+  const dismissNotify = () => {
+    localStorage.setItem('leo-asked-notify', '1')
+    setAskNotify(false)
+  }
 
   useEffect(() => {
     if (fired.current || !res) return
@@ -241,6 +259,38 @@ export default function LessonComplete() {
           </div>
         )}
       </div>
+
+      {/* Asked here, not on first launch: a permission prompt before the child
+          has any reason to want reminders gets denied, and a denial is
+          permanent until someone digs through browser settings. By now they
+          have finished a lesson and there's a streak worth protecting. */}
+      {askNotify && (
+        <Sheet onClose={dismissNotify}>
+          <Mascot size={100} state="wave" />
+          <b className="h2">Напоминать?</b>
+          <p className="sub">
+            {SPECIES[state.settings.buddy]?.name ?? 'Лео'} может звать заниматься раз в день, чтобы
+            серия не прервалась.
+          </p>
+          <button
+            className="btn btn--green btn--block"
+            onClick={async () => {
+              const res = await requestNotifications()
+              if (res === 'granted') {
+                dispatch({ type: 'setSetting', key: 'notify', value: true })
+                await registerDailySync()
+                sendTestNotification(SPECIES[state.settings.buddy]?.name ?? 'Лео')
+              }
+              dismissNotify()
+            }}
+          >
+            Да, напоминай
+          </button>
+          <button className="btn btn--ghost btn--block" onClick={dismissNotify}>
+            Не сейчас
+          </button>
+        </Sheet>
+      )}
 
       <div className="done-actions shell safe-bottom">
         {nextLesson && (

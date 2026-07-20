@@ -9,6 +9,12 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      // injectManifest, not generateSW: the service worker is hand-written so
+      // it can wake on Periodic Background Sync to post a reminder and open the
+      // app when one is tapped. See src/sw.js.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png'],
       manifest: {
@@ -30,10 +36,8 @@ export default defineConfig({
           { src: 'icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,woff2,png,svg,ico}'],
-        navigateFallback: 'index.html',
-        cleanupOutdatedCaches: true,
       },
     }),
   ],
