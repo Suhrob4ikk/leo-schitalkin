@@ -16,7 +16,13 @@ import './Leo.css'
  *  adding a config below, not another component.
  */
 
-const STATES = ['idle', 'wave', 'happy', 'think', 'sleepy']
+/*  cheer  — mouth wide open, eyes screwed shut. The "yelling with joy" face.
+ *  starry — eyes replaced by shining stars. The rarest one.
+ *
+ *  These exist because a single happy face flattens every win into the same
+ *  size. A 5-in-a-row and a 20-in-a-row should not look identical, so the
+ *  expression escalates with the run the way the badge text already does. */
+const STATES = ['idle', 'wave', 'happy', 'cheer', 'starry', 'think', 'sleepy']
 
 /** Display order on the picker — the fox is first because he's the one the app
     is named after and the safe default. */
@@ -91,11 +97,43 @@ export const SPECIES = {
 function Eyes({ state, ids }) {
   // Arcs are drawn in the eye's own dark colour, not the nose colour — a lilac
   // or pink smile-eye reads as makeup rather than as a squeezed-shut eye.
-  if (state === 'happy') {
+  if (state === 'happy' || state === 'cheer') {
+    // `cheer` squeezes harder and adds joy creases at the outer corners — the
+    // difference between smiling and yelling with delight.
+    const hard = state === 'cheer'
     return (
-      <g className="leo-eyes" fill="none" stroke="#3a2a20" strokeWidth="6" strokeLinecap="round">
-        <path d="M 70 75 Q 80 62 90 75" />
-        <path d="M 110 75 Q 120 62 130 75" />
+      <g className="leo-eyes" fill="none" stroke="#3a2a20" strokeWidth={hard ? 7 : 6} strokeLinecap="round">
+        <path d={hard ? 'M 68 77 Q 80 60 92 77' : 'M 70 75 Q 80 62 90 75'} />
+        <path d={hard ? 'M 108 77 Q 120 60 132 77' : 'M 110 75 Q 120 62 130 75'} />
+        {hard && (
+          <g strokeWidth="3.4" opacity=".7">
+            <path d="M 62 68 L 55 64" />
+            <path d="M 61 76 L 53 76" />
+            <path d="M 138 68 L 145 64" />
+            <path d="M 139 76 L 147 76" />
+          </g>
+        )}
+      </g>
+    )
+  }
+  if (state === 'starry') {
+    // Eyes replaced by four-point sparkles — the rarest face, saved for the
+    // biggest runs, so it stays worth seeing.
+    const star = (cx) => {
+      const p = []
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2 - Math.PI / 2
+        const r = i % 2 === 0 ? 15 : 4.6
+        p.push(`${(cx + Math.cos(a) * r).toFixed(1)},${(72 + Math.sin(a) * r).toFixed(1)}`)
+      }
+      return p.join(' ')
+    }
+    return (
+      <g className="leo-eyes leo-eyes--starry">
+        <polygon points={star(80)} fill="#fff8d6" stroke="#ffc800" strokeWidth="2.6" strokeLinejoin="round" />
+        <polygon points={star(120)} fill="#fff8d6" stroke="#ffc800" strokeWidth="2.6" strokeLinejoin="round" />
+        <circle cx="80" cy="72" r="3.4" fill="#ffdd55" />
+        <circle cx="120" cy="72" r="3.4" fill="#ffdd55" />
       </g>
     )
   }
@@ -140,6 +178,20 @@ function Brows({ state, sp }) {
 }
 
 function Mouth({ state, ids, sp }) {
+  if (state === 'cheer' || state === 'starry') {
+    // A big open shout, taller than the grin and pushed down the muzzle, with
+    // the tongue clipped inside so it can't spill past the lip.
+    return (
+      <g className="leo-shout">
+        <clipPath id={ids.mouth}>
+          <path d="M 78 100 Q 100 94 122 100 Q 122 130 100 130 Q 78 130 78 100 Z" />
+        </clipPath>
+        <path d="M 78 100 Q 100 94 122 100 Q 122 130 100 130 Q 78 130 78 100 Z" fill="#4a2b28" />
+        <ellipse cx="100" cy="128" rx="12" ry="8" fill="#ff7a8a" clipPath={`url(#${ids.mouth})`} />
+        <path d="M 82 101 Q 100 97 118 101 L 118 105 Q 100 101 82 105 Z" fill="#fff" clipPath={`url(#${ids.mouth})`} />
+      </g>
+    )
+  }
   if (state === 'happy') {
     return (
       <g>

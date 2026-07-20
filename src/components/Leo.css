@@ -282,6 +282,108 @@
   animation: soft-pulse 0.72s ease-in-out infinite;
 }
 
+/* ── CHEER / STARRY — the escalated wins, for combo milestones ───────────── */
+/*  Same jump, wound up: higher, faster, with the whole body rocking. A bigger
+ *  run has to LOOK bigger, or every milestone feels like the first one. */
+.leo--cheer .leo-all {
+  animation: leo-cheer-jump 0.56s var(--ease-out) infinite;
+}
+.leo--starry .leo-all {
+  animation: leo-cheer-jump 0.62s var(--ease-out) infinite;
+}
+
+@keyframes leo-cheer-jump {
+  0% {
+    transform: translateY(0) scale(1, 1) rotate(0deg);
+  }
+  9% {
+    transform: translateY(4px) scale(1.22, 0.8) rotate(0deg);
+  }
+  24% {
+    transform: translateY(-52px) scale(0.86, 1.2) rotate(-5deg);
+  }
+  40% {
+    transform: translateY(-66px) scale(1, 1) rotate(4deg);
+  }
+  56% {
+    transform: translateY(-30px) scale(0.94, 1.1) rotate(-3deg);
+  }
+  72% {
+    transform: translateY(0) scale(1.24, 0.78) rotate(0deg);
+  }
+  86%,
+  100% {
+    transform: translateY(0) scale(1, 1) rotate(0deg);
+  }
+}
+
+.leo--cheer .leo-shadow,
+.leo--starry .leo-shadow {
+  animation: leo-shadow-jump 0.56s var(--ease-out) infinite;
+}
+
+.leo--cheer .leo-arm--l,
+.leo--starry .leo-arm--l {
+  animation: leo-cheer-l 0.28s var(--spring) infinite;
+}
+.leo--cheer .leo-arm--r,
+.leo--starry .leo-arm--r {
+  animation: leo-cheer-r 0.28s var(--spring) infinite;
+}
+
+.leo--cheer .leo-tail,
+.leo--starry .leo-tail {
+  animation: leo-tail-wag 0.13s ease-in-out infinite;
+}
+
+.leo--cheer .leo-ear--l,
+.leo--starry .leo-ear--l {
+  animation: leo-ear-flap-l 0.26s ease-in-out infinite;
+}
+.leo--cheer .leo-ear--r,
+.leo--starry .leo-ear--r {
+  animation: leo-ear-flap-r 0.26s ease-in-out infinite;
+}
+
+.leo--cheer .leo-blush,
+.leo--starry .leo-blush {
+  opacity: 0.75;
+  animation: soft-pulse 0.56s ease-in-out infinite;
+}
+
+/* The shout stretches open on each landing rather than sitting static. */
+.leo-shout {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+  animation: leo-shout 0.56s var(--ease-out) infinite;
+}
+@keyframes leo-shout {
+  0%,
+  100% {
+    transform: scaleY(0.86);
+  }
+  40% {
+    transform: scaleY(1.12);
+  }
+}
+
+/* Stars twinkle out of phase with the jump, so the face keeps moving even at
+   the top of the arc. */
+.leo-eyes--starry {
+  transform-box: view-box;
+  transform-origin: 100px 72px;
+  animation: leo-twinkle 0.9s ease-in-out infinite;
+}
+@keyframes leo-twinkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.16) rotate(14deg);
+  }
+}
+
 /* ── THINK — after a wrong answer. Paw to the chin, head cocked, "?" bobbing.
       Warm and curious. Nothing here reads as disapproval. ─────────────────── */
 .leo--think .leo-all {

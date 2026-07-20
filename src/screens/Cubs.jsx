@@ -4,7 +4,7 @@ import Cub, { SPECIES } from '../components/Cub.jsx'
 
 /* Preview page for the cast. Temporary — here so the characters can be looked
    at and judged before anything is wired into the lessons. */
-const STATES = ['idle', 'wave', 'happy', 'think', 'sleepy']
+const STATES = ['idle', 'wave', 'happy', 'cheer', 'starry', 'think', 'sleepy']
 const KEYS = ['leopard', 'tiger', 'fox']
 
 export default function Cubs() {

@@ -43,11 +43,15 @@ const CHEERS = [
 /* Every 5 in a row without a slip. The wording escalates so the tenth feels
    bigger than the fifth — a flat "КОМБО" every time stops being a reward. */
 const COMBO_STEP = 5
+/* `face` escalates with the run: a five and a twenty must not look identical,
+   or the milestone stops meaning anything after the first one. */
 const COMBO_TIERS = [
-  { at: 5, text: '5 подряд!', icon: '🔥' },
-  { at: 10, text: '10 подряд! Огонь!', icon: '🚀' },
-  { at: 15, text: '15 подряд! Невероятно!', icon: '💎' },
-  { at: 20, text: '20 подряд! Ты чемпион!', icon: '👑' },
+  { at: 5, text: '5 подряд!', icon: '🔥', face: 'happy' },
+  { at: 10, text: '10 подряд! Огонь!', icon: '🚀', face: 'cheer' },
+  { at: 15, text: '15 подряд! Невероятно!', icon: '💎', face: 'cheer' },
+  { at: 20, text: '20 подряд! Ты чемпион!', icon: '👑', face: 'starry' },
+  { at: 30, text: '30 подряд! Невероятно!', icon: '🌟', face: 'starry' },
+  { at: 50, text: '50 подряд! Это рекорд!', icon: '🏆', face: 'starry' },
 ]
 const comboTier = (n) => COMBO_TIERS.filter((t) => n >= t.at).pop() ?? COMBO_TIERS[0]
 const NUDGES = ['Почти! Попробуй ещё раз', 'Чуть-чуть не хватило!', 'Уже близко! Ещё разок']
@@ -224,8 +228,9 @@ export default function Lesson() {
         const tier = comboTier(streak)
         setComboPop({ ...tier, n: streak })
         setMsg(`${tier.icon} ${tier.text}`)
+        setLeo(tier.face)
         sfx.combo(streak / COMBO_STEP)
-        rain(1400, { perTick: 7 })
+        rain(1400, { perTick: tier.face === 'starry' ? 11 : 7 })
         tally.current.xp += 10
         setTimeout(() => setComboPop(null), 1500)
       } else {
