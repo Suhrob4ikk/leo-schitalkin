@@ -31,6 +31,11 @@
   --orange: #ff9600;
   --orange-dark: #e08600;
   --orange-soft: #fff0d6;
+  /* Borders that pair with an --orange-soft fill (warm feedback panels, the
+     mistakes pill, the tutor's "struggling" card). Kept as tokens so the warm
+     orange language is defined once rather than as ad-hoc hex per component. */
+  --orange-line: #ffe1ab;
+  --orange-line-strong: #ffcf9a;
 
   --gold: #ffc800;
   --gold-dark: #e5a400;

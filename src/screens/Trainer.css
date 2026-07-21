@@ -1,0 +1,112 @@
+.trainer-body {
+  padding: 0.4rem 1.1rem 7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.trainer-hero {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0 0.6rem;
+}
+.trainer-hero .sub {
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.trainer-head {
+  font-size: 0.76rem;
+  font-weight: 900;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 0.9rem 0 0.1rem;
+}
+
+/* ── Segmented choices (operation, answer style) ─────────────────────────── */
+.seg {
+  display: grid;
+  gap: 0.5rem;
+}
+.seg--2 {
+  grid-template-columns: 1fr 1fr;
+}
+.seg-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: var(--tap);
+  padding: 0.6rem 0.5rem;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 0.15rem solid var(--line);
+  box-shadow: 0 0.15rem 0 var(--line-strong);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink-strong);
+  transition: transform 0.1s var(--spring);
+}
+.seg-btn--stack {
+  flex-direction: column;
+  gap: 0.05rem;
+}
+.seg-btn--stack .sub {
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+.seg-btn:active {
+  transform: scale(0.96);
+}
+.seg-btn.is-on {
+  background: var(--green-tint);
+  border-color: var(--green);
+  box-shadow: 0 0.15rem 0 var(--green);
+  color: var(--green-dark);
+}
+.seg-btn.is-on .sub {
+  color: var(--green-dark);
+}
+
+/* ── Number grid ─────────────────────────────────────────────────────────── */
+.num-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+}
+.num-btn {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 0.15rem solid var(--line);
+  box-shadow: 0 0.2rem 0 var(--line-strong);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  transition: transform 0.1s var(--spring);
+}
+.num-btn:active {
+  transform: translateY(0.1rem);
+  box-shadow: 0 0.1rem 0 var(--line-strong);
+}
+.num-btn.is-on {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+  box-shadow: 0 0.2rem 0 var(--blue-dark);
+  color: var(--blue-dark);
+}
+
+/* ── Start ───────────────────────────────────────────────────────────────── */
+.trainer-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.7rem 1.1rem 1rem;
+  background: linear-gradient(to top, var(--bg) 72%, transparent);
+}

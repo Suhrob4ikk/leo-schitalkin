@@ -6,7 +6,7 @@ import Teacher from '../components/Teacher.jsx'
 import { Hearts, ProgressBar, SpeakButton } from '../components/ui.jsx'
 import Sheet from '../components/Sheet.jsx'
 import { useStore, examStars, EXAM_XP } from '../game/store.jsx'
-import { LESSON_BY_ID, UNIT_BY_ID, unitsUpTo } from '../game/curriculum.js'
+import { LESSON_BY_ID, UNIT_BY_ID, unitsUpTo, practiceTitle } from '../game/curriculum.js'
 import { buildLesson, checkAnswer, EXAM_MAX_MISTAKES, JUMP_MAX_MISTAKES } from '../game/generators.js'
 import { sfx, stopSpeaking } from '../game/audio.js'
 import { burst, burstFrom, rain } from '../game/confetti.js'
@@ -82,10 +82,13 @@ export default function Lesson() {
       : null
   const jumpUnits = isJump && examUnit ? unitsUpTo(examUnit, state.lessons) : null
   const maxMistakes = isJump ? JUMP_MAX_MISTAKES : EXAM_MAX_MISTAKES
+  // Neither the mistake review nor the table trainer is a node on the map, so
+  // they have no curriculum entry — their title comes from practiceTitle.
+  const isPractice = id === 'mistakes' || id.startsWith('drill-')
   const lesson = examUnit
     ? { id, title: isJump ? `Переход к: ${examUnit.title}` : `Проверка: ${examUnit.title}`, sticker: null }
-    : id === 'mistakes'
-      ? { id, title: 'Работа над ошибками', sticker: null }
+    : isPractice
+      ? { id, title: practiceTitle(id), sticker: null }
       : LESSON_BY_ID[id]
 
   const [questions] = useState(() => buildLesson(id, state))
@@ -174,22 +177,22 @@ export default function Lesson() {
       }
 
       const bonusXp = perfect ? 25 : 10
-      // The mistake review isn't a node on the map, so it must not be recorded
-      // as one — it would show up as a phantom completed lesson. Its time and
-      // XP still count.
-      if (id === 'mistakes') {
+      // Practice (mistake review, table trainer) isn't a node on the map, so it
+      // must not be recorded as one — it would show up as a phantom completed
+      // lesson. Its time and XP still count.
+      if (isPractice) {
         // XP for each answer was already awarded as it was graded; there's no
-        // completion bonus for a review.
+        // completion bonus for practice.
         dispatch({ type: 'addTime', seconds })
       } else {
         dispatch({ type: 'finishLesson', lessonId: id, correct: first, total: graded, seconds, bonusXp })
         if (lesson?.sticker) dispatch({ type: 'unlockSticker', id: lesson.sticker })
       }
 
-      const gained = id === 'mistakes' ? tally.current.xp : tally.current.xp + bonusXp
+      const gained = isPractice ? tally.current.xp : tally.current.xp + bonusXp
       nav(`/done/${id}`, {
         replace: true,
-        state: { accuracy, perfect, seconds, bonusXp, hearts, xp: gained, review: id === 'mistakes' },
+        state: { accuracy, perfect, seconds, bonusXp, hearts, xp: gained, review: isPractice },
       })
     },
     [dispatch, examUnit, hearts, id, lesson, nav],
@@ -219,14 +222,14 @@ export default function Lesson() {
 
   // Mirrors the XP the store awards, so the summary screen can show what was
   // earned in this lesson rather than only the running total.
-  const grade = (correct, firstTry) => {
-    dispatch({ type: 'answer', topic: q.topic, fact: q.fact, correct, firstTry })
+  const grade = (correct, firstTry, bonus = 0) => {
+    dispatch({ type: 'answer', topic: q.topic, fact: q.fact, correct, firstTry, bonus })
     // Getting one right first time — including inside the review itself —
     // retires it. Collection happens at the point of the slip, above.
     if (correct && firstTry) dispatch({ type: 'clearMistake', q })
     else if (!correct) dispatch({ type: 'noteMistake', q })
     tally.current.graded += 1
-    if (correct) tally.current.xp += firstTry ? 4 : 2
+    if (correct) tally.current.xp += (firstTry ? 4 : 2) + bonus
     if (correct && firstTry) tally.current.first += 1
   }
 
@@ -253,6 +256,9 @@ export default function Lesson() {
       // A combo overrides the usual cheer and gets its own party: bigger sound,
       // confetti raining rather than a pop, and a badge across the screen.
       const hit = streak > 0 && streak % COMBO_STEP === 0
+      // The reward the badge shows; passed to grade() so it actually lands in
+      // the store, not just this lesson's on-screen tally.
+      const comboBonus = hit ? 10 : 0
       if (hit) {
         const tier = comboTier(streak)
         setComboPop({ ...tier, n: streak })
@@ -260,7 +266,6 @@ export default function Lesson() {
         setLeo(tier.face)
         sfx.combo(streak / COMBO_STEP)
         rain(1400, { perTick: tier.face === 'starry' ? 11 : 7 })
-        tally.current.xp += 10
         setTimeout(() => setComboPop(null), 1500)
       } else {
         setMsg(pickOne(CHEERS))
@@ -269,7 +274,7 @@ export default function Lesson() {
 
       if (el) burstFrom(el, { count: hit ? 60 : 30, power: hit ? 13 : 9 })
       else burst(window.innerWidth / 2, window.innerHeight * 0.42, { count: hit ? 60 : 30, power: hit ? 13 : 9 })
-      grade(true, firstTry)
+      grade(true, firstTry, comboBonus)
       advanceTimer.current = setTimeout(next, hit ? ADVANCE_MS + 700 : ADVANCE_MS)
       return
     }
@@ -406,8 +411,9 @@ export default function Lesson() {
           <UiIcon name="close" size="1.35rem" />
         </button>
         <ProgressBar value={idx} max={questions.length} />
-        {/* The running streak only appears once it's worth chasing. */}
-        {combo >= 2 && (
+        {/* The running streak only appears once it's worth chasing — same
+            threshold as the map's combo chip, so the two never disagree. */}
+        {combo >= 3 && (
           <span className="combo-chip" key={combo}>
             <Icon e="🔥" size="0.95rem" />
             <b className="tnum">{combo}</b>
@@ -450,16 +456,16 @@ export default function Lesson() {
             <Teacher lessonId={id} size={96} state={leo} className="fb-leo" />
             <div className="fb-text">
               <b className="fb-title">{msg}</b>
+              {/* Only the correct answer is shown on a slip — no worked hint,
+                  by design. */}
               {phase === 'reveal' && (
                 <span className="fb-sub">
                   Ответ: <b>{q.answer}</b>
-                  {q.hint ? ` · ${q.hint}` : ''}
                 </span>
               )}
-              {phase === 'retry' && q.hint && <span className="fb-sub">Подсказка: {q.hint}</span>}
             </div>
             <div className="fb-actions">
-              <SpeakButton text={phase === 'reveal' ? `${msg}. Ответ: ${q.answer}. ${q.hint || ''}` : msg} />
+              <SpeakButton text={phase === 'reveal' ? `${msg}. Ответ: ${q.answer}.` : msg} />
               {phase === 'correct' && (
                 <button className="btn btn--green" onClick={next}>
                   Дальше

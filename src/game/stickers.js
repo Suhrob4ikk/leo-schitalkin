@@ -31,12 +31,22 @@ export const STICKERS = {
   circus: { emoji: '🎪', label: 'Всё вместе!', color: 'purple' },
   bolt: { emoji: '⚡', label: 'Молния', color: 'gold' },
 
-  /* Milestones */
-  'unit-u1': { emoji: '🏆', label: 'Сложение и вычитание', color: 'gold', big: true },
-  'unit-u2': { emoji: '👑', label: 'Таблица умножения', color: 'gold', big: true },
+  /* Milestones — one per unit, labelled with the real unit title. These are
+     derived in earnedMilestones from `unit-${u.id}`, so every unit needs an
+     entry here or finishing it awards an id with nothing to show. */
+  'unit-u1': { emoji: '🏆', label: 'Числа до 100', color: 'gold', big: true },
+  'unit-u2': { emoji: '🎖️', label: 'Плюс и минус', color: 'gold', big: true },
+  'unit-u3': { emoji: '👑', label: 'Столбик и скобки', color: 'gold', big: true },
+  'unit-u4': { emoji: '💎', label: 'Что такое умножение', color: 'gold', big: true },
+  'unit-u5': { emoji: '🚀', label: 'Таблица дальше', color: 'gold', big: true },
+  'unit-u6': { emoji: '⭐', label: 'Самые трудные', color: 'gold', big: true },
+  'unit-u7': { emoji: '💪', label: 'Деление', color: 'gold', big: true },
+  'unit-u8': { emoji: '🏁', label: 'Всё вместе', color: 'gold', big: true },
   'perfect-5': { emoji: '🌟', label: '5 идеальных уроков', color: 'gold', big: true },
   'streak-7': { emoji: '🔥', label: '7 дней подряд', color: 'orange', big: true },
-  'fox-friend': { emoji: '🦊', label: 'Друг Лео', color: 'orange', big: true },
+  // Buddy-neutral: the friend on the journey may be Лео, Пятныш or Тиг, so this
+  // can't be a fox. (Id kept as-is so already-earned saves don't lose it.)
+  'fox-friend': { emoji: '❤️', label: 'Верный друг', color: 'orange', big: true },
 }
 
 export const STICKER_IDS = Object.keys(STICKERS)

@@ -6,7 +6,7 @@ import Cub, { SPECIES } from '../components/Cub.jsx'
 import NotifyGuide from '../components/NotifyGuide.jsx'
 import { Stars, Sticker } from '../components/ui.jsx'
 import { useStore, starsFor } from '../game/store.jsx'
-import { ALL_LESSONS, LESSON_BY_ID, UNITS, UNIT_BY_ID, lessonIndex } from '../game/curriculum.js'
+import { ALL_LESSONS, LESSON_BY_ID, UNITS, UNIT_BY_ID, lessonIndex, practiceTitle } from '../game/curriculum.js'
 import { earnedMilestones, STICKERS } from '../game/stickers.js'
 import { sfx } from '../game/audio.js'
 import { canNotify, notifyPermission } from '../game/notify.js'
@@ -37,9 +37,10 @@ export default function LessonComplete() {
   const loc = useLocation()
   const fired = useRef(false)
 
-  // The mistake review isn't a node on the map, so it has no curriculum entry.
-  const lesson =
-    id === 'mistakes' ? { id, title: 'Работа над ошибками', sticker: null } : LESSON_BY_ID[id]
+  // Practice screens (mistake review, table trainer) aren't nodes on the map,
+  // so they have no curriculum entry.
+  const isPractice = id === 'mistakes' || id.startsWith('drill-')
+  const lesson = isPractice ? { id, title: practiceTitle(id), sticker: null } : LESSON_BY_ID[id]
   const res = loc.state
   const [fresh, setFresh] = useState([])
 
@@ -177,10 +178,14 @@ export default function LessonComplete() {
 
   if (!lesson) return <Navigate to="/" replace />
 
+  // A practice run has no stars (it's not graded for mastery) and no "next
+  // lesson" — lessonIndex is -1 for it, so ALL_LESSONS[i+1] would wrongly point
+  // at the very first lesson.
+  const review = Boolean(res.review)
   const stars = starsFor(res.accuracy)
   const pct = Math.round(res.accuracy * 100)
   const i = lessonIndex(id)
-  const nextLesson = ALL_LESSONS[i + 1]
+  const nextLesson = review ? null : ALL_LESSONS[i + 1]
 
   const stickerIds = [lesson.sticker, ...fresh].filter((s) => s && STICKERS[s])
 
@@ -192,7 +197,15 @@ export default function LessonComplete() {
         </div>
 
         <h1 className={`done-title ${perfect ? 'is-perfect' : ''}`}>
-          {nextUnit ? 'Новый раздел открыт!' : perfect ? 'Идеально!' : 'Урок пройден!'}
+          {review
+            ? perfect
+              ? 'Идеально!'
+              : 'Отличная тренировка!'
+            : nextUnit
+              ? 'Новый раздел открыт!'
+              : perfect
+                ? 'Идеально!'
+                : 'Урок пройден!'}
         </h1>
         <p className="sub done-lesson">{lesson.title}</p>
 
@@ -202,7 +215,7 @@ export default function LessonComplete() {
           </div>
         )}
 
-        <Stars count={stars} size="lg" animate />
+        {!review && <Stars count={stars} size="lg" animate />}
 
         <div className="done-stats">
           <div className="dstat dstat--xp">

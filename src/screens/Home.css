@@ -92,12 +92,15 @@
    permanent strip of a phone. */
 .today-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   padding-top: 0.5rem;
 }
 
 .today-pill {
-  flex: 1;
+  /* Basis wide enough that two pills share a row and a third wraps below,
+     rather than three squeezing into an unreadable strip. */
+  flex: 1 1 8.5rem;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -175,7 +178,7 @@
 
 .mistakes-pill {
   background: var(--orange-soft);
-  border-color: #ffcf9a;
+  border-color: var(--orange-line-strong);
   transition: transform 0.1s var(--spring);
 }
 .mistakes-pill:active {
@@ -198,6 +201,30 @@
   font-weight: 900;
 }
 
+/* Тренажёр — quick table practice, in the same daily strip. */
+.trainer-pill {
+  background: var(--blue-soft);
+  border-color: #b6e6fb;
+  transition: transform 0.1s var(--spring);
+}
+.trainer-pill:active {
+  transform: scale(0.96);
+}
+.trainer-pill .today-text b {
+  color: var(--blue-dark);
+}
+.trainer-pill-icon {
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-full);
+  background: var(--blue);
+  color: #fff;
+}
+
 .nudge-card {
   display: flex;
   flex-direction: column;
@@ -205,7 +232,7 @@
   padding: 0.8rem 1rem;
   margin-bottom: 1rem;
   background: var(--orange-soft);
-  border: 0.14rem solid #ffe1ab;
+  border: 0.14rem solid var(--orange-line);
   border-radius: var(--r-lg);
   animation: float-up 0.5s var(--spring) both;
 }
@@ -291,6 +318,66 @@
   flex: none;
 }
 
+/* A cleared unit: the topic icon becomes a white "done" stamp, and the whole
+   banner eases back a touch so the active section is what the eye lands on. */
+.unit-banner.is-complete {
+  box-shadow: 0 0.28rem 0 rgba(0, 0, 0, 0.12);
+}
+.unit-seal {
+  flex: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Checkpoints between units ───────────────────────────────────────────── */
+.checkpoint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  margin: -0.4rem 0 1rem;
+}
+.checkpoint-badge {
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: var(--r-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sunken);
+  border: 0.15rem dashed var(--line-strong);
+}
+.checkpoint-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: var(--r-full);
+  background: var(--line-strong);
+}
+.checkpoint.is-cleared .checkpoint-badge {
+  background: var(--gold);
+  border: 0.15rem solid var(--gold-dark);
+  box-shadow: 0 0.2rem 0 var(--gold-dark);
+  animation: checkpoint-pop 0.4s var(--spring-big) both;
+}
+.checkpoint-text {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+@keyframes checkpoint-pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
 /* Test-out. Gold so it reads as an opportunity rather than an obligation —
    it sits on a coloured banner and must not compete with the path below. */
 /* Gold on the coloured banner so it reads as an opportunity, and pulsing
@@ -368,8 +455,13 @@
 .here-btn:active {
   transform: translateX(-50%) scale(0.94);
 }
-.here-arrow {
+/* The arrow points at the node: down when it's below the viewport, up when the
+   map has been scrolled past it. */
+.here-btn--down .here-arrow {
   transform: rotate(90deg);
+}
+.here-btn--up .here-arrow {
+  transform: rotate(-90deg);
 }
 
 /* Which units a jump has to prove, listed before it starts. */

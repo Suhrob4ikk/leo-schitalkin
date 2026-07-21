@@ -4,6 +4,7 @@ import Icon from '../components/Icon.jsx'
 import { Stars } from '../components/ui.jsx'
 import { useStore, lastNDays, useStreak } from '../game/store.jsx'
 import { ALL_LESSONS, UNITS } from '../game/curriculum.js'
+import { plural } from '../game/generators.js'
 import './Tutor.css'
 
 const TOPIC_LABELS = {
@@ -136,6 +137,21 @@ export default function Tutor() {
 
   const recent = [...state.sessions].reverse().slice(0, 8)
 
+  // One plain-language reading of the tiles above, so a glancing parent gets the
+  // story without decoding five numbers.
+  const summary = (() => {
+    const days = streak.current
+    const streakPart =
+      days > 0 ? `Занимается ${days} ${plural(days, 'день', 'дня', 'дней')} подряд` : 'Серии дней пока нет'
+    const weakPart =
+      struggling.length > 0
+        ? `слабое место — ${TOPIC_LABELS[struggling[0][0]] ?? struggling[0][0]}`
+        : Object.keys(state.topics).length > 0
+          ? 'слабых тем нет'
+          : 'данных пока нет'
+    return `${streakPart}, ${weakPart}.`
+  })()
+
   return (
     <div className="screen tutor">
       <header className="coll-top safe-top shell">
@@ -144,8 +160,7 @@ export default function Tutor() {
         </button>
         <b className="h2">Успехи</b>
         <Link to="/settings" className="icon-btn tutor-gear" aria-label="Настройки">
-  
-
+          <UiIcon name="gear" size="1.35rem" />
         </Link>
       </header>
 
@@ -172,6 +187,8 @@ export default function Tutor() {
             <span>лучшая серия</span>
           </div>
         </div>
+
+        <p className="kpi-summary sub">{summary}</p>
 
         {struggling.length > 0 ? (
           <section className="card warn-card">
@@ -213,6 +230,10 @@ export default function Tutor() {
 
         <h2 className="tutor-head">Таблица умножения по фактам</h2>
         <section className="card">
+          <p className="sub fg-note">
+            Каждая клетка — один пример: слева таблица, сверху множитель. Цвет — насколько
+            уверенно решает.
+          </p>
           <FactGrid facts={state.facts} />
         </section>
 

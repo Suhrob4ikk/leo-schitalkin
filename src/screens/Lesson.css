@@ -1234,7 +1234,7 @@
 .fb--retry,
 .fb--reveal {
   background: var(--orange-soft);
-  border-color: #ffe1ab;
+  border-color: var(--orange-line);
 }
 
 .fb-inner {

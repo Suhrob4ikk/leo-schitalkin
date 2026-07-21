@@ -215,6 +215,17 @@ export function learnedTables(lessons) {
   return done.length ? done : [2]
 }
 
+/** Human title for the screens that aren't map nodes — the mistake review and
+    the table trainer — since neither has a curriculum entry to read from. */
+export function practiceTitle(id) {
+  if (id === 'mistakes') return 'Работа над ошибками'
+  if (id.startsWith('drill-')) {
+    const [, op, n] = id.split('-')
+    return op === 'div' ? `Деление на ${n}` : `Умножение ×${n}`
+  }
+  return null
+}
+
 export function unitProgress(unit, lessons) {
   const done = unit.lessons.filter((l) => lessons[l.id]?.done).length
   return { done, total: unit.lessons.length, ratio: done / unit.lessons.length }

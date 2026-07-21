@@ -157,8 +157,12 @@ function reducer(state, action) {
     /* One graded answer. `firstTry` is what accuracy and stars are scored on —
        a correct retry still counts as correct for XP, just not for mastery. */
     case 'answer': {
-      const { topic, fact, correct, firstTry } = action
-      const gain = correct ? (firstTry ? 4 : 2) : 0
+      // `bonus` carries the combo-milestone reward (the +10 the celebration
+      // promises). It has to flow through here rather than only into the
+      // lesson's local tally, or the map's XP counter and the XP-based daily
+      // goal silently undercount everything the child was just shown earning.
+      const { topic, fact, correct, firstTry, bonus = 0 } = action
+      const gain = (correct ? (firstTry ? 4 : 2) : 0) + bonus
       // Only a clean first try extends the run; a correct retry keeps its XP
       // but breaks the chain, same rule the stars use.
       const combo = correct && firstTry ? state.combo + 1 : 0
@@ -326,13 +330,21 @@ export function StoreProvider({ children }) {
   /* Keep the service worker's copy of the reminder facts current: it can't read
      localStorage, and a stale copy means reminding a child who already
      practised today. Also schedules the same-day nudge. */
+  // "Practised today" means answering anything today, not finishing a lesson.
+  // streak.lastDay only advances on a finish, so a child who did half a lesson
+  // and backed out would still be nagged to "come practise" — which reads as the
+  // app not noticing they were just there. Derived here so the effect below can
+  // depend on it and re-sync the moment it flips (once, on the day's first answer).
+  const today = dayKey()
+  const practicedToday = (state.days[today]?.total ?? 0) > 0
+
   useEffect(() => {
     if (!canNotify()) return
     const buddyName = BUDDY_NAMES[state.settings.buddy] ?? 'Лео'
     const enabled = Boolean(state.settings.notify) && Notification.permission === 'granted'
     syncStateToWorker({
       enabled,
-      lastPracticeDay: state.streak.lastDay,
+      lastPracticeDay: practicedToday ? today : state.streak.lastDay,
       streak: state.streak.current,
       buddyName,
     })
@@ -342,10 +354,10 @@ export function StoreProvider({ children }) {
         hour: state.settings.notifyHour ?? 18,
         streak: state.streak.current,
         buddyName,
-        practicedToday: state.streak.lastDay === dayKey(),
+        practicedToday,
       })
     }
-  }, [state.settings.notify, state.settings.notifyHour, state.settings.buddy, state.streak])
+  }, [state.settings.notify, state.settings.notifyHour, state.settings.buddy, state.streak, practicedToday, today])
 
   // Mobile browsers keep the AudioContext suspended until a real gesture, so the
   // very first tap anywhere is what makes every later sound instant.

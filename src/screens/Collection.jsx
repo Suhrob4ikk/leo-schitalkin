@@ -18,7 +18,11 @@ export default function Collection() {
   const { state } = useStore()
   const [zoom, setZoom] = useState(null)
 
-  const have = new Set(state.stickers)
+  // Only count stickers that actually exist in the album. An older save can
+  // carry ids that were awarded before their definition shipped (or after one
+  // was removed); without this filter "have" could exceed "total" and read like
+  // "37 / 31".
+  const have = new Set(state.stickers.filter((id) => STICKERS[id]))
   const total = REGULAR.length + SPECIAL.length
 
   const open = (id, el) => {

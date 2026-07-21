@@ -908,8 +908,23 @@ function unitPool(unit, state, perLesson) {
 }
 
 export function buildExam(unit, state) {
-  const perLesson = Math.max(2, Math.ceil(EXAM_LENGTH / Math.max(1, unit.lessons.length - 1)))
-  return shuffle(unitPool(unit, state, perLesson))
+  const real = unit.lessons.filter((l) => !l.review)
+  const perLesson = Math.max(2, Math.ceil(EXAM_LENGTH / Math.max(1, real.length)))
+  // One guaranteed question from every lesson before trimming to length, so a
+  // shuffle-and-slice can't drop a whole lesson from a unit's test-out — the
+  // same guarantee the jump exam already makes, for the same reason.
+  const guaranteed = []
+  const rest = []
+  for (const l of real) {
+    const qs = shuffle(
+      buildLesson(l.id, state).filter((q) => q.kind !== 'teach' && q.kind !== 'match'),
+    ).slice(0, perLesson)
+    if (qs.length === 0) continue
+    guaranteed.push(qs[0])
+    rest.push(...qs.slice(1))
+  }
+  const fill = shuffle(rest).slice(0, Math.max(0, EXAM_LENGTH - guaranteed.length))
+  return shuffle([...guaranteed, ...fill])
     .slice(0, EXAM_LENGTH)
     .map((q) => ({ ...q, exam: true }))
 }
@@ -926,14 +941,32 @@ export const JUMP_LENGTH = 16
 export const JUMP_MAX_MISTAKES = 3
 
 export function buildJumpExam(units, state) {
-  const perUnit = Math.max(2, Math.ceil(JUMP_LENGTH / Math.max(1, units.length)))
-  const pool = []
+  // The jump-taker's own progress is empty (that's the whole point — they
+  // haven't done these lessons). learnedTables() would therefore collapse the
+  // division/blitz/mixed pools to just ×2, so jumping past Деление would only
+  // ever test ÷2. Treat every lesson under test as "known" while building, so
+  // the questions span the real range the exam is meant to certify.
+  const known = { ...state, lessons: { ...state.lessons } }
   for (const u of units) {
-    // At least one question from every unit in the range, so none is skipped
-    // by luck of the shuffle.
-    pool.push(...shuffle(unitPool(u, state, 3)).slice(0, perUnit))
+    for (const l of u.lessons) {
+      if (!known.lessons[l.id]) known.lessons[l.id] = { done: true }
+    }
   }
-  return shuffle(pool)
+
+  // Reserve one question from every unit BEFORE trimming to length: the old
+  // code built a per-unit pool and then shuffled+sliced the lot, which could
+  // drop an entire unit by luck (measured at ~6% of jump-u7 builds). Now each
+  // unit is guaranteed a seat, and the rest fill the remaining slots.
+  const guaranteed = []
+  const rest = []
+  for (const u of units) {
+    const qs = shuffle(unitPool(u, known, 3))
+    if (qs.length === 0) continue
+    guaranteed.push(qs[0])
+    rest.push(...qs.slice(1))
+  }
+  const fill = shuffle(rest).slice(0, Math.max(0, JUMP_LENGTH - guaranteed.length))
+  return shuffle([...guaranteed, ...fill])
     .slice(0, JUMP_LENGTH)
     .map((q) => ({ ...q, exam: true }))
 }
@@ -954,8 +987,30 @@ export function buildMistakes(state) {
     .map(({ at: _at, timed: _timed, timeLimit: _timeLimit, ...q }) => q)
 }
 
+/** Тренажёр — a quick, self-chosen run through a single table, multiplication
+    or its division inverse, in either answer style. Not a map node: like the
+    mistake review it earns XP and feeds the fact stats but completes nothing.
+    Both styles are on a clock — the whole point is speed of recall. Tapping a
+    known answer is near-instant, so choice gets 5s; typing has the extra motor
+    cost of the pad, so it gets 9s. All ten facts, shuffled. */
+export function buildDrill(op, table, mode) {
+  const kind = mode === 'pad' ? 'pad' : 'choice'
+  const timeLimit = kind === 'pad' ? 9 : 5
+  const make = op === 'div' ? (b) => qDiv(table, b, kind) : (b) => qMultFact(table, b, kind)
+  return shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).map((b) => ({ ...make(b), timed: true, timeLimit }))
+}
+
 export function buildLesson(lessonId, state) {
   if (lessonId === 'mistakes') return buildMistakes(state)
+
+  // Тренажёр: `drill-<mult|div>-<table>-<choice|pad>`, addressed through the same
+  // Lesson screen as everything else.
+  if (lessonId.startsWith('drill-')) {
+    const [, op, n, mode] = lessonId.split('-')
+    const table = Number(n)
+    if (!table || (op !== 'mult' && op !== 'div')) return []
+    return buildDrill(op, table, mode)
+  }
 
   // Exams are addressed as `exam-<unitId>` so they travel through the same
   // route, the same Lesson screen and the same grading as any other lesson.

@@ -10,6 +10,12 @@
   margin-left: auto;
 }
 
+.kpi-summary {
+  margin: 0.55rem 0 0.1rem;
+  text-align: center;
+  line-height: 1.35;
+}
+
 .tutor-head {
   font-size: 0.76rem;
   font-weight: 900;
@@ -57,7 +63,7 @@
 
 /* ── Struggling ─────────────────────────────────────────────────────────── */
 .warn-card {
-  border-color: #ffcf9a;
+  border-color: var(--orange-line-strong);
   background: var(--orange-soft);
 }
 .warn-title {
@@ -148,6 +154,10 @@
 }
 
 /* ── Fact grid ──────────────────────────────────────────────────────────── */
+.fg-note {
+  margin-bottom: 0.7rem;
+  line-height: 1.35;
+}
 .fg {
   display: flex;
   flex-direction: column;

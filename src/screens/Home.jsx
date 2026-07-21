@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Mascot from '../components/Mascot.jsx'
 import Icon from '../components/Icon.jsx'
@@ -152,6 +152,9 @@ export default function Home() {
   const [jumpUnit, setJumpUnit] = useState(null)
   const currentRef = useRef(null)
   const [offscreen, setOffscreen] = useState(false)
+  // Which way the current node lies relative to the viewport, so "Я тут" points
+  // at it instead of always pointing down.
+  const [hereDir, setHereDir] = useState('up')
 
   /* Scroll straight to where the child actually is, on every visit. Opening
      eight units up at unit one and hunting downwards is the single most
@@ -170,7 +173,17 @@ export default function Home() {
   useEffect(() => {
     const el = currentRef.current
     if (!el || typeof IntersectionObserver === 'undefined') return
-    const io = new IntersectionObserver(([e]) => setOffscreen(!e.isIntersecting), { threshold: 0.4 })
+    // threshold 0: fire the moment the node fully enters or leaves the viewport.
+    // A larger threshold only fires while crossing that ratio, so once the node
+    // scrolled past it the button stayed hidden until the very bottom of the map.
+    const io = new IntersectionObserver(
+      ([e]) => {
+        setOffscreen(!e.isIntersecting)
+        // The node is above the viewport when its top is off the top edge.
+        if (!e.isIntersecting) setHereDir(e.boundingClientRect.top < 0 ? 'up' : 'down')
+      },
+      { threshold: 0 },
+    )
     io.observe(el)
     return () => io.disconnect()
   }, [])
@@ -242,6 +255,25 @@ export default function Home() {
             </span>
           </div>
 
+          {/* Quick table practice, outside the map. Labelled rather than a bare
+              icon in the header — a lightning glyph alone read as "another XP". */}
+          <button
+            type="button"
+            className="today-pill trainer-pill"
+            onClick={() => {
+              sfx.tap()
+              nav('/trainer')
+            }}
+          >
+            <span className="trainer-pill-icon">
+              <UiIcon name="replay" size="1.2rem" />
+            </span>
+            <span className="today-text">
+              <b>Тренажёр</b>
+              <span className="sub">Повтори таблицу</span>
+            </span>
+          </button>
+
           {mistakeCount >= 4 && (
             <button
               type="button"
@@ -273,14 +305,16 @@ export default function Home() {
 
         {UNITS.map((unit, ui) => {
           const p = unitProgress(unit, state.lessons)
+          const cleared = p.ratio === 1
           return (
-            <section key={unit.id} className="unit">
-              <div className={`unit-banner unit-banner--${unit.color}`}>
+            <Fragment key={unit.id}>
+            <section className="unit">
+              <div className={`unit-banner unit-banner--${unit.color} ${cleared ? 'is-complete' : ''}`}>
                 {/* Each unit is hosted by one of the three friends, so moving
                     through the map feels like visiting them in turn. The
                     child's own chosen buddy still walks the path with them. */}
                 <div className="unit-host">
-                  <Cub species={unit.host} state={p.done > 0 ? 'happy' : 'wave'} size={62} />
+                  <Cub species={unit.host} state={cleared ? 'cheer' : p.done > 0 ? 'happy' : 'wave'} size={62} />
                 </div>
                 <div className="unit-meta">
                   <span className="unit-kicker">
@@ -326,6 +360,13 @@ export default function Home() {
                       сюда
                     </span>
                   </button>
+                ) : cleared ? (
+                  /* A finished unit wears a seal instead of its topic icon — a
+                     small "conquered" stamp, so scrolling back shows a trail of
+                     cleared sections rather than a wall of identical banners. */
+                  <div className="unit-seal" aria-label="Раздел пройден">
+                    <UiIcon name="check" size="1.4rem" />
+                  </div>
                 ) : (
                   <Icon e={unit.icon} className="unit-icon" size="1.9rem" />
                 )}
@@ -340,6 +381,19 @@ export default function Home() {
                 currentRef={currentRef}
               />
             </section>
+
+            {/* A landmark between sections: a planted flag once the section
+                above is cleared, a faint waypoint until then — so the road reads
+                as a journey with checkpoints, not one long list. */}
+            {ui < UNITS.length - 1 && (
+              <div className={`checkpoint ${cleared ? 'is-cleared' : ''}`}>
+                <div className="checkpoint-badge">
+                  {cleared ? <Icon e="🏁" size="1.3rem" /> : <span className="checkpoint-dot" />}
+                </div>
+                {cleared && <span className="checkpoint-text">Раздел пройден!</span>}
+              </div>
+            )}
+            </Fragment>
           )
         })}
       </div>
@@ -349,7 +403,7 @@ export default function Home() {
       {offscreen && (
         <button
           type="button"
-          className="here-btn"
+          className={`here-btn here-btn--${hereDir}`}
           onClick={() => {
             sfx.tap()
             currentRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
