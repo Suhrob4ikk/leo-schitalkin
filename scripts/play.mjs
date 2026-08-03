@@ -139,6 +139,13 @@ const answerOnce = (deliberatelyWrong) => `(() => {
     return { kind: q.kind, acted: 'waiting' }
   }
 
+  if (q.kind === 'clock') {
+    const want = wrong ? q.options.find(o => o !== q.answer) : q.answer
+    const btn = [...document.querySelectorAll('.choice')].find(b => b.textContent.trim() === String(want))
+    if (btn) { btn.click(); return { kind: q.kind, acted: 'clock', want } }
+    return { kind: q.kind, acted: 'no-btn' }
+  }
+
   if (q.kind === 'choice' || q.kind === 'array') {
     const want = wrong ? q.options.find(o => o !== q.answer) : q.answer
     const btn = [...document.querySelectorAll('.choice')].find(b => Number(b.textContent) === want)

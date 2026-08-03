@@ -877,6 +877,107 @@ function sampleWeighted(pool, n) {
   return out
 }
 
+/* ── Величины: единицы измерения ────────────────────────────────────────────
+   Второй класс, из рабочей тетради: см·дм·м, мин·ч, с·мин, коп·руб, кг.
+   Перевод, действия и сравнение. Всё считается в меньшей единице семьи, ответы
+   целые и умещаются на паде (двузначные, изредка 100–120). */
+const mkUnit = (expr, answer, topic, prompt) => ({ kind: 'pad', prompt, expr, answer, topic })
+
+// Перевод: одна единица в другую, ответ — число. ⬜ стоит на месте ответа.
+const CONVERT = [
+  () => { const n = rnd(2, 9); return [`${n} дм = ⬜ см`, n * 10] },
+  () => { const n = rnd(2, 9); return [`${n * 10} см = ⬜ дм`, n] },
+  () => ['1 м = ⬜ см', 100],
+  () => ['1 м = ⬜ дм', 10],
+  () => { const n = rnd(2, 9); return [`${n} м = ⬜ дм`, n * 10] },
+  () => { const n = rnd(2, 9); return [`${n * 10} дм = ⬜ м`, n] },
+  () => ['1 ч = ⬜ мин', 60],
+  () => ['2 ч = ⬜ мин', 120],
+  () => ['1 мин = ⬜ с', 60],
+  () => ['1 руб = ⬜ коп', 100],
+]
+
+function qConvert() {
+  const [expr, answer] = pick(CONVERT)()
+  return mkUnit(expr, answer, 'convert', 'Переведи')
+}
+
+// Действия: сложение/вычитание/умножение величин, иногда с переводом единиц.
+const UNITMATH = [
+  () => { const a = rnd(20, 60), b = rnd(5, Math.min(39, 95 - a)); return [`${a} см + ${b} см = ⬜ см`, a + b] },
+  () => { const a = rnd(30, 90), b = rnd(5, a - 5); return [`${a} см − ${b} см = ⬜ см`, a - b] },
+  () => { const a = rnd(11, 40), t = rnd(1, 5); return [`${a} см + ${t} дм = ⬜ см`, a + t * 10] },
+  () => { const t = rnd(3, 8), a = rnd(1, t * 10 - 1); return [`${t} дм − ${a} см = ⬜ см`, t * 10 - a] },
+  () => { const a = rnd(10, 45); return [`1 ч − ${a} мин = ⬜ мин`, 60 - a] },
+  () => { const a = rnd(10, 40), b = rnd(10, Math.min(50, 90 - a)); return [`${a} мин + ${b} мин = ⬜ мин`, a + b] },
+  () => { const per = rnd(2, 9), n = rnd(2, 4); return [`${per} см · ${n} = ⬜ см`, per * n] },
+  () => { const t = rnd(1, 3), e = rnd(10, 40); return [`${t} дм · 2 + ${e} см = ⬜ см`, t * 20 + e] },
+  () => { const a = rnd(11, 40), b = rnd(11, Math.min(59, 100 - a)); return [`${a} кг + ${b} кг = ⬜ кг`, a + b] },
+  () => { const a = rnd(40, 99), b = rnd(10, a - 5); return [`${a} кг − ${b} кг = ⬜ кг`, a - b] },
+  () => { const a = rnd(10, 40), b = rnd(5, Math.min(40, 95 - a)); return [`${a} коп + ${b} коп = ⬜ коп`, a + b] },
+]
+
+function qUnitMath() {
+  const [expr, answer] = pick(UNITMATH)()
+  return mkUnit(expr, answer, 'units', 'Посчитай')
+}
+
+// Сравнение: две величины (иногда в разных единицах), знак <, = или >.
+const CMP_POOLS = [
+  [['1 м', 100], ['10 дм', 100], ['100 см', 100], ['9 дм', 90], ['90 см', 90], ['8 дм', 80], ['70 см', 70], ['1 дм', 10], ['50 см', 50], ['5 дм', 50], ['6 дм', 60]],
+  [['1 ч', 60], ['60 мин', 60], ['100 мин', 100], ['30 мин', 30], ['2 ч', 120], ['90 мин', 90], ['45 мин', 45], ['1 мин', 1]],
+  [['1 руб', 100], ['100 коп', 100], ['90 коп', 90], ['50 коп', 50], ['1 коп', 1]],
+]
+
+function qUnitCompare() {
+  const pool = pick(CMP_POOLS)
+  let left = pick(pool)
+  let right = pick(pool)
+  // Not the same written value twice; land on "=" sometimes via equal-value pairs.
+  let guard = 0
+  while (right[0] === left[0] && guard++ < 8) right = pick(pool)
+  const answer = left[1] < right[1] ? '<' : left[1] > right[1] ? '>' : '='
+  return {
+    kind: 'compare',
+    prompt: 'Сравни величины',
+    answer,
+    topic: 'unit-cmp',
+    data: { left: { text: left[0], val: left[1] }, right: { text: right[0], val: right[1] } },
+  }
+}
+
+/* ── Часы: определение времени ───────────────────────────────────────────────
+   Показываем циферблат со стрелками, ребёнок выбирает время. Минуты кратны 5,
+   часы 1..12 — как в тетради. */
+const fmtTime = (h, m) => `${h}:${String(m).padStart(2, '0')}`
+
+function qClock() {
+  const h = rnd(1, 12)
+  const m = pick([0, 0, 15, 30, 30, 45, 5, 10, 20, 25, 35, 40, 50, 55])
+  const answer = fmtTime(h, m)
+  const set = new Set([answer])
+  const cand = shuffle([
+    fmtTime((h % 12) + 1, m),
+    fmtTime(((h + 10) % 12) + 1, m),
+    fmtTime(h, (m + 5) % 60),
+    fmtTime(h, (m + 55) % 60),
+    fmtTime(h, (m + 30) % 60),
+    fmtTime(h, (m + 15) % 60),
+  ])
+  for (const c of cand) {
+    if (set.size >= 4) break
+    set.add(c)
+  }
+  return {
+    kind: 'clock',
+    prompt: 'Который час?',
+    answer,
+    topic: 'clock',
+    options: shuffle([...set]).slice(0, 4),
+    data: { h, m },
+  }
+}
+
 /* ── Dispatcher ────────────────────────────────────────────────────────── */
 
 const repeat = (n, fn) => Array.from({ length: n }, (_, i) => fn(i))
@@ -1050,6 +1151,18 @@ export function buildLesson(lessonId, state) {
     case 'composite':
       return repeat(10, () => qComposite(false))
 
+    case 'convert':
+      return repeat(12, qConvert)
+
+    case 'units':
+      return repeat(12, qUnitMath)
+
+    case 'unit-cmp':
+      return repeat(12, qUnitCompare)
+
+    case 'clock':
+      return repeat(12, qClock)
+
     case 'order-mult':
       return repeat(12, () => qOrder(true))
 
@@ -1183,6 +1296,8 @@ export function buildLesson(lessonId, state) {
 export function checkAnswer(q, value) {
   if (q.kind === 'teach') return true
   if (q.kind === 'match') return true
+  // Clock answers are time strings like "7:15", compared as text.
+  if (q.kind === 'clock') return value === q.answer
   if (q.kind === 'array-build') return Boolean(value?.ok)
   // Compare answers with a sign, not a number.
   if (q.kind === 'compare') return value === q.answer

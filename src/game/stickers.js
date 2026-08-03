@@ -30,6 +30,10 @@ export const STICKERS = {
   brain: { emoji: '🧠', label: 'Сложные задачи', color: 'gold' },
   circus: { emoji: '🎪', label: 'Всё вместе!', color: 'purple' },
   bolt: { emoji: '⚡', label: 'Молния', color: 'gold' },
+  convert: { emoji: '🔁', label: 'Мастер перевода', color: 'blue' },
+  'unit-math': { emoji: '🔢', label: 'Считаю величины', color: 'green' },
+  'unit-scales': { emoji: '⚖️', label: 'Сравнил величины', color: 'orange' },
+  clock: { emoji: '⏰', label: 'Знаю часы', color: 'purple' },
 
   /* Milestones — one per unit, labelled with the real unit title. These are
      derived in earnedMilestones from `unit-${u.id}`, so every unit needs an
@@ -42,6 +46,7 @@ export const STICKERS = {
   'unit-u6': { emoji: '⭐', label: 'Самые трудные', color: 'gold', big: true },
   'unit-u7': { emoji: '💪', label: 'Деление', color: 'gold', big: true },
   'unit-u8': { emoji: '🏁', label: 'Всё вместе', color: 'gold', big: true },
+  'unit-u9': { emoji: '📏', label: 'Время и величины', color: 'gold', big: true },
   'perfect-5': { emoji: '🌟', label: '5 идеальных уроков', color: 'gold', big: true },
   'streak-7': { emoji: '🔥', label: '7 дней подряд', color: 'orange', big: true },
   // Buddy-neutral: the friend on the journey may be Лео, Пятныш or Тиг, so this

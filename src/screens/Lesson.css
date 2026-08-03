@@ -203,6 +203,53 @@
   grid-template-columns: 1fr 1fr;
 }
 
+/* ── Часы ────────────────────────────────────────────────────────────────── */
+.clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+}
+.clock-face {
+  width: 62vw;
+  max-width: 15rem;
+  height: auto;
+}
+.clock-rim {
+  fill: var(--gold);
+}
+.clock-dial {
+  fill: var(--surface);
+}
+.clock-tick {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+.clock-num {
+  font-size: 7px;
+  font-weight: 900;
+  fill: var(--ink-strong);
+  font-family: var(--font);
+}
+.clock-hand {
+  stroke: var(--ink-strong);
+  stroke-linecap: round;
+}
+.clock-hand--hour {
+  stroke-width: 4;
+}
+.clock-hand--min {
+  stroke-width: 2.6;
+  stroke: var(--blue-dark);
+}
+.clock-pin {
+  fill: var(--ink-strong);
+}
+.choices--clock {
+  width: 100%;
+}
+
 .choice {
   min-height: 4.6rem;
   border-radius: var(--r-lg);

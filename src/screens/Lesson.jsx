@@ -22,6 +22,7 @@ import Compare from '../exercises/Compare.jsx'
 import ArrayView, { ArrayBuild } from '../exercises/ArrayView.jsx'
 import MatchPairs from '../exercises/MatchPairs.jsx'
 import Chain from '../exercises/Chain.jsx'
+import Clock from '../exercises/Clock.jsx'
 import Teach from '../exercises/Teach.jsx'
 import './Lesson.css'
 
@@ -401,6 +402,7 @@ export default function Lesson() {
     'array-build': <ArrayBuild {...common} />,
     match: <MatchPairs {...common} onMiss={handleMiss} />,
     chain: <Chain {...common} />,
+    clock: <Clock {...common} />,
     teach: <Teach {...common} />,
   }[q.kind]
 

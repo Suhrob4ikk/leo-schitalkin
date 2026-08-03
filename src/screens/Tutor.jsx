@@ -24,6 +24,10 @@ const TOPIC_LABELS = {
   'mult-concept': 'Смысл умножения',
   'mult-terms': 'Произведение, частное',
   'div-intro': 'Смысл деления',
+  convert: 'Перевод величин',
+  units: 'Действия с величинами',
+  'unit-cmp': 'Сравнение величин',
+  clock: 'Определение времени',
 }
 for (let t = 2; t <= 10; t++) {
   TOPIC_LABELS[`table-${t}`] = `Таблица ×${t}`

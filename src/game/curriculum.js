@@ -141,6 +141,21 @@ const RAW_UNITS = [
       { id: 'blitz', title: 'Блиц-раунд', icon: '⚡', sticker: 'bolt' },
     ],
   },
+  {
+    id: 'u9',
+    greeting: 'А теперь про измерения! Сантиметры и метры, минуты и часы, рубли — и как узнавать время по стрелкам.',
+    host: 'fox',
+    title: 'Время и величины',
+    subtitle: 'см, мин, часы',
+    color: 'green',
+    icon: '📏',
+    lessons: [
+      { id: 'convert', title: 'Перевод величин', icon: '🔁', sticker: 'convert' },
+      { id: 'units', title: 'Действия с величинами', icon: '🔢', sticker: 'unit-math' },
+      { id: 'unit-cmp', title: 'Сравни величины', icon: '⚖️', sticker: 'unit-scales' },
+      { id: 'clock', title: 'Который час', icon: '⏰', sticker: 'clock' },
+    ],
+  },
 ]
 
 /* Each unit gets its review appended automatically, so adding a lesson later
