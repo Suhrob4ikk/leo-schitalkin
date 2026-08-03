@@ -23,6 +23,7 @@ import ArrayView, { ArrayBuild } from '../exercises/ArrayView.jsx'
 import MatchPairs from '../exercises/MatchPairs.jsx'
 import Chain from '../exercises/Chain.jsx'
 import Clock from '../exercises/Clock.jsx'
+import ClockSet from '../exercises/ClockSet.jsx'
 import Teach from '../exercises/Teach.jsx'
 import './Lesson.css'
 
@@ -403,6 +404,7 @@ export default function Lesson() {
     match: <MatchPairs {...common} onMiss={handleMiss} />,
     chain: <Chain {...common} />,
     clock: <Clock {...common} />,
+    'clock-set': <ClockSet {...common} />,
     teach: <Teach {...common} />,
   }[q.kind]
 

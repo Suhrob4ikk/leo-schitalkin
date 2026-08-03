@@ -128,10 +128,10 @@ const RAW_UNITS = [
   },
   {
     id: 'u8',
-    greeting: 'Финал! Всё вместе и блиц на скорость. Покажем, чему научились!',
+    greeting: 'Всё вместе и блиц на скорость! Покажем, чему научились.',
     host: 'tiger',
     title: 'Всё вместе',
-    subtitle: 'Финал',
+    subtitle: 'На скорость',
     color: 'purple',
     icon: '🏁',
     lessons: [

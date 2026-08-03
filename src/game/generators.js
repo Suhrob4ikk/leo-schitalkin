@@ -884,6 +884,7 @@ function sampleWeighted(pool, n) {
 const mkUnit = (expr, answer, topic, prompt) => ({ kind: 'pad', prompt, expr, answer, topic })
 
 // Перевод: одна единица в другую, ответ — число. ⬜ стоит на месте ответа.
+// Много параметризованных форм, чтобы 12 вопросов в уроке не повторялись.
 const CONVERT = [
   () => { const n = rnd(2, 9); return [`${n} дм = ⬜ см`, n * 10] },
   () => { const n = rnd(2, 9); return [`${n * 10} см = ⬜ дм`, n] },
@@ -891,10 +892,15 @@ const CONVERT = [
   () => ['1 м = ⬜ дм', 10],
   () => { const n = rnd(2, 9); return [`${n} м = ⬜ дм`, n * 10] },
   () => { const n = rnd(2, 9); return [`${n * 10} дм = ⬜ м`, n] },
+  () => { const d = rnd(2, 9), c = rnd(1, 9); return [`${d} дм ${c} см = ⬜ см`, d * 10 + c] },
+  () => { const c = rnd(1, 9); return [`1 дм ${c} см = ⬜ см`, 10 + c] },
+  () => { const m = rnd(2, 9), d = rnd(1, 9); return [`${m} м ${d} дм = ⬜ дм`, m * 10 + d] },
   () => ['1 ч = ⬜ мин', 60],
   () => ['2 ч = ⬜ мин', 120],
+  () => { const m = pick([10, 15, 20, 30, 40, 45]); return [`1 ч ${m} мин = ⬜ мин`, 60 + m] },
   () => ['1 мин = ⬜ с', 60],
   () => ['1 руб = ⬜ коп', 100],
+  () => { const k = pick([10, 20, 30, 40, 50]); return [`1 руб ${k} коп = ⬜ коп`, 100 + k] },
 ]
 
 function qConvert() {
@@ -902,19 +908,20 @@ function qConvert() {
   return mkUnit(expr, answer, 'convert', 'Переведи')
 }
 
-// Действия: сложение/вычитание/умножение величин, иногда с переводом единиц.
+// Действия: только осмысленные — с переводом единиц или умножением. Чистое
+// «23 см + 10 см» убрано намеренно: это обычное сложение, а не работа с
+// величинами.
 const UNITMATH = [
-  () => { const a = rnd(20, 60), b = rnd(5, Math.min(39, 95 - a)); return [`${a} см + ${b} см = ⬜ см`, a + b] },
-  () => { const a = rnd(30, 90), b = rnd(5, a - 5); return [`${a} см − ${b} см = ⬜ см`, a - b] },
-  () => { const a = rnd(11, 40), t = rnd(1, 5); return [`${a} см + ${t} дм = ⬜ см`, a + t * 10] },
+  () => { const a = rnd(11, 45), t = rnd(1, 5); return [`${a} см + ${t} дм = ⬜ см`, a + t * 10] },
   () => { const t = rnd(3, 8), a = rnd(1, t * 10 - 1); return [`${t} дм − ${a} см = ⬜ см`, t * 10 - a] },
+  () => { const d = rnd(2, 6), c = rnd(11, 40); return [`${d} дм + ${c} см = ⬜ см`, d * 10 + c] },
   () => { const a = rnd(10, 45); return [`1 ч − ${a} мин = ⬜ мин`, 60 - a] },
-  () => { const a = rnd(10, 40), b = rnd(10, Math.min(50, 90 - a)); return [`${a} мин + ${b} мин = ⬜ мин`, a + b] },
+  () => { const a = rnd(20, 50); return [`${a} мин + 1 ч = ⬜ мин`, a + 60] },
+  () => { const a = rnd(5, 55); return [`1 руб − ${a} коп = ⬜ коп`, 100 - a] },
   () => { const per = rnd(2, 9), n = rnd(2, 4); return [`${per} см · ${n} = ⬜ см`, per * n] },
-  () => { const t = rnd(1, 3), e = rnd(10, 40); return [`${t} дм · 2 + ${e} см = ⬜ см`, t * 20 + e] },
-  () => { const a = rnd(11, 40), b = rnd(11, Math.min(59, 100 - a)); return [`${a} кг + ${b} кг = ⬜ кг`, a + b] },
-  () => { const a = rnd(40, 99), b = rnd(10, a - 5); return [`${a} кг − ${b} кг = ⬜ кг`, a - b] },
-  () => { const a = rnd(10, 40), b = rnd(5, Math.min(40, 95 - a)); return [`${a} коп + ${b} коп = ⬜ коп`, a + b] },
+  () => { const t = rnd(1, 3), e = rnd(11, 40); return [`${t} дм · 2 + ${e} см = ⬜ см`, t * 20 + e] },
+  () => { const kg = rnd(10, 28), add = rnd(11, 40); return [`${kg} кг · 2 + ${add} кг = ⬜ кг`, kg * 2 + add] },
+  () => { const l = rnd(2, 9); return [`${l} л · 2 = ⬜ л`, l * 2] },
 ]
 
 function qUnitMath() {
@@ -976,6 +983,40 @@ function qClock() {
     options: shuffle([...set]).slice(0, 4),
     data: { h, m },
   }
+}
+
+/** Set-the-hands: a target time is named, the child moves the clock's own hands
+    to match it. The inverse of reading — and the part children actually get
+    stuck on. */
+function qClockSet() {
+  const h = rnd(1, 12)
+  const m = pick([0, 15, 30, 45, 5, 10, 20, 25, 35, 40, 50, 55])
+  return {
+    kind: 'clock-set',
+    prompt: `Покажи время: ${fmtTime(h, m)}`,
+    answer: { h, m },
+    topic: 'clock',
+    data: { h, m },
+  }
+}
+
+/** Builds n questions with no two identical (by prompt/expr/data), so a single
+    lesson can't ask the same thing twice. Falls back to allowing repeats only
+    if the generator's pool is genuinely smaller than n. */
+const qKey = (q) => `${q.kind}|${q.prompt ?? ''}|${q.expr ?? ''}|${JSON.stringify(q.data ?? q.answer)}`
+function distinct(n, fn) {
+  const out = []
+  const seen = new Set()
+  let guard = 0
+  while (out.length < n && guard++ < n * 30) {
+    const q = fn(out.length)
+    const k = qKey(q)
+    if (seen.has(k)) continue
+    seen.add(k)
+    out.push(q)
+  }
+  while (out.length < n) out.push(fn(out.length))
+  return out
 }
 
 /* ── Dispatcher ────────────────────────────────────────────────────────── */
@@ -1152,16 +1193,17 @@ export function buildLesson(lessonId, state) {
       return repeat(10, () => qComposite(false))
 
     case 'convert':
-      return repeat(12, qConvert)
+      return distinct(12, qConvert)
 
     case 'units':
-      return repeat(12, qUnitMath)
+      return distinct(12, qUnitMath)
 
     case 'unit-cmp':
-      return repeat(12, qUnitCompare)
+      return distinct(12, qUnitCompare)
 
+    // Reading the clock and setting its hands, mixed — same skill both ways.
     case 'clock':
-      return repeat(12, qClock)
+      return shuffle([...distinct(7, qClock), ...distinct(5, qClockSet)])
 
     case 'order-mult':
       return repeat(12, () => qOrder(true))
@@ -1298,6 +1340,8 @@ export function checkAnswer(q, value) {
   if (q.kind === 'match') return true
   // Clock answers are time strings like "7:15", compared as text.
   if (q.kind === 'clock') return value === q.answer
+  // Setting the hands: the built {h, m} must match the target.
+  if (q.kind === 'clock-set') return Boolean(value) && value.h === q.answer.h && value.m === q.answer.m
   if (q.kind === 'array-build') return Boolean(value?.ok)
   // Compare answers with a sign, not a number.
   if (q.kind === 'compare') return value === q.answer

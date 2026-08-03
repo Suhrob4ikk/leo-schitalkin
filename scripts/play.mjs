@@ -139,6 +139,18 @@ const answerOnce = (deliberatelyWrong) => `(() => {
     return { kind: q.kind, acted: 'waiting' }
   }
 
+  if (q.kind === 'clock-set') {
+    const steppers = [...document.querySelectorAll('.stepper')]
+    const hPlus = steppers[0] && steppers[0].querySelectorAll('.step-btn')[1]
+    const mPlus = steppers[1] && steppers[1].querySelectorAll('.step-btn')[1]
+    let hClicks = q.answer.h % 12
+    const mClicks = q.answer.m / 5
+    if (wrong) hClicks = (hClicks + 1) % 12
+    for (let i = 0; i < hClicks; i++) if (hPlus) hPlus.click()
+    for (let i = 0; i < mClicks; i++) if (mPlus) mPlus.click()
+    return { kind: q.kind, acted: 'clock-set', commit: true }
+  }
+
   if (q.kind === 'clock') {
     const want = wrong ? q.options.find(o => o !== q.answer) : q.answer
     const btn = [...document.querySelectorAll('.choice')].find(b => b.textContent.trim() === String(want))
@@ -257,7 +269,7 @@ const answerOnce = (deliberatelyWrong) => `(() => {
 /* Clicks whichever "Готово" the current exercise shows, once React has had a
    frame to enable it. */
 const commit = `(() => {
-  const b = document.querySelector('.pad-key--ok:not(:disabled), .nline-done:not(:disabled), .bt .btn--green:not(:disabled), .arr .btn--green:not(:disabled)')
+  const b = document.querySelector('.pad-key--ok:not(:disabled), .nline-done:not(:disabled), .bt .btn--green:not(:disabled), .arr .btn--green:not(:disabled), .clockset-done:not(:disabled)')
   if (b) { b.click(); return 'committed' }
   return 'nothing-to-commit'
 })()`

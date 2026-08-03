@@ -250,6 +250,61 @@
   width: 100%;
 }
 
+/* ── Часы: поставь стрелки ───────────────────────────────────────────────── */
+.clockset {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+}
+.clockset-readout {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--ink-strong);
+  line-height: 1;
+}
+.clockset-steppers {
+  display: flex;
+  gap: 1.2rem;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.step-label {
+  min-width: 2.4rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.step-btn {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 0.15rem solid var(--line);
+  box-shadow: 0 0.2rem 0 var(--line-strong);
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--blue-dark);
+  line-height: 1;
+}
+.step-btn:active:not(:disabled) {
+  transform: translateY(0.1rem);
+  box-shadow: 0 0.1rem 0 var(--line-strong);
+}
+.step-btn:disabled {
+  opacity: 0.5;
+}
+.clockset-done {
+  margin-top: 0.3rem;
+  max-width: 16rem;
+}
+
 .choice {
   min-height: 4.6rem;
   border-radius: var(--r-lg);
