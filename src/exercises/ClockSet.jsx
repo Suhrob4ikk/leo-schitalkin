@@ -21,13 +21,12 @@ export default function ClockSet({ q, onAnswer, locked, phase }) {
   const stepM = (d) => bump(() => setM((x) => (x + d + 60) % 60))
 
   const done = phase !== 'asking'
-  const fmt = `${h}:${String(m).padStart(2, '0')}`
 
+  // No digital readout of the current setting on purpose: the child has to read
+  // the hands to know whether it's right, not match a number to the prompt.
   return (
     <div className="clockset">
       <ClockFace h={h} m={m} />
-
-      <div className="clockset-readout tnum">{fmt}</div>
 
       <div className="clockset-steppers">
         <div className="stepper">

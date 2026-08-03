@@ -257,12 +257,6 @@
   align-items: center;
   gap: 0.7rem;
 }
-.clockset-readout {
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: var(--ink-strong);
-  line-height: 1;
-}
 .clockset-steppers {
   display: flex;
   gap: 1.2rem;

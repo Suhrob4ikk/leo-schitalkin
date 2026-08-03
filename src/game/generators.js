@@ -912,16 +912,21 @@ function qConvert() {
 // «23 см + 10 см» убрано намеренно: это обычное сложение, а не работа с
 // величинами.
 const UNITMATH = [
+  // С переводом единиц
   () => { const a = rnd(11, 45), t = rnd(1, 5); return [`${a} см + ${t} дм = ⬜ см`, a + t * 10] },
   () => { const t = rnd(3, 8), a = rnd(1, t * 10 - 1); return [`${t} дм − ${a} см = ⬜ см`, t * 10 - a] },
-  () => { const d = rnd(2, 6), c = rnd(11, 40); return [`${d} дм + ${c} см = ⬜ см`, d * 10 + c] },
   () => { const a = rnd(10, 45); return [`1 ч − ${a} мин = ⬜ мин`, 60 - a] },
   () => { const a = rnd(20, 50); return [`${a} мин + 1 ч = ⬜ мин`, a + 60] },
   () => { const a = rnd(5, 55); return [`1 руб − ${a} коп = ⬜ коп`, 100 - a] },
-  () => { const per = rnd(2, 9), n = rnd(2, 4); return [`${per} см · ${n} = ⬜ см`, per * n] },
+  // Составные величины — как в тетради, посложнее
+  () => { const d1 = rnd(1, 4), c1 = rnd(1, 8), d2 = rnd(1, 4), c2 = rnd(1, 8); return [`${d1} дм ${c1} см + ${d2} дм ${c2} см = ⬜ см`, d1 * 10 + c1 + d2 * 10 + c2] },
+  () => { const a = rnd(50, 95), d = rnd(1, 3), c = rnd(1, 9); return [`${a} см − ${d} дм ${c} см = ⬜ см`, a - (d * 10 + c)] },
+  () => { const a = rnd(40, 55), d = rnd(1, 3), c = rnd(1, 9); return [`${a} см + ${d} дм ${c} см = ⬜ см`, a + d * 10 + c] },
+  () => { const d = rnd(1, 7), c = rnd(1, 9); return [`1 м − ${d} дм − ${c} см = ⬜ см`, 100 - d * 10 - c] },
+  // С умножением
+  () => { const per = rnd(3, 9), n = rnd(2, 4); return [`${per} см · ${n} = ⬜ см`, per * n] },
   () => { const t = rnd(1, 3), e = rnd(11, 40); return [`${t} дм · 2 + ${e} см = ⬜ см`, t * 20 + e] },
   () => { const kg = rnd(10, 28), add = rnd(11, 40); return [`${kg} кг · 2 + ${add} кг = ⬜ кг`, kg * 2 + add] },
-  () => { const l = rnd(2, 9); return [`${l} л · 2 = ⬜ л`, l * 2] },
 ]
 
 function qUnitMath() {
@@ -929,27 +934,45 @@ function qUnitMath() {
   return mkUnit(expr, answer, 'units', 'Посчитай')
 }
 
-// Сравнение: две величины (иногда в разных единицах), знак <, = или >.
-const CMP_POOLS = [
-  [['1 м', 100], ['10 дм', 100], ['100 см', 100], ['9 дм', 90], ['90 см', 90], ['8 дм', 80], ['70 см', 70], ['1 дм', 10], ['50 см', 50], ['5 дм', 50], ['6 дм', 60]],
-  [['1 ч', 60], ['60 мин', 60], ['100 мин', 100], ['30 мин', 30], ['2 ч', 120], ['90 мин', 90], ['45 мин', 45], ['1 мин', 1]],
-  [['1 руб', 100], ['100 коп', 100], ['90 коп', 90], ['50 коп', 50], ['1 коп', 1]],
-]
+// Сравнение величин. Каждая сторона — либо одиночная величина, либо ВЫРАЖЕНИЕ,
+// которое надо сначала посчитать (сложные сравнения из тетради). Обе стороны из
+// одной семьи единиц; значение — в меньшей единице. Знак <, = или >.
+const CMP_LEN_SINGLE = [['1 м', 100], ['9 дм', 90], ['90 см', 90], ['1 дм', 10], ['5 дм', 50], ['50 см', 50], ['8 дм', 80], ['70 см', 70], ['65 см', 65], ['1 м 20 см', 120]]
+const CMP_TIME_SINGLE = [['1 ч', 60], ['60 мин', 60], ['100 мин', 100], ['30 мин', 30], ['2 ч', 120], ['90 мин', 90], ['45 мин', 45]]
+
+function lenSide(expr) {
+  if (!expr) return pick(CMP_LEN_SINGLE)
+  return pick([
+    () => { const a = rnd(11, 40), t = rnd(1, 5); return [`${a} см + ${t} дм`, a + t * 10] },
+    () => { const t = rnd(4, 9), a = rnd(1, t * 10 - 1); return [`${t} дм − ${a} см`, t * 10 - a] },
+    () => { const a = rnd(10, 60); return [`1 м − ${a} см`, 100 - a] },
+    () => { const d = rnd(2, 6), c = rnd(1, 9); return [`${d} дм ${c} см`, d * 10 + c] },
+  ])()
+}
+function timeSide(expr) {
+  if (!expr) return pick(CMP_TIME_SINGLE)
+  return pick([
+    () => { const a = rnd(10, 45); return [`1 ч − ${a} мин`, 60 - a] },
+    () => { const a = rnd(15, 50); return [`${a} мин + 1 ч`, a + 60] },
+    () => { const a = rnd(10, 40); return [`1 ч ${a} мин`, 60 + a] },
+  ])()
+}
 
 function qUnitCompare() {
-  const pool = pick(CMP_POOLS)
-  let left = pick(pool)
-  let right = pick(pool)
-  // Not the same written value twice; land on "=" sometimes via equal-value pairs.
+  // Mostly the harder version, where at least one side is an expression.
+  const hard = Math.random() < 0.65
+  const side = pick([lenSide, timeSide])
+  let L = side(hard && Math.random() < 0.8)
+  let R = side(hard && Math.random() < 0.8)
   let guard = 0
-  while (right[0] === left[0] && guard++ < 8) right = pick(pool)
-  const answer = left[1] < right[1] ? '<' : left[1] > right[1] ? '>' : '='
+  while (R[0] === L[0] && guard++ < 8) R = side(hard && Math.random() < 0.8)
+  const answer = L[1] < R[1] ? '<' : L[1] > R[1] ? '>' : '='
   return {
     kind: 'compare',
     prompt: 'Сравни величины',
     answer,
     topic: 'unit-cmp',
-    data: { left: { text: left[0], val: left[1] }, right: { text: right[0], val: right[1] } },
+    data: { left: { text: L[0], val: L[1] }, right: { text: R[0], val: R[1] } },
   }
 }
 
